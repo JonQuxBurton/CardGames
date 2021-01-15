@@ -1,4 +1,6 @@
-# CardGames
+# Card Games
+
+[Work in Progress]
 
 A simple Card Shedding game developed as TDD and software design practice.
 
