@@ -1,0 +1,134 @@
+﻿using System;
+using System.Linq;
+using SheddingCardGames;
+using Action = SheddingCardGames.Action;
+
+namespace SheddingCardGame.Cli
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            IDeckBuilder deckBuilder;
+            deckBuilder = new MinimalDeckBuilder();
+            //deckBuilder = new DeckBuilder();
+            
+            var gameBuilder = new CrazyEightsGameBuilder();
+            var game = gameBuilder.Build(deckBuilder.Build());
+
+            Turn currentTurn = null;
+
+            while (currentTurn == null || !currentTurn.HasWinner)
+            {
+                currentTurn = game.GetCurrentTurn();
+                RenderTurn(currentTurn);
+                Console.WriteLine($"Moves: {string.Join(",", game.CardMoves)}");
+                if (currentTurn.NextAction == Action.SelectSuit)
+                    SelectSuit(game, currentTurn);
+                else
+                    Play(game, currentTurn);
+                currentTurn = game.GetCurrentTurn();
+            }
+
+            Console.WriteLine($"Player {currentTurn.Winner} has won!");
+        }
+
+        private static void SelectSuit(Game game, Turn currentTurn)
+        {
+            Console.WriteLine($"Select a Suit:");
+            var selectedSuitInput = Console.ReadLine();
+            selectedSuitInput = selectedSuitInput.Trim().ToUpperInvariant();
+
+            var selectedSuit = Suit.Clubs;
+
+            if (selectedSuitInput == "D")
+                selectedSuit = Suit.Diamonds;
+            else if (selectedSuitInput == "H")
+                selectedSuit = Suit.Hearts;
+            else if (selectedSuitInput == "S")
+                selectedSuit = Suit.Spades;
+
+            Console.WriteLine($"Player {currentTurn.PlayerToPlay} selects Suit: {selectedSuit}");
+
+            game.SelectSuit(selectedSuit);
+        }
+
+        private static (int Rank, Suit Suit) ParseInput(string input)
+        {
+            var rankString = input.Count() > 2 ? input.Substring(0, 2) : input.Substring(0, 1);
+            var suitString = input.Last().ToString().Trim().ToUpperInvariant();
+            var rank = int.Parse(rankString);
+            
+            var suit = Suit.Clubs;
+
+            if (suitString == "D")
+                suit = Suit.Diamonds;
+            else if (suitString == "H")
+                suit = Suit.Hearts;
+            else if (suitString == "S")
+                suit = Suit.Spades;
+
+            return (rank, suit);
+        }
+        
+        private static void Play(Game game, Turn currentTurn)
+        {
+            if (!currentTurn.ValidPlays.Any())
+            {
+                Console.WriteLine($"No valid plays, press any key to Take a card");
+                Console.ReadKey();
+                var takenCard = game.Take();
+                Console.WriteLine($"Taken: {takenCard}");
+                return;
+            }
+            
+            Console.WriteLine($"Enter Player {currentTurn.PlayerToPlay}'s play in format RS (RankSuit):");
+            var playInput = Console.ReadLine();
+
+            var parsedInput = ParseInput(playInput);
+            var playInputRank = parsedInput.Rank;
+            var playSuit = parsedInput.Suit;
+
+            var play = new Card(playInputRank, playSuit);
+
+            Console.WriteLine($"Player {currentTurn.PlayerToPlay} plays: {play}");
+
+            var playResult = game.Play(play);
+            Console.WriteLine($"IsValidPlay: {playResult}");
+        }
+
+        private static void RenderTurn(Turn turn)
+        {
+            Console.WriteLine("--------------------------------------------------");
+            Console.WriteLine($"Turn {turn.TurnNumber}");
+            Console.WriteLine($"PlayerToPlay: {turn.PlayerToPlay}");
+            Console.WriteLine($"NextAction: {turn.NextAction}");
+            Console.WriteLine($"SelectedSuit: {turn.SelectedSuit}");
+            Console.WriteLine($"Stock pile: {turn.StockPile.Count()} cards");
+            Console.WriteLine($"Discard pile: {turn.DiscardPile.CardToMatch} ({turn.DiscardPile.RestOfCards.Cards.Count()} other cards)");
+
+            var player1Hand = string.Join(", ", turn.Player1Hand.Cards.Select(x => x.ToString()));
+            Console.WriteLine($"Player 1 hand: {player1Hand} ");
+
+            var player2Hand = string.Join(", ", turn.Player2Hand.Cards.Select(x => x.ToString()));
+            Console.WriteLine($"Player 2 hand: {player2Hand} ");
+
+            Console.WriteLine($"Player {turn.PlayerToPlay} potential plays:");
+            if (!turn.ValidPlays.Any())
+            {
+                Console.WriteLine("None");
+            }
+            else
+            {
+                foreach (var validPlay in turn.ValidPlays)
+                {
+                    Console.WriteLine($"{validPlay}");
+                }
+            }
+
+            
+            
+            Console.WriteLine("--------------------------------------------------");
+        }
+    }
+}

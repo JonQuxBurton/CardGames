@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30717.126
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SheddingCardGames", "SheddingCardGames\SheddingCardGames.csproj", "{4A28F7A0-778A-486F-908F-6E6168A5A1B4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SheddingCardGames.Tests", "SheddingCardGames.Tests\SheddingCardGames.Tests.csproj", "{573907A3-510E-4BC8-8FEE-B06EEB81AF6E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SheddingCardGame.Cli", "SheddingCardGames.Cli\SheddingCardGame.Cli.csproj", "{1F0BBD23-B85E-487B-A74E-D3D10CE06A1D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4A28F7A0-778A-486F-908F-6E6168A5A1B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A28F7A0-778A-486F-908F-6E6168A5A1B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A28F7A0-778A-486F-908F-6E6168A5A1B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A28F7A0-778A-486F-908F-6E6168A5A1B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{573907A3-510E-4BC8-8FEE-B06EEB81AF6E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{573907A3-510E-4BC8-8FEE-B06EEB81AF6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{573907A3-510E-4BC8-8FEE-B06EEB81AF6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{573907A3-510E-4BC8-8FEE-B06EEB81AF6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F0BBD23-B85E-487B-A74E-D3D10CE06A1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F0BBD23-B85E-487B-A74E-D3D10CE06A1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F0BBD23-B85E-487B-A74E-D3D10CE06A1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F0BBD23-B85E-487B-A74E-D3D10CE06A1D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {495435D0-E5FF-43B4-99D6-BBBF8CD14A47}
+	EndGlobalSection
+EndGlobal
