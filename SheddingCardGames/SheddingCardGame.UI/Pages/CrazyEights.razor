@@ -1,0 +1,206 @@
+@page "/"
+@using SheddingCardGames
+@using Blazor.Extensions
+@using Blazor.Extensions.Canvas
+@using Blazor.Extensions.Canvas.Canvas2D
+@using System.Drawing
+@using Blazor.Extensions.Canvas.Model
+
+@inject IJSRuntime JsRuntime;
+<h1>Crazy Eights</h1>
+
+<img @ref="cardsSpriteSheet" hidden src="assets/Cards.png" />
+
+<div id="canvasContainer" style="position: fixed; opacity: 1; background-color: black; width: 100%; height: 100%">
+    <BECanvas Width="1200" Height="800" @ref="canvas"></BECanvas>
+</div>
+
+@code {
+    BECanvasComponent canvas = null;
+    Canvas2DContext context;
+    ElementReference cardsSpriteSheet;
+    readonly List<IGameObject> gameObjects = new List<IGameObject>();
+    //CardComponent discardCardComponent;
+
+    private GameController gameController;
+    readonly GameTime gameTime = new GameTime();
+    IGameObject gameObjectClickedOn;
+
+    private int screenWidth = 1200;
+    private int screenHeight = 800;
+
+    private IGameObject dealButton;
+    private readonly List<IGameObject> inGameGameObjects = new List<IGameObject>();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            context = await canvas.CreateCanvas2DAsync();
+            await context.SetTextBaselineAsync(TextBaseline.Top);
+
+            await JsRuntime.InvokeAsync<object>("initGame", DotNetObjectReference.Create(this));
+
+            dealButton = new ButtonComponent("Deal", new Point(screenWidth / 2, screenHeight / 2), true);
+            gameObjects.Add(dealButton);
+
+            IDeckBuilder deckBuilder;
+            //deckBuilder = new MinimalDeckBuilder();
+            deckBuilder = new DeckBuilder();
+
+            var gameBuilder = new CrazyEightsGameBuilder();
+            var game = gameBuilder.Build(deckBuilder.Build());
+            gameController = new GameController(game, gameObjects, inGameGameObjects, cardsSpriteSheet);
+
+            //currentTurn = game.GetCurrentTurn();
+
+            // Set up UI
+
+            var cardWidth = 154;
+            var cardHeight = 240;
+
+            var player2LabelY = 10;
+            var player2HandY = player2LabelY + 30;
+            var discardPileY = player2HandY + cardHeight;
+            var player1HandY = discardPileY + cardHeight;
+            var player1LabelY = player1HandY + cardHeight;
+
+            var player2LabelX = await GetXForText(context, "24px verdana", "Player 2", 1200);
+            inGameGameObjects.Add(new LabelComponent("Player 2", new Point(player2LabelX, player2LabelY), false));
+            for (int i = 0; i < gameController.CurrentTurn.Player2Hand.Cards.Count(); i++)
+            {
+                var card = gameController.CurrentTurn.Player2Hand.Cards.ElementAt(i);
+                var x = i * cardWidth;
+                inGameGameObjects.Add(new CardComponent(gameController, card, new Sprite(cardsSpriteSheet, new Size(cardWidth, 240), new Point(x, player2HandY)), false));
+            }
+
+            //discardCardComponent = new CardComponent(gameController, gameController.CurrentTurn.DiscardPile.CardToMatch, new Sprite(cardsSpriteSheet, new Size(cardWidth, 240), new Point(cardWidth, discardPileY)), false);
+            //inGameGameObjects.Add(discardCardComponent);
+            var stockPileComponent = new CardComponent(gameController, null, new Sprite(cardsSpriteSheet, new Size(cardWidth, 240), new Point(0, discardPileY)), false);
+            stockPileComponent.Tag = "StockPile";
+            inGameGameObjects.Add(stockPileComponent);
+
+            for (int i = 0; i < gameController.CurrentTurn.Player1Hand.Cards.Count(); i++)
+            {
+                var card = gameController.CurrentTurn.Player1Hand.Cards.ElementAt(i);
+                var x = i * cardWidth;
+                inGameGameObjects.Add(new CardComponent(gameController, card,
+                        new Sprite(cardsSpriteSheet, new Size(cardWidth, 240), new Point(x, player1HandY)), false));
+            }
+            var player1LabelX = await GetXForText(context, "24px verdana", "Player 1", 1200);
+            inGameGameObjects.Add(new LabelComponent("Player 1", new Point(player1LabelX, player1LabelY), false));
+            inGameGameObjects.Add(new LabelComponent($"Turn {gameController.CurrentTurn.TurnNumber}", new Point(800, discardPileY), false));
+
+            inGameGameObjects.Add(new LabelComponent($"Player {gameController.CurrentTurn.PlayerToPlay} to {gameController.CurrentTurn.NextAction}", new Point(800, discardPileY + 30), false));
+
+            gameObjects.AddRange(inGameGameObjects);
+
+            gameController.Refresh();
+        }
+    }
+
+    public async ValueTask Deal()
+    {
+        dealButton.IsVisible = false;
+        inGameGameObjects.ForEach(x => x.IsVisible = true);
+    }
+
+    //public async ValueTask Refresh()
+    //{
+    //    var cardWidth = 154;
+    //    var cardHeight = 240;
+
+    //    var player2LabelY = 10;
+    //    var player2HandY = player2LabelY + 30;
+    //    var discardPileY = player2HandY + cardHeight;
+    //    var player1HandY = discardPileY + cardHeight;
+    //    var player1LabelY = player1HandY + cardHeight;
+
+    //    gameObjects.Remove(discardCardComponent);
+    //    inGameGameObjects.Remove(discardCardComponent);
+    //    //inGameGameObjects.Clear();
+
+    //    discardCardComponent = new CardComponent(gameController, gameController.CurrentTurn.DiscardPile.CardToMatch, new Sprite(cardsSpriteSheet, new Size(cardWidth, 240), new Point(cardWidth, discardPileY)), false);
+    //    inGameGameObjects.Add(discardCardComponent);
+    //    gameObjects.Add(discardCardComponent);
+
+    //}
+
+    [JSInvokable]
+    public async ValueTask GameLoop(float timeStamp)
+    {
+        gameTime.TotalTime = timeStamp;
+
+
+        await Update(screenWidth, screenHeight);
+        await Render(screenWidth, screenHeight);
+    }
+
+    [JSInvokable]
+    public async ValueTask OnMouseMove(int mouseX, int mouseY)
+    {
+        InputSystem.Instance.MouseCoords.X = mouseX;
+        InputSystem.Instance.MouseCoords.Y = mouseY;
+    }
+
+    [JSInvokable]
+    public async ValueTask OnMouseDown(MouseButtons button)
+    {
+        InputSystem.Instance.SetButtonState(button, ButtonStates.Down);
+    }
+
+    [JSInvokable]
+    public async ValueTask OnMouseUp(MouseButtons button)
+    {
+        InputSystem.Instance.SetButtonState(button, ButtonStates.Up);
+    }
+
+    private async ValueTask Update(int screenWidth, int screenHeight)
+    {
+        gameObjectClickedOn = null;
+
+        foreach (var gameObject in gameObjects.Where(x => x.IsVisible))
+        {
+            await gameObject.Update(new InputState(InputSystem.Instance.GetButtonState(MouseButtons.Left) == ButtonStates.Down, InputSystem.Instance.MouseCoords));
+        }
+
+        if (InputSystem.Instance.GetButtonState(MouseButtons.Left) == ButtonStates.Down)
+        {
+
+            foreach (var gameObject in gameObjects)
+            {
+                if (gameObject.IsHit(InputSystem.Instance.MouseCoords))
+                    gameObjectClickedOn = gameObject;
+            }
+        }
+    }
+
+    private async ValueTask Render(int screenWidth, int screenHeight)
+    {
+        await context.SetFillStyleAsync("green");
+        await context.FillRectAsync(0, 0, screenWidth, screenHeight);
+
+        foreach (var gameObject in gameObjects)
+        {
+            if (gameObject.IsVisible)
+                await gameObject.Render(context);
+        }
+
+        if (gameObjectClickedOn != null)
+        {
+            //await context.SetFontAsync("24px verdana");
+            //await context.SetFillStyleAsync("Black");
+            //await context.FillTextAsync($"Clicked on: {gameObjectClickedOn.Tag}", 350, 360);
+            if (gameObjectClickedOn.Tag == "Deal")
+                await Deal();
+        }
+    }
+
+    public async Task<int> GetXForText(Canvas2DContext context, string fontInfo, string text, int areaWidth)
+    {
+        await context.SetFontAsync(fontInfo);
+        TextMetrics metrics = await context.MeasureTextAsync(text);
+        return (int)Math.Round((areaWidth - metrics.Width) / 2);
+    }
+
+}

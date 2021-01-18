@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SheddingCardGames.Tests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SheddingCardGame.Cli", "SheddingCardGames.Cli\SheddingCardGame.Cli.csproj", "{1F0BBD23-B85E-487B-A74E-D3D10CE06A1D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SheddingCardGame.UI", "SheddingCardGame.UI\SheddingCardGame.UI.csproj", "{C6727237-6B71-4812-BE1B-6CA8C296162A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{1F0BBD23-B85E-487B-A74E-D3D10CE06A1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F0BBD23-B85E-487B-A74E-D3D10CE06A1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F0BBD23-B85E-487B-A74E-D3D10CE06A1D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6727237-6B71-4812-BE1B-6CA8C296162A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6727237-6B71-4812-BE1B-6CA8C296162A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6727237-6B71-4812-BE1B-6CA8C296162A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6727237-6B71-4812-BE1B-6CA8C296162A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
