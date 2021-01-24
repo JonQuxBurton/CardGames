@@ -85,7 +85,7 @@ namespace SheddingCardGames
                 MoveDiscardPileToStockPile();
 
             NextPlayer();
-            AddNextTurn();
+            AddNextTurn(GetCurrentTurn().SelectedSuit);
 
             return takenCard;
         }

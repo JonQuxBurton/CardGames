@@ -448,6 +448,16 @@ namespace SheddingCardGames.Tests
                 actualCurrentTurn.NextAction.Should().Be(Action.Play);
                 actualCurrentTurn.SelectedSuit.Should().Be(Suit.Diamonds);
             }
+
+            [Fact]
+            public void KeepSelectedSuitOnTurnAfterTake()
+            {
+                sut.SelectSuit(Suit.Diamonds);
+
+                sut.Take();
+
+                sut.GetCurrentTurn().SelectedSuit.Should().Be(Suit.Diamonds);
+            }
         }
 
         public class PlayWhenInvalidShould
