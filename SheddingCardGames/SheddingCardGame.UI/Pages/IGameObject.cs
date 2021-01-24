@@ -8,6 +8,12 @@ namespace SheddingCardGame.UI.Pages
     {
         bool IsVisible { get; set; }
         string Tag { get; set; }
+        int GetX();
+        void SetX(int x);
+
+        int GetY();
+        void SetY(int y);
+        
         ValueTask Update(InputState inputState);
         ValueTask Render(Canvas2DContext context);
         bool IsHit(Point mousePosition);

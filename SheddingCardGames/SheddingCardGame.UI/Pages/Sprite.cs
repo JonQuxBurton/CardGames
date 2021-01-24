@@ -7,7 +7,7 @@ namespace SheddingCardGame.UI.Pages
     {
         public ElementReference SpriteSheet { get; }
         public Size Size { get; }
-        public Point Position { get; }
+        public Point Position { get; set; }
 
         public Sprite(ElementReference spriteSheet, Size size, Point position)
         {

@@ -6,7 +6,7 @@ namespace SheddingCardGame.UI.Pages
 {
     public class LabelComponent : GameObject, IGameObject
     {
-        public string Label { get; }
+        public string Label { get; set; }
         public Point Position { get; }
 
         public LabelComponent(string label, Point position, bool isVisible)

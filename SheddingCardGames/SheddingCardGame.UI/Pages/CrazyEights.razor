@@ -5,6 +5,7 @@
 @using Blazor.Extensions.Canvas.Canvas2D
 @using System.Drawing
 @using Blazor.Extensions.Canvas.Model
+@using Action = SheddingCardGames.Action
 
 @inject IJSRuntime JsRuntime;
 <h1>Crazy Eights</h1>
@@ -19,18 +20,16 @@
     BECanvasComponent canvas = null;
     Canvas2DContext context;
     ElementReference cardsSpriteSheet;
-    readonly List<IGameObject> gameObjects = new List<IGameObject>();
-    //CardComponent discardCardComponent;
 
     private GameController gameController;
+    private CardCollection deck;
     readonly GameTime gameTime = new GameTime();
-    IGameObject gameObjectClickedOn;
+    IGameObject gameObjectMouseDown;
 
     private int screenWidth = 1200;
     private int screenHeight = 800;
 
-    private IGameObject dealButton;
-    private readonly List<IGameObject> inGameGameObjects = new List<IGameObject>();
+    private UiState uiState;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -41,90 +40,246 @@
 
             await JsRuntime.InvokeAsync<object>("initGame", DotNetObjectReference.Create(this));
 
-            dealButton = new ButtonComponent("Deal", new Point(screenWidth / 2, screenHeight / 2), true);
-            gameObjects.Add(dealButton);
-
             IDeckBuilder deckBuilder;
+            deckBuilder = new SpecificDeckBuilder(
+                new CardCollection(new Card(8, Suit.Clubs), new Card(1, Suit.Clubs), new Card(2, Suit.Clubs), new Card(3, Suit.Clubs), new Card(4, Suit.Clubs), new Card(5, Suit.Clubs), new Card(6, Suit.Clubs), new Card(7, Suit.Clubs)),
+                new CardCollection(new Card(8, Suit.Diamonds), new Card(1, Suit.Diamonds), new Card(2, Suit.Diamonds), new Card(3, Suit.Diamonds), new Card(4, Suit.Diamonds), new Card(5, Suit.Diamonds), new Card(6, Suit.Diamonds), new Card(7, Suit.Diamonds)),
+                new Card(1, Suit.Hearts),
+                new CardCollection(new Card(1, Suit.Spades))
+            );
+
+
             //deckBuilder = new MinimalDeckBuilder();
-            deckBuilder = new DeckBuilder();
+            //deckBuilder = new DeckBuilder();
+            deck = deckBuilder.Build();
 
-            var gameBuilder = new CrazyEightsGameBuilder();
-            var game = gameBuilder.Build(deckBuilder.Build());
-            gameController = new GameController(game, gameObjects, inGameGameObjects, cardsSpriteSheet);
+            //var gameBuilder = new CrazyEightsGameBuilder();
+            //var game = gameBuilder.Build(deck);
+            var game = BuildSpecificGame(deck);
+            gameController = new GameController(this, game);
 
-            //currentTurn = game.GetCurrentTurn();
-
-            // Set up UI
-
-            var cardWidth = 154;
-            var cardHeight = 240;
-
-            var player2LabelY = 10;
-            var player2HandY = player2LabelY + 30;
-            var discardPileY = player2HandY + cardHeight;
-            var player1HandY = discardPileY + cardHeight;
-            var player1LabelY = player1HandY + cardHeight;
-
-            var player2LabelX = await GetXForText(context, "24px verdana", "Player 2", 1200);
-            inGameGameObjects.Add(new LabelComponent("Player 2", new Point(player2LabelX, player2LabelY), false));
-            for (int i = 0; i < gameController.CurrentTurn.Player2Hand.Cards.Count(); i++)
-            {
-                var card = gameController.CurrentTurn.Player2Hand.Cards.ElementAt(i);
-                var x = i * cardWidth;
-                inGameGameObjects.Add(new CardComponent(gameController, card, new Sprite(cardsSpriteSheet, new Size(cardWidth, 240), new Point(x, player2HandY)), false));
-            }
-
-            //discardCardComponent = new CardComponent(gameController, gameController.CurrentTurn.DiscardPile.CardToMatch, new Sprite(cardsSpriteSheet, new Size(cardWidth, 240), new Point(cardWidth, discardPileY)), false);
-            //inGameGameObjects.Add(discardCardComponent);
-            var stockPileComponent = new CardComponent(gameController, null, new Sprite(cardsSpriteSheet, new Size(cardWidth, 240), new Point(0, discardPileY)), false);
-            stockPileComponent.Tag = "StockPile";
-            inGameGameObjects.Add(stockPileComponent);
-
-            for (int i = 0; i < gameController.CurrentTurn.Player1Hand.Cards.Count(); i++)
-            {
-                var card = gameController.CurrentTurn.Player1Hand.Cards.ElementAt(i);
-                var x = i * cardWidth;
-                inGameGameObjects.Add(new CardComponent(gameController, card,
-                        new Sprite(cardsSpriteSheet, new Size(cardWidth, 240), new Point(x, player1HandY)), false));
-            }
-            var player1LabelX = await GetXForText(context, "24px verdana", "Player 1", 1200);
-            inGameGameObjects.Add(new LabelComponent("Player 1", new Point(player1LabelX, player1LabelY), false));
-            inGameGameObjects.Add(new LabelComponent($"Turn {gameController.CurrentTurn.TurnNumber}", new Point(800, discardPileY), false));
-
-            inGameGameObjects.Add(new LabelComponent($"Player {gameController.CurrentTurn.PlayerToPlay} to {gameController.CurrentTurn.NextAction}", new Point(800, discardPileY + 30), false));
-
-            gameObjects.AddRange(inGameGameObjects);
-
-            gameController.Refresh();
+            uiState = new NewUiBuilder(gameController, screenWidth, screenHeight).BuildNewUiState();
         }
+    }
+
+    public class DummyShuffler: IShuffler
+    {
+        public IEnumerable<Card> Shuffle(IEnumerable<Card> cards)
+        {
+            return cards;
+        }
+    }
+
+
+    public Game BuildSpecificGame(CardCollection deck)
+    {
+        var players = new[] { new Player(1), new Player(2) };
+        var rules = new Rules();
+        var shuffler = new DummyShuffler();
+        var game = new Game(rules, shuffler, players);
+        var boardBuilder = new BoardBuilder(rules, shuffler);
+        var board = boardBuilder.Build(deck, players);
+
+        var random = new Random();
+        var firstPlayer = random.Next(2) + 1;
+        game.Setup(board, firstPlayer);
+
+        return game;
+
     }
 
     public async ValueTask Deal()
     {
-        dealButton.IsVisible = false;
-        inGameGameObjects.ForEach(x => x.IsVisible = true);
+        await SetupGameUi();
     }
 
-    //public async ValueTask Refresh()
-    //{
-    //    var cardWidth = 154;
-    //    var cardHeight = 240;
+    private async ValueTask SetupGameUi()
+    {
+        var uiBuilder = new InGameUiBuilder(gameController, context, cardsSpriteSheet);
 
-    //    var player2LabelY = 10;
-    //    var player2HandY = player2LabelY + 30;
-    //    var discardPileY = player2HandY + cardHeight;
-    //    var player1HandY = discardPileY + cardHeight;
-    //    var player1LabelY = player1HandY + cardHeight;
+        uiState = await uiBuilder.Build(deck);
+    }
 
-    //    gameObjects.Remove(discardCardComponent);
-    //    inGameGameObjects.Remove(discardCardComponent);
-    //    //inGameGameObjects.Clear();
+    public void Play(IGameObject gameObject)
+    {
+        cardTaken = null;
+        isInvalidTake = false;
 
-    //    discardCardComponent = new CardComponent(gameController, gameController.CurrentTurn.DiscardPile.CardToMatch, new Sprite(cardsSpriteSheet, new Size(cardWidth, 240), new Point(cardWidth, discardPileY)), false);
-    //    inGameGameObjects.Add(discardCardComponent);
-    //    gameObjects.Add(discardCardComponent);
+        // Bring to top
+        uiState.GameObjects.Remove(gameObject);
+        uiState.GameObjects.Add(gameObject);
+    }
 
-    //}
+    public void Take(Card takenCard)
+    {
+        uiState.CardGameObjects[takenCard].Tag = $"{takenCard}";
+
+        isInvalidTake = false;
+        cardTaken = takenCard;
+    }
+
+    private bool isInvalidTake;
+    private Card cardTaken = null;
+
+    public void InvalidTake()
+    {
+        isInvalidTake = true;
+    }
+
+    private async ValueTask Update(int screenWidth, int screenHeight)
+    {
+        if (gameObjectMouseDown != null)
+        {
+            if (InputSystem.Instance.GetButtonState(MouseButtons.Left) == ButtonStates.Up)
+            {
+                if (gameObjectMouseDown.IsHit(InputSystem.Instance.MouseCoords))
+                {
+                    await gameObjectMouseDown.Update(new InputState(true, InputSystem.Instance.MouseCoords));
+                    gameObjectMouseDown = null;
+                }
+            }
+        }
+        else
+        {
+            foreach (var gameObject in uiState.GameObjects.Where(x => x.IsVisible))
+            {
+                await gameObject.Update(new InputState(false, InputSystem.Instance.MouseCoords));
+            }
+
+            if (InputSystem.Instance.GetButtonState(MouseButtons.Left) == ButtonStates.Down)
+            {
+                foreach (var gameObject in uiState.GameObjects.Where(x => x.IsVisible))
+                {
+                    if (gameObject.IsHit(InputSystem.Instance.MouseCoords))
+                    {
+                        gameObjectMouseDown = gameObject;
+                    }
+                }
+            }
+        }
+
+        if (gameController.CurrentGamePhase == GamePhase.New)
+            return;
+
+        var cardWidth = 154;
+        var cardHeight = 240;
+
+        var player2LabelY = 10;
+        var player2HandY = player2LabelY + 30;
+        var discardPileY = player2HandY + cardHeight;
+        var player1HandY = discardPileY + cardHeight;
+        var player1LabelY = player1HandY + cardHeight;
+
+        // Update Cards
+        var discardCard = gameController.CurrentTurn.DiscardPile.CardToMatch;
+        var discardCardGameObject = uiState.CardGameObjects[discardCard];
+        discardCardGameObject.IsTurnedUp = true;
+        discardCardGameObject.SetX(cardWidth);
+        discardCardGameObject.SetY(discardPileY);
+        discardCardGameObject.IsVisible = true;
+
+        var stockPileCard = gameController.CurrentTurn.StockPile.First();
+        var stockPileGameObject = uiState.CardGameObjects[stockPileCard];
+        stockPileGameObject.Tag = "StockPile";
+        stockPileGameObject.IsTurnedUp = false;
+        stockPileGameObject.SetX(0);
+        stockPileGameObject.SetY(discardPileY);
+        stockPileGameObject.IsVisible = true;
+
+        for (int i = 0; i < gameController.CurrentTurn.Player1Hand.Cards.Count(); i++)
+        {
+            var card = gameController.CurrentTurn.Player1Hand.Cards.ElementAt(i);
+            var x = i * cardWidth;
+            var cardObject = uiState.CardGameObjects[card];
+            cardObject .IsTurnedUp = true;
+            cardObject .SetX(x);
+            cardObject .SetY(player1HandY);
+            cardObject.IsVisible = true;
+        }
+
+        for (int i = 0; i < gameController.CurrentTurn.Player2Hand.Cards.Count(); i++)
+        {
+            var card = gameController.CurrentTurn.Player2Hand.Cards.ElementAt(i);
+            var x = i * cardWidth;
+            var cardObject = uiState.CardGameObjects[card];
+            cardObject .IsTurnedUp = true;
+            cardObject .SetX(x);
+            cardObject .SetY(player2HandY);
+            cardObject.IsVisible = true;
+        }
+
+        // Update Labels
+        uiState.TurnLabel.Label = $"Turn {gameController.CurrentTurn.TurnNumber}";
+
+        if (gameController.CurrentTurn.HasWinner)
+        {
+            uiState.PlayerToPlayLabel.Label = $"Player {gameController.CurrentTurn.Winner} has won!";
+            return;
+        }
+
+        uiState.PlayerToPlayLabel.Label = $"Player {gameController.CurrentTurn.PlayerToPlay} to {gameController.CurrentTurn.NextAction}";
+
+        if (gameController.CurrentTurn.NextAction == Action.Take)
+            uiState.TakeButton.IsVisible = true;
+        else
+            uiState.TakeButton.IsVisible = false;
+
+        if (gameController.CurrentTurn.NextAction == Action.SelectSuit)
+        {
+            uiState.ClubsButton.IsVisible = true;
+            uiState.DiamondsButton.IsVisible = true;
+            uiState.HeartsButton.IsVisible = true;
+            uiState.SpadesButton.IsVisible = true;
+        }
+        else
+        {
+            uiState.ClubsButton.IsVisible = false;
+            uiState.DiamondsButton.IsVisible = false;
+            uiState.HeartsButton.IsVisible = false;
+            uiState.SpadesButton.IsVisible = false;
+        }
+
+        if (gameController.CurrentTurn.SelectedSuit == null)
+        {
+            uiState.SelectedSuitLabel.IsVisible = false;
+        }
+        else
+        {
+            uiState.SelectedSuitLabel.Label = $"Selected Suit: {gameController.CurrentTurn.SelectedSuit}";
+            uiState.SelectedSuitLabel.IsVisible = true;
+        }
+
+        // Display invalid Play messages
+        if (gameController.InvalidPlayCard != null)
+        {
+            uiState.InvalidPlayLabel.IsVisible = true;
+            uiState.InvalidPlayLabel.Label = $"You cannot play the Card: {gameController.InvalidPlayCard.Card}";
+        }
+        else if (isInvalidTake)
+        {
+            uiState.InvalidPlayLabel.IsVisible = true;
+            uiState.InvalidPlayLabel.Label = $"You cannot Take a Card at this time";
+        }
+        else
+        {
+            uiState.InvalidPlayLabel.IsVisible = false;
+        }
+
+    }
+
+    private async ValueTask Render(int screenWidth, int screenHeight)
+    {
+        await context.SetFillStyleAsync("green");
+        await context.FillRectAsync(0, 0, screenWidth, screenHeight);
+
+        foreach (var gameObject in uiState.GameObjects)
+        {
+            if (gameObject.IsVisible)
+                await gameObject.Render(context);
+        }
+    }
+
+
 
     [JSInvokable]
     public async ValueTask GameLoop(float timeStamp)
@@ -153,54 +308,6 @@
     public async ValueTask OnMouseUp(MouseButtons button)
     {
         InputSystem.Instance.SetButtonState(button, ButtonStates.Up);
-    }
-
-    private async ValueTask Update(int screenWidth, int screenHeight)
-    {
-        gameObjectClickedOn = null;
-
-        foreach (var gameObject in gameObjects.Where(x => x.IsVisible))
-        {
-            await gameObject.Update(new InputState(InputSystem.Instance.GetButtonState(MouseButtons.Left) == ButtonStates.Down, InputSystem.Instance.MouseCoords));
-        }
-
-        if (InputSystem.Instance.GetButtonState(MouseButtons.Left) == ButtonStates.Down)
-        {
-
-            foreach (var gameObject in gameObjects)
-            {
-                if (gameObject.IsHit(InputSystem.Instance.MouseCoords))
-                    gameObjectClickedOn = gameObject;
-            }
-        }
-    }
-
-    private async ValueTask Render(int screenWidth, int screenHeight)
-    {
-        await context.SetFillStyleAsync("green");
-        await context.FillRectAsync(0, 0, screenWidth, screenHeight);
-
-        foreach (var gameObject in gameObjects)
-        {
-            if (gameObject.IsVisible)
-                await gameObject.Render(context);
-        }
-
-        if (gameObjectClickedOn != null)
-        {
-            //await context.SetFontAsync("24px verdana");
-            //await context.SetFillStyleAsync("Black");
-            //await context.FillTextAsync($"Clicked on: {gameObjectClickedOn.Tag}", 350, 360);
-            if (gameObjectClickedOn.Tag == "Deal")
-                await Deal();
-        }
-    }
-
-    public async Task<int> GetXForText(Canvas2DContext context, string fontInfo, string text, int areaWidth)
-    {
-        await context.SetFontAsync(fontInfo);
-        TextMetrics metrics = await context.MeasureTextAsync(text);
-        return (int)Math.Round((areaWidth - metrics.Width) / 2);
     }
 
 }

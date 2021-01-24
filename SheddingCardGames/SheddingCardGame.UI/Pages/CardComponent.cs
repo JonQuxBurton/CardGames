@@ -14,17 +14,44 @@ namespace SheddingCardGame.UI.Pages
         private Rectangle boundingBox;
         private bool isActive = false;
 
-        public CardComponent(GameController gameController, Card card, Sprite sprite, bool isVisible)
+        public CardComponent(GameController gameController, Card card, Sprite sprite, bool isVisible, bool isTurned = false)
         {
             this.gameController = gameController;
             Card = card;
             Tag = $"{Card}";
+            IsTurnedUp = isTurned;
             Sprite = sprite;
             boundingBox = new Rectangle(sprite.Position.X, sprite.Position.Y, sprite.Size.Width, sprite.Size.Height);
             IsVisible = isVisible;
+            SetX(sprite.Position.X);
+            SetY(sprite.Position.Y);
         }
 
         public string Tag { get; set; }
+
+        public int GetX()
+        {
+            return x;
+        }
+        
+        public void SetX(int newX)
+        {
+            this.x = newX;
+            Sprite.Position = new Point(newX, Sprite.Position.Y);
+            boundingBox = new Rectangle(Sprite.Position.X, Sprite.Position.Y, Sprite.Size.Width, Sprite.Size.Height);
+        }
+
+        public int GetY()
+        {
+            return y;
+        }
+
+        public void SetY(int newY)
+        {
+            this.y = newY;
+            Sprite.Position = new Point(Sprite.Position.X, newY);
+            boundingBox = new Rectangle(Sprite.Position.X, Sprite.Position.Y, Sprite.Size.Width, Sprite.Size.Height);
+        }
 
         public bool IsHit(Point mousePosition)
         {
@@ -36,8 +63,8 @@ namespace SheddingCardGame.UI.Pages
             if (boundingBox.Contains(inputState.MouseCoords))
             {
                 isActive = true;
-                if (inputState.IsMouseDown)
-                    gameController.CardClick(Card);
+                if (inputState.IsMouseClicked)
+                    gameController.CardClick(this);
             }
             else
                 isActive = false;
@@ -45,10 +72,12 @@ namespace SheddingCardGame.UI.Pages
             return new ValueTask();
         }
 
+        public bool IsTurnedUp { get; set; }
+        
         public async ValueTask Render(Canvas2DContext context)
         {
-            var spriteX = Sprite.Position.X;
-            var spriteY = Sprite.Position.Y;
+            var spriteX = GetX();
+            var spriteY = GetY();
             var frameWidth = Sprite.Size.Width;
             var frameHeight = Sprite.Size.Height;
             var frameCoords = GetFrameCoords(Card);
@@ -71,6 +100,9 @@ namespace SheddingCardGame.UI.Pages
 
         private (int X, int Y) GetFrameCoords(Card card)
         {
+            if (!IsTurnedUp)
+                return (2, 4);
+            
             if (card == null)
                 return (2, 4);
 

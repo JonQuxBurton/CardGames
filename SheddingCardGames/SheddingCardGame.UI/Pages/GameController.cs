@@ -1,61 +1,93 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
+﻿using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Components;
 using SheddingCardGames;
+using Action = SheddingCardGames.Action;
 
 namespace SheddingCardGame.UI.Pages
 {
     public class GameController
     {
+        private readonly CrazyEights crazyEights;
         private readonly Game game;
-        private readonly List<IGameObject> gameObjects;
-        private readonly List<IGameObject> inGameGameObjects;
-        private readonly ElementReference cardsSpriteSheet;
-        CardComponent discardCardComponent;
 
-        public GameController(Game game, List<IGameObject> gameObjects, List<IGameObject> inGameGameObjects, ElementReference cardsSpriteSheet)
+        public GamePhase CurrentGamePhase = GamePhase.New;
+        public CardComponent InvalidPlayCard;
+
+        public GameController(CrazyEights crazyEights, Game game)
         {
+            this.crazyEights = crazyEights;
             this.game = game;
-            this.gameObjects = gameObjects;
-            this.inGameGameObjects = inGameGameObjects;
-            this.cardsSpriteSheet = cardsSpriteSheet;
-        }
-        
-        public void CardClick(Card card)
-        {
-            var isValid = game.Play(card);
-            
-            Refresh();
         }
 
         public Turn CurrentTurn => game.GetCurrentTurn();
 
-        public void Refresh()
+        public async ValueTask Invoke(string actionName)
         {
-            var cardWidth = 154;
-            var cardHeight = 240;
+            Console.WriteLine($"Invoke {actionName}");
 
-            var player2LabelY = 10;
-            var player2HandY = player2LabelY + 30;
-            var discardPileY = player2HandY + cardHeight;
-            var player1HandY = discardPileY + cardHeight;
-            var player1LabelY = player1HandY + cardHeight;
-
-            if (this.discardCardComponent != null)
+            if (actionName == "Deal")
             {
-                gameObjects.Remove(discardCardComponent);
-                inGameGameObjects.Remove(discardCardComponent);
+                await crazyEights.Deal();
+                CurrentGamePhase = GamePhase.InGame;
             }
+            else if (actionName == "Take")
+            {
+                var taken = game.Take();
+                crazyEights.Take(taken);
+            }
+            else if (actionName == "Clubs")
+            {
+                game.SelectSuit(Suit.Clubs);
+            }
+            else if (actionName == "Diamonds")
+            {
+                game.SelectSuit(Suit.Diamonds);
+            }
+            else if (actionName == "Hearts")
+            {
+                game.SelectSuit(Suit.Hearts);
+            }
+            else if (actionName == "Spades")
+            {
+                game.SelectSuit(Suit.Spades);
+            }
+            InvalidPlayCard = null;
+        }
 
-            //inGameGameObjects.Clear();
+        public void CardClick(CardComponent cardComponent)
+        {
+            if (cardComponent.Tag == "StockPile")
+            {
+                Console.WriteLine("Clicked on StockPile");
+                if (game.GetCurrentTurn().NextAction == Action.Take)
+                {
+                    var taken = game.Take();
+                    crazyEights.Take(taken);
+                }
+                else
+                {
+                    crazyEights.InvalidTake();
+                }
 
-            discardCardComponent = new CardComponent(this, CurrentTurn.DiscardPile.CardToMatch, new Sprite(cardsSpriteSheet, new Size(cardWidth, 240), new Point(cardWidth, discardPileY)), true);
-            inGameGameObjects.Add(discardCardComponent);
-            gameObjects.Add(discardCardComponent);
+                return;
+            }
+            
+            if (!cardComponent.IsTurnedUp)
+                return;
+            
+            Console.WriteLine($"Clicked on {cardComponent.Card}");
+            var isValid = game.Play(cardComponent.Card);
+            Console.WriteLine($"Is valid?:  {isValid}");
 
+            if (isValid)
+            {
+                InvalidPlayCard = null;
+                crazyEights.Play(cardComponent);
+            }
+            else
+            {
+                InvalidPlayCard = cardComponent;
+            }
         }
     }
-
-
 }

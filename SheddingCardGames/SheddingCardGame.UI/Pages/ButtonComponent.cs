@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading;
 using System.Threading.Tasks;
 using Blazor.Extensions.Canvas.Canvas2D;
 using Blazor.Extensions.Canvas.Model;
@@ -8,14 +9,17 @@ namespace SheddingCardGame.UI.Pages
 {
     public class ButtonComponent : GameObject, IGameObject
     {
+        private readonly GameController gameController;
         public string Label { get; }
         public Point Position { get; }
         public Rectangle? BoundingBox => boundingBox;
 
-        private Rectangle? boundingBox = null;
+        private Rectangle? boundingBox;
+        private bool isActive;
 
-        public ButtonComponent(string label, Point position, bool isVisible)
+        public ButtonComponent(GameController gameController, string label, Point position, bool isVisible)
         {
+            this.gameController = gameController;
             Label = label;
             Tag = label;
             Position = position;
@@ -26,6 +30,14 @@ namespace SheddingCardGame.UI.Pages
 
         public ValueTask Update(InputState inputState)
         {
+            if (boundingBox.HasValue && boundingBox.Value.Contains(inputState.MouseCoords))
+                isActive = true;
+            else
+                isActive = false;
+
+            if (inputState.IsMouseClicked)
+                return gameController.Invoke(Tag);
+
             return new ValueTask();
         }
 
@@ -37,17 +49,26 @@ namespace SheddingCardGame.UI.Pages
 
             if (boundingBox == null)
             {
-
                 TextMetrics metrics = await context.MeasureTextAsync(Label);
                 var width = metrics.Width + padding*2;
                 var height = await GetTextHeightAsync(context, fontInfo) + padding * 2;
                 boundingBox = new Rectangle(Position.X, Position.Y, Round(width), Round(height));
             }
 
+            await context.SetLineWidthAsync(2);
             await context.SetStrokeStyleAsync("White");
             await context.StrokeRectAsync(boundingBox.Value.X, boundingBox.Value.Y, boundingBox.Value.Width, boundingBox.Value.Height);
             await context.SetFillStyleAsync("White");
             await context.FillTextAsync($"{Label}", Position.X + padding, Position.Y + padding);
+
+            if (isActive)
+            {
+                var box = boundingBox.Value;
+                await context.BeginPathAsync();
+                await context.SetStrokeStyleAsync($"rgb(255,0,0)");
+                await context.SetLineWidthAsync(4);
+                await context.StrokeRectAsync(box.X, box.Y, box.Width, box.Height);
+            }
         }
 
         private int Round(double d)
