@@ -10,19 +10,19 @@ namespace SheddingCardGame.UI.Pages
     public class InGameUiBuilder
     {
         private readonly ElementReference cardsSpriteSheet;
+        private readonly CardCollection deck;
         private readonly Canvas2DContext context;
-        private readonly GameController gameController;
         private UiState uiState;
 
-        public InGameUiBuilder(GameController gameController, Canvas2DContext context,
-            ElementReference cardsSpriteSheet)
+        public InGameUiBuilder(Canvas2DContext context,
+            ElementReference cardsSpriteSheet, CardCollection deck)
         {
-            this.gameController = gameController;
             this.context = context;
             this.cardsSpriteSheet = cardsSpriteSheet;
+            this.deck = deck;
         }
 
-        public async Task<UiState> Build(CardCollection deck)
+        public async Task<UiState> Build(GameController gameController)
         {
             uiState = new UiState();
 
@@ -43,7 +43,7 @@ namespace SheddingCardGame.UI.Pages
 
 
             var statusAreaPosition = new Point(360, discardPileY + 60);
-            SetupStatusArea(statusAreaPosition);
+            SetupStatusArea(gameController, statusAreaPosition);
 
             var deckX = 0;
             var deckY = 0;
@@ -68,7 +68,7 @@ namespace SheddingCardGame.UI.Pages
             return uiState;
         }
 
-        public void SetupStatusArea(Point statusAreaPosition)
+        public void SetupStatusArea(GameController gameController, Point statusAreaPosition)
         {
             var y = statusAreaPosition.Y;
             var rowHeight = 30;

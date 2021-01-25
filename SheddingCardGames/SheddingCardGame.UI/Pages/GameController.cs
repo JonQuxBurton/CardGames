@@ -7,16 +7,16 @@ namespace SheddingCardGame.UI.Pages
 {
     public class GameController
     {
-        private readonly CrazyEights crazyEights;
         private readonly Game game;
+        private readonly InGameUiBuilder inGameUiBuilder;
 
+        public UiState UiState { get; set; }
         public GamePhase CurrentGamePhase = GamePhase.New;
-        public CardComponent InvalidPlayCard;
 
-        public GameController(CrazyEights crazyEights, Game game)
+        public GameController(Game game, InGameUiBuilder inGameUiBuilder)
         {
-            this.crazyEights = crazyEights;
             this.game = game;
+            this.inGameUiBuilder = inGameUiBuilder;
         }
 
         public Turn CurrentTurn => game.GetCurrentTurn();
@@ -27,13 +27,12 @@ namespace SheddingCardGame.UI.Pages
 
             if (actionName == "Deal")
             {
-                await crazyEights.Deal();
+                UiState = await inGameUiBuilder.Build(this);
                 CurrentGamePhase = GamePhase.InGame;
             }
             else if (actionName == "Take")
             {
-                var taken = game.Take();
-                crazyEights.Take(taken);
+                Take();
             }
             else if (actionName == "Clubs")
             {
@@ -51,7 +50,21 @@ namespace SheddingCardGame.UI.Pages
             {
                 game.SelectSuit(Suit.Spades);
             }
-            InvalidPlayCard = null;
+            UiState.InvalidPlayCard = null;
+        }
+
+        private void Take()
+        {
+            var takenCard = game.Take();
+            UiState.CardGameObjects[takenCard].Tag = $"{takenCard}";
+            UiState.IsInvalidTake = false;
+        }
+
+        private void Play(CardComponent cardComponent)
+        {
+            // Bring to top
+            UiState.GameObjects.Remove(cardComponent);
+            UiState.GameObjects.Add(cardComponent);
         }
 
         public void CardClick(CardComponent cardComponent)
@@ -60,14 +73,9 @@ namespace SheddingCardGame.UI.Pages
             {
                 Console.WriteLine("Clicked on StockPile");
                 if (game.GetCurrentTurn().NextAction == Action.Take)
-                {
-                    var taken = game.Take();
-                    crazyEights.Take(taken);
-                }
+                    Take();
                 else
-                {
-                    crazyEights.InvalidTake();
-                }
+                    UiState.IsInvalidTake = true;
 
                 return;
             }
@@ -81,12 +89,13 @@ namespace SheddingCardGame.UI.Pages
 
             if (isValid)
             {
-                InvalidPlayCard = null;
-                crazyEights.Play(cardComponent);
+                UiState.InvalidPlayCard = null;
+                UiState.IsInvalidTake = false;
+                Play(cardComponent);
             }
             else
             {
-                InvalidPlayCard = cardComponent;
+                UiState.InvalidPlayCard = cardComponent;
             }
         }
     }
