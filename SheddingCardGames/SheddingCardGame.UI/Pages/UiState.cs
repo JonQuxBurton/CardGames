@@ -18,7 +18,8 @@ namespace SheddingCardGame.UI.Pages
         public LabelComponent PlayerToPlayLabel { get; set; }
         public LabelComponent InvalidPlayLabel { get; set; }
         public LabelComponent SelectedSuitLabel { get; set; }
-        public bool IsInvalidTake { get; set; }
-        public CardComponent InvalidPlayCard;
+
+        public bool HasError { get; set; }
+        public string ErrorMessage { get; set; }
     }
 }

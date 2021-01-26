@@ -46,7 +46,6 @@
                 new CardCollection(new Card(1, Suit.Spades))
             );
 
-
             //deckBuilder = new MinimalDeckBuilder();
             //deckBuilder = new DeckBuilder();
             deck = deckBuilder.Build();
@@ -63,6 +62,8 @@
 
     private async ValueTask Update(int screenWidth, int screenHeight)
     {
+        var uiState = gameController.UiState;
+
         if (gameObjectMouseDown != null)
         {
             if (InputSystem.Instance.GetButtonState(MouseButtons.Left) == ButtonStates.Up)
@@ -76,14 +77,14 @@
         }
         else
         {
-            foreach (var gameObject in gameController.UiState.GameObjects.Where(x => x.IsVisible))
+            foreach (var gameObject in uiState.GameObjects.Where(x => x.IsVisible))
             {
                 await gameObject.Update(new InputState(false, InputSystem.Instance.MouseCoords));
             }
 
             if (InputSystem.Instance.GetButtonState(MouseButtons.Left) == ButtonStates.Down)
             {
-                foreach (var gameObject in gameController.UiState.GameObjects.Where(x => x.IsVisible))
+                foreach (var gameObject in uiState.GameObjects.Where(x => x.IsVisible))
                 {
                     if (gameObject.IsHit(InputSystem.Instance.MouseCoords))
                     {
@@ -107,14 +108,14 @@
 
         // Update Cards
         var discardCard = gameController.CurrentTurn.DiscardPile.CardToMatch;
-        var discardCardGameObject = gameController.UiState.CardGameObjects[discardCard];
+        var discardCardGameObject = uiState.CardGameObjects[discardCard];
         discardCardGameObject.IsTurnedUp = true;
         discardCardGameObject.SetX(cardWidth);
         discardCardGameObject.SetY(discardPileY);
         discardCardGameObject.IsVisible = true;
 
         var stockPileCard = gameController.CurrentTurn.StockPile.First();
-        var stockPileGameObject = gameController.UiState.CardGameObjects[stockPileCard];
+        var stockPileGameObject = uiState.CardGameObjects[stockPileCard];
         stockPileGameObject.Tag = "StockPile";
         stockPileGameObject.IsTurnedUp = false;
         stockPileGameObject.SetX(0);
@@ -125,7 +126,7 @@
         {
             var card = gameController.CurrentTurn.Player1Hand.Cards.ElementAt(i);
             var x = i * cardWidth;
-            var cardObject = gameController.UiState.CardGameObjects[card];
+            var cardObject = uiState.CardGameObjects[card];
             cardObject .IsTurnedUp = true;
             cardObject .SetX(x);
             cardObject .SetY(player1HandY);
@@ -136,7 +137,7 @@
         {
             var card = gameController.CurrentTurn.Player2Hand.Cards.ElementAt(i);
             var x = i * cardWidth;
-            var cardObject = gameController.UiState.CardGameObjects[card];
+            var cardObject = uiState.CardGameObjects[card];
             cardObject .IsTurnedUp = true;
             cardObject .SetX(x);
             cardObject .SetY(player2HandY);
@@ -144,62 +145,56 @@
         }
 
         // Update Labels
-        gameController.UiState.TurnLabel.Label = $"Turn {gameController.CurrentTurn.TurnNumber}";
+        uiState.TurnLabel.Label = $"Turn {gameController.CurrentTurn.TurnNumber}";
 
         if (gameController.CurrentTurn.HasWinner)
         {
-            gameController.UiState.PlayerToPlayLabel.Label = $"Player {gameController.CurrentTurn.Winner} has won!";
+            uiState.PlayerToPlayLabel.Label = $"Player {gameController.CurrentTurn.Winner} has won!";
             return;
         }
 
-        gameController.UiState.PlayerToPlayLabel.Label = $"Player {gameController.CurrentTurn.PlayerToPlay} to {gameController.CurrentTurn.NextAction}";
+        uiState.PlayerToPlayLabel.Label = $"Player {gameController.CurrentTurn.PlayerToPlay} to {gameController.CurrentTurn.NextAction}";
 
         if (gameController.CurrentTurn.NextAction == Action.Take)
-            gameController.UiState.TakeButton.IsVisible = true;
+            uiState.TakeButton.IsVisible = true;
         else
-            gameController.UiState.TakeButton.IsVisible = false;
+            uiState.TakeButton.IsVisible = false;
 
         if (gameController.CurrentTurn.NextAction == Action.SelectSuit)
         {
-            gameController.UiState.ClubsButton.IsVisible = true;
-            gameController.UiState.DiamondsButton.IsVisible = true;
-            gameController.UiState.HeartsButton.IsVisible = true;
-            gameController.UiState.SpadesButton.IsVisible = true;
+            uiState.ClubsButton.IsVisible = true;
+            uiState.DiamondsButton.IsVisible = true;
+            uiState.HeartsButton.IsVisible = true;
+            uiState.SpadesButton.IsVisible = true;
         }
         else
         {
-            gameController.UiState.ClubsButton.IsVisible = false;
-            gameController.UiState.DiamondsButton.IsVisible = false;
-            gameController.UiState.HeartsButton.IsVisible = false;
-            gameController.UiState.SpadesButton.IsVisible = false;
+            uiState.ClubsButton.IsVisible = false;
+            uiState.DiamondsButton.IsVisible = false;
+            uiState.HeartsButton.IsVisible = false;
+            uiState.SpadesButton.IsVisible = false;
         }
 
         if (gameController.CurrentTurn.SelectedSuit == null)
         {
-            gameController.UiState.SelectedSuitLabel.IsVisible = false;
+            uiState.SelectedSuitLabel.IsVisible = false;
         }
         else
         {
-            gameController.UiState.SelectedSuitLabel.Label = $"Selected Suit: {gameController.CurrentTurn.SelectedSuit}";
-            gameController.UiState.SelectedSuitLabel.IsVisible = true;
+            uiState.SelectedSuitLabel.Label = $"Selected Suit: {gameController.CurrentTurn.SelectedSuit}";
+            uiState.SelectedSuitLabel.IsVisible = true;
         }
 
         // Display invalid Play messages
-        if (gameController.UiState.InvalidPlayCard != null)
+        if (uiState.HasError)
         {
-            gameController.UiState.InvalidPlayLabel.IsVisible = true;
-            gameController.UiState.InvalidPlayLabel.Label = $"You cannot play the Card: {gameController.UiState.InvalidPlayCard.Card}";
-        }
-        else if (gameController.UiState.IsInvalidTake)
-        {
-            gameController.UiState.InvalidPlayLabel.IsVisible = true;
-            gameController.UiState.InvalidPlayLabel.Label = $"You cannot Take a Card at this time";
+            uiState.InvalidPlayLabel.IsVisible = true;
+            uiState.InvalidPlayLabel.Label = uiState.ErrorMessage;
         }
         else
         {
-            gameController.UiState.InvalidPlayLabel.IsVisible = false;
+            uiState.InvalidPlayLabel.IsVisible = false;
         }
-
     }
 
     private async ValueTask Render(int screenWidth, int screenHeight)
@@ -209,7 +204,7 @@
 
         foreach (var visibleGameObject in gameController.UiState.GameObjects.Where(x => x.IsVisible))
             await visibleGameObject.Render(context);
-        
+
     }
 
     [JSInvokable]

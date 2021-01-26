@@ -50,7 +50,7 @@ namespace SheddingCardGame.Cli
 
             Console.WriteLine($"Player {currentTurn.PlayerToPlay} selects Suit: {selectedSuit}");
 
-            game.SelectSuit(selectedSuit);
+            game.SelectSuit(currentTurn.PlayerToPlay, selectedSuit);
         }
 
         private static (int Rank, Suit Suit) ParseInput(string input)
@@ -77,8 +77,8 @@ namespace SheddingCardGame.Cli
             {
                 Console.WriteLine($"No valid plays, press any key to Take a card");
                 Console.ReadKey();
-                var takenCard = game.Take();
-                Console.WriteLine($"Taken: {takenCard}");
+                var actionResult  = game.Take(game.GetCurrentTurn().TurnNumber);
+                Console.WriteLine($"Taken: {actionResult.Card}");
                 return;
             }
             
@@ -93,7 +93,7 @@ namespace SheddingCardGame.Cli
 
             Console.WriteLine($"Player {currentTurn.PlayerToPlay} plays: {play}");
 
-            var playResult = game.Play(play);
+            var playResult = game.Play(currentTurn.PlayerToPlay, play);
             Console.WriteLine($"IsValidPlay: {playResult}");
         }
 
@@ -126,8 +126,6 @@ namespace SheddingCardGame.Cli
                 }
             }
 
-            
-            
             Console.WriteLine("--------------------------------------------------");
         }
     }

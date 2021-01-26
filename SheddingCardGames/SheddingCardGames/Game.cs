@@ -44,13 +44,19 @@ namespace SheddingCardGames
                 AddWinningTurn();
         }
 
-        public bool Play(Card playedCard)
+        public ActionResult Play(int playerNumber, Card playedCard)
         {
+            if (playerNumber == 0 || playerNumber > players.Count)
+                return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
+            
+            if (currentPlayer.Number != playerNumber)
+                return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
+
             if (!currentPlayer.Hand.Contains(playedCard))
-                return false;
+                return new ActionResult(false, ActionResultMessageKey.CardIsNotInPlayersHand);
 
             if (!IsValidPlay(playedCard))
-                return false;
+                return new ActionResult(false, ActionResultMessageKey.InvalidPlay);
 
             board.MoveCardToDiscardPile(currentPlayer, playedCard);
 
@@ -68,17 +74,31 @@ namespace SheddingCardGames
                 AddNextTurn();
             }
 
-            return true;
+            return new ActionResult(true, ActionResultMessageKey.Success);
         }
 
-        public void SelectSuit(Suit selectedSuit)
+        public ActionResult SelectSuit(int playerNumber, Suit selectedSuit)
         {
+            if (playerNumber == 0 || playerNumber > players.Count)
+                return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
+
+            if (currentPlayer.Number != playerNumber)
+                return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
+            
             NextPlayer();
             AddNextTurn(selectedSuit);
+
+            return new ActionResult(true, ActionResultMessageKey.Success);
         }
 
-        public Card Take()
+        public ActionResultWithCard Take(int playerNumber)
         {
+            if (playerNumber == 0 || playerNumber > players.Count)
+                return new ActionResultWithCard(false, ActionResultMessageKey.NotPlayersTurn);
+
+            if (currentPlayer.Number != playerNumber)
+                return new ActionResultWithCard(false, ActionResultMessageKey.NotPlayersTurn);
+            
             var takenCard = board.TakeCardFromStockPile(currentPlayer);
 
             if (board.StockPile.IsEmpty()) 
@@ -86,8 +106,8 @@ namespace SheddingCardGames
 
             NextPlayer();
             AddNextTurn(GetCurrentTurn().SelectedSuit);
-
-            return takenCard;
+            
+            return new ActionResultWithCard(true, ActionResultMessageKey.Success, takenCard);
         }
 
         private void MoveDiscardPileToStockPile()

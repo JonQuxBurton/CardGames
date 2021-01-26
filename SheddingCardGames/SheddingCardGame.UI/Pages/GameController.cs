@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using SheddingCardGames;
 using Action = SheddingCardGames.Action;
@@ -13,10 +14,19 @@ namespace SheddingCardGame.UI.Pages
         public UiState UiState { get; set; }
         public GamePhase CurrentGamePhase = GamePhase.New;
 
+        private readonly Dictionary<ActionResultMessageKey, string> errorMessages = new Dictionary<ActionResultMessageKey, string>();
+            
         public GameController(Game game, InGameUiBuilder inGameUiBuilder)
         {
             this.game = game;
             this.inGameUiBuilder = inGameUiBuilder;
+
+            errorMessages = new Dictionary<ActionResultMessageKey, string>
+            {
+                {ActionResultMessageKey.CardIsNotInPlayersHand, "Card is not in the current Players hand"},
+                {ActionResultMessageKey.InvalidPlay, "You cannot play the Card: {Card}"},
+                {ActionResultMessageKey.NotPlayersTurn, "It is not this Player's turn"}
+            };
         }
 
         public Turn CurrentTurn => game.GetCurrentTurn();
@@ -29,35 +39,57 @@ namespace SheddingCardGame.UI.Pages
             {
                 UiState = await inGameUiBuilder.Build(this);
                 CurrentGamePhase = GamePhase.InGame;
+                UiState.HasError = false;
+                UiState.ErrorMessage = null;
             }
             else if (actionName == "Take")
             {
                 Take();
             }
-            else if (actionName == "Clubs")
+            else
             {
-                game.SelectSuit(Suit.Clubs);
+                var suit = (Suit)Enum.Parse(typeof(Suit), actionName);
+                SelectSuit(suit);
             }
-            else if (actionName == "Diamonds")
-            {
-                game.SelectSuit(Suit.Diamonds);
-            }
-            else if (actionName == "Hearts")
-            {
-                game.SelectSuit(Suit.Hearts);
-            }
-            else if (actionName == "Spades")
-            {
-                game.SelectSuit(Suit.Spades);
-            }
-            UiState.InvalidPlayCard = null;
         }
 
+        private void SelectSuit(Suit suit)
+        {
+            var playerNumber = game.GetCurrentTurn().PlayerToPlay;
+            var actionResult = game.SelectSuit(playerNumber, suit);
+
+            if (actionResult.IsSuccess)
+            {
+                UiState.HasError = false;
+                UiState.ErrorMessage = "";
+            }
+            else
+            {
+                UiState.HasError = true;
+                UiState.ErrorMessage = errorMessages[actionResult.MessageKey];
+            }
+        }
+        
         private void Take()
         {
-            var takenCard = game.Take();
-            UiState.CardGameObjects[takenCard].Tag = $"{takenCard}";
-            UiState.IsInvalidTake = false;
+            if (game.GetCurrentTurn().NextAction != Action.Take)
+            {
+                UiState.HasError = true;
+                UiState.ErrorMessage = "You cannot Take a Card at this time";
+                return;
+            }
+
+            var actionResult = game.Take(game.GetCurrentTurn().PlayerToPlay);
+
+            if (actionResult.IsSuccess)
+            {
+                UiState.CardGameObjects[actionResult.Card].Tag = $"{actionResult.Card}";
+            }
+            else
+            {
+                UiState.HasError = true;
+                UiState.ErrorMessage = errorMessages[actionResult.MessageKey];
+            }
         }
 
         private void Play(CardComponent cardComponent)
@@ -72,10 +104,7 @@ namespace SheddingCardGame.UI.Pages
             if (cardComponent.Tag == "StockPile")
             {
                 Console.WriteLine("Clicked on StockPile");
-                if (game.GetCurrentTurn().NextAction == Action.Take)
-                    Take();
-                else
-                    UiState.IsInvalidTake = true;
+                Take();
 
                 return;
             }
@@ -84,18 +113,24 @@ namespace SheddingCardGame.UI.Pages
                 return;
             
             Console.WriteLine($"Clicked on {cardComponent.Card}");
-            var isValid = game.Play(cardComponent.Card);
-            Console.WriteLine($"Is valid?:  {isValid}");
+            var actionResult = game.Play(game.GetCurrentTurn().PlayerToPlay, cardComponent.Card);
+            Console.WriteLine($"Is valid?:  {actionResult}");
 
-            if (isValid)
+            if (actionResult.IsSuccess)
             {
-                UiState.InvalidPlayCard = null;
-                UiState.IsInvalidTake = false;
+                UiState.HasError = false;
+                UiState.ErrorMessage = null;
                 Play(cardComponent);
             }
             else
             {
-                UiState.InvalidPlayCard = cardComponent;
+                UiState.HasError = true;
+                
+                var errorMessage = errorMessages[actionResult.MessageKey];
+                if (actionResult.MessageKey == ActionResultMessageKey.InvalidPlay)
+                    errorMessage = errorMessage.Replace("{Card}", cardComponent.Card.ToString(), StringComparison.InvariantCultureIgnoreCase);
+                
+                UiState.ErrorMessage = errorMessage;
             }
         }
     }
