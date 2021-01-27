@@ -5,7 +5,8 @@
 @using Blazor.Extensions.Canvas.Canvas2D
 @using System.Drawing
 @using Blazor.Extensions.Canvas.Model
-@using Action = SheddingCardGames.Action
+@using SheddingCardGames.Domain
+@using Action = SheddingCardGames.Domain.Action
 
 @inject IJSRuntime JsRuntime;
 <h1>Crazy Eights</h1>
@@ -94,7 +95,7 @@
             }
         }
 
-        if (gameController.CurrentGamePhase == GamePhase.New)
+        if (gameController.GameState.CurrentGamePhase == GamePhase.New)
             return;
 
         var cardWidth = 154;
@@ -116,7 +117,8 @@
 
         var stockPileCard = gameController.CurrentTurn.StockPile.First();
         var stockPileGameObject = uiState.CardGameObjects[stockPileCard];
-        stockPileGameObject.Tag = "StockPile";
+        stockPileGameObject.OnClick = () => gameController.Take();
+        //stockPileGameObject.Tag = "StockPile";
         stockPileGameObject.IsTurnedUp = false;
         stockPileGameObject.SetX(0);
         stockPileGameObject.SetY(discardPileY);
@@ -186,10 +188,12 @@
         }
 
         // Display invalid Play messages
-        if (uiState.HasError)
+        var gameState = gameController.GameState;
+
+        if (gameState.HasError)
         {
             uiState.InvalidPlayLabel.IsVisible = true;
-            uiState.InvalidPlayLabel.Label = uiState.ErrorMessage;
+            uiState.InvalidPlayLabel.Label = gameState.ErrorMessage;
         }
         else
         {

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Linq;
 using SheddingCardGames;
-using Action = SheddingCardGames.Action;
+using SheddingCardGames.Domain;
+using Action = SheddingCardGames.Domain.Action;
 
 namespace SheddingCardGame.Cli
 {
