@@ -1,14 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using SheddingCardGames.Domain;
-using Action = SheddingCardGames.Domain.Action;
 
 namespace SheddingCardGame.UI
 {
-    public class GameController
+    public interface IGameController
+    {
+        void Deal();
+        void SelectSuit(Suit suit);
+        bool Play(CardComponent cardComponent);
+        ActionResultWithCard Take();
+    }
+
+    public class GameController : IGameController
     {
         public GameState GameState { get; private set; }
-        public UiState UiState { get; set; }
         public Turn CurrentTurn => game.GetCurrentTurn();
 
         private readonly Game game;
@@ -26,13 +32,13 @@ namespace SheddingCardGame.UI
             {
                 {ActionResultMessageKey.CardIsNotInPlayersHand, "Card is not in the current Players hand"},
                 {ActionResultMessageKey.InvalidPlay, "You cannot play the Card: {Card}"},
-                {ActionResultMessageKey.NotPlayersTurn, "It is not this Player's turn"}
+                {ActionResultMessageKey.NotPlayersTurn, "It is not this Player's turn"},
+                {ActionResultMessageKey.InvalidTake, "You cannot Take a Card at this time"}
             };
         }
 
-        public async void Deal()
+        public void Deal()
         {
-            UiState = await inGameUiBuilder.Build(this);
             GameState = new GameState {CurrentGamePhase = GamePhase.InGame, HasError = false, ErrorMessage = null};
         }
 
@@ -53,10 +59,10 @@ namespace SheddingCardGame.UI
             }
         }
 
-        public void Play(CardComponent cardComponent)
+        public bool Play(CardComponent cardComponent)
         {
             if (!cardComponent.IsTurnedUp)
-                return;
+                return false;
 
             var actionResult = game.Play(game.GetCurrentTurn().PlayerToPlay, cardComponent.Card);
 
@@ -64,47 +70,35 @@ namespace SheddingCardGame.UI
             {
                 GameState.HasError = false;
                 GameState.ErrorMessage = null;
-                BringToTop(cardComponent);
+                return true;
             }
-            else
-            {
-                GameState.HasError = true;
-                
-                var errorMessage = errorMessages[actionResult.MessageKey];
-                if (actionResult.MessageKey == ActionResultMessageKey.InvalidPlay)
-                    errorMessage = errorMessage.Replace("{Card}", cardComponent.Card.ToString(), StringComparison.InvariantCultureIgnoreCase);
 
-                GameState.ErrorMessage = errorMessage;
-            }
+            GameState.HasError = true;
+                
+            var errorMessage = errorMessages[actionResult.MessageKey];
+            if (actionResult.MessageKey == ActionResultMessageKey.InvalidPlay)
+                errorMessage = errorMessage.Replace("{Card}", cardComponent.Card.ToString(), StringComparison.InvariantCultureIgnoreCase);
+
+            GameState.ErrorMessage = errorMessage;
+            return false;
         }
 
-        public void Take()
+        public ActionResultWithCard Take()
         {
-            if (game.GetCurrentTurn().NextAction != Action.Take)
-            {
-                GameState.HasError = true;
-                GameState.ErrorMessage = "You cannot Take a Card at this time";
-                return;
-            }
-
             var actionResult = game.Take(game.GetCurrentTurn().PlayerToPlay);
 
             if (actionResult.IsSuccess)
             {
-                var cardComponent = UiState.CardGameObjects[actionResult.Card];
-                cardComponent.OnClick = () => Play(cardComponent);
+                GameState.HasError = false;
+                GameState.ErrorMessage = "";
             }
             else
             {
                 GameState.HasError = true;
                 GameState.ErrorMessage = errorMessages[actionResult.MessageKey];
             }
-        }
-        
-        private void BringToTop(CardComponent cardComponent)
-        {
-            UiState.GameObjects.Remove(cardComponent);
-            UiState.GameObjects.Add(cardComponent);
+
+            return actionResult;
         }
     }
 }

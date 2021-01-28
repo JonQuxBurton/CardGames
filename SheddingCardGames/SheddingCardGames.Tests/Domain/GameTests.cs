@@ -926,8 +926,8 @@ namespace SheddingCardGames.Tests.Domain
             public void MoveDiscardCardsToStockPileWhenStockPileExhausted()
             {
                 var player1Hand = new CardCollection(
+                    deck.Get(6, Suit.Diamonds),
                     deck.Get(7, Suit.Diamonds),
-                    deck.Get(8, Suit.Diamonds),
                     deck.Get(9, Suit.Diamonds),
                     deck.Get(10, Suit.Diamonds),
                     deck.Get(11, Suit.Diamonds),
@@ -935,8 +935,8 @@ namespace SheddingCardGames.Tests.Domain
                     deck.Get(13, Suit.Diamonds)
                 );
                 var player2Hand = new CardCollection(
+                    deck.Get(6, Suit.Diamonds),
                     deck.Get(7, Suit.Diamonds),
-                    deck.Get(8, Suit.Diamonds),
                     deck.Get(9, Suit.Diamonds),
                     deck.Get(10, Suit.Diamonds),
                     deck.Get(11, Suit.Diamonds),
@@ -1033,7 +1033,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnFalseWhenNotPlayersTurnWhenPlayer2()
             {
-                var discardCard = deck.Get(10, Suit.Hearts);
+                var discardCard = deck.Get(1, Suit.Spades);
                 var stockPile = new CardCollection(
                     deck.Get(1, Suit.Hearts)
                 );
@@ -1049,6 +1049,27 @@ namespace SheddingCardGames.Tests.Domain
 
                 actual.IsSuccess.Should().BeFalse();
                 actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
+                actual.Card.Should().Be(null);
+            }
+            
+            [Fact]
+            public void ReturnFalseWhenNextActionIsNotTake()
+            {
+                var discardCard = deck.Get(10, Suit.Clubs);
+                var stockPile = new CardCollection(
+                    deck.Get(1, Suit.Hearts)
+                );
+                var sut = new GameBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithDiscardCard(discardCard)
+                    .WithStockPile(stockPile)
+                    .Build();
+
+                var actual = sut.Take(1);
+
+                actual.IsSuccess.Should().BeFalse();
+                actual.MessageKey.Should().Be(ActionResultMessageKey.InvalidTake);
                 actual.Card.Should().Be(null);
             }
 

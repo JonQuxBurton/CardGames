@@ -22,7 +22,7 @@
     Canvas2DContext context;
     ElementReference cardsSpriteSheet;
 
-    private GameController gameController;
+    private BlazorGameController gameController;
     private CardCollection deck;
     readonly GameTime gameTime = new GameTime();
     IGameObject gameObjectMouseDown;
@@ -55,7 +55,8 @@
             //var game = gameBuilder.Build(deck);
             var game = new SpecificGameBuilder(). Build(deck);
             var inGameUiBuilder = new InGameUiBuilder(context, cardsSpriteSheet, deck);
-            gameController = new GameController(game, inGameUiBuilder);
+            var gc = new GameController(game, inGameUiBuilder);
+            gameController = new BlazorGameController(gc, inGameUiBuilder);
 
             gameController.UiState = new NewUiBuilder(gameController, screenWidth, screenHeight).BuildNewUiState();
         }

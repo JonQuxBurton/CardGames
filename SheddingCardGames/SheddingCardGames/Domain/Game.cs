@@ -93,6 +93,9 @@ namespace SheddingCardGames.Domain
 
         public ActionResultWithCard Take(int playerNumber)
         {
+            if (GetCurrentTurn().NextAction != Action.Take)
+                return new ActionResultWithCard(false, ActionResultMessageKey.InvalidTake);
+
             if (playerNumber == 0 || playerNumber > players.Count)
                 return new ActionResultWithCard(false, ActionResultMessageKey.NotPlayersTurn);
 

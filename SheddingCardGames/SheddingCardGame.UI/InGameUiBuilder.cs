@@ -22,7 +22,7 @@ namespace SheddingCardGame.UI
             this.deck = deck;
         }
 
-        public async Task<UiState> Build(GameController gameController)
+        public async Task<UiState> Build(BlazorGameController gameController)
         {
             uiState = new UiState();
 
@@ -69,7 +69,7 @@ namespace SheddingCardGame.UI
             return uiState;
         }
 
-        public void SetupStatusArea(GameController gameController, Point statusAreaPosition)
+        public void SetupStatusArea(BlazorGameController gameController, Point statusAreaPosition)
         {
             var y = statusAreaPosition.Y;
             var rowHeight = 30;

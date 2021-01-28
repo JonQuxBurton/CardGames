@@ -5,6 +5,7 @@ namespace SheddingCardGames.Domain
         Success,
         CardIsNotInPlayersHand,
         NotPlayersTurn,
-        InvalidPlay
+        InvalidPlay,
+        InvalidTake
     }
 }

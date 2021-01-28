@@ -8,7 +8,7 @@ namespace SheddingCardGame.UI
 {
     public class CardComponent : GameObject, IGameObject
     {
-        private readonly GameController gameController;
+        private readonly BlazorGameController gameController;
         public Card Card { get; }
         public Sprite Sprite { get; }
         public System.Action OnClick { get; set; }
@@ -16,7 +16,7 @@ namespace SheddingCardGame.UI
         private Rectangle boundingBox;
         private bool isActive = false;
 
-        public CardComponent(GameController gameController, Card card, Sprite sprite, bool isVisible, bool isTurned = false)
+        public CardComponent(BlazorGameController gameController, Card card, Sprite sprite, bool isVisible, bool isTurned = false)
         {
             this.gameController = gameController;
             Card = card;
