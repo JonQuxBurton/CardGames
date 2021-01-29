@@ -1,30 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using SheddingCardGame.UI;
 using SheddingCardGames.Domain;
 
-namespace SheddingCardGame.UI
+namespace SheddingCardGames.UiLogic
 {
-    public interface IGameController
-    {
-        void Deal();
-        void SelectSuit(Suit suit);
-        bool Play(CardComponent cardComponent);
-        ActionResultWithCard Take();
-    }
-
     public class GameController : IGameController
     {
-        public GameState GameState { get; private set; }
-        public Turn CurrentTurn => game.GetCurrentTurn();
-
-        private readonly Game game;
-        private readonly InGameUiBuilder inGameUiBuilder;
         private readonly Dictionary<ActionResultMessageKey, string> errorMessages;
 
-        public GameController(Game game, InGameUiBuilder inGameUiBuilder)
+        private readonly Game game;
+
+        public GameController(Game game)
         {
             this.game = game;
-            this.inGameUiBuilder = inGameUiBuilder;
 
             GameState = new GameState {CurrentGamePhase = GamePhase.New};
 
@@ -36,6 +24,9 @@ namespace SheddingCardGame.UI
                 {ActionResultMessageKey.InvalidTake, "You cannot Take a Card at this time"}
             };
         }
+
+        public GameState GameState { get; private set; }
+        public Turn CurrentTurn => game.GetCurrentTurn();
 
         public void Deal()
         {
@@ -59,12 +50,9 @@ namespace SheddingCardGame.UI
             }
         }
 
-        public bool Play(CardComponent cardComponent)
+        public bool Play(Card card)
         {
-            if (!cardComponent.IsTurnedUp)
-                return false;
-
-            var actionResult = game.Play(game.GetCurrentTurn().PlayerToPlay, cardComponent.Card);
+            var actionResult = game.Play(game.GetCurrentTurn().PlayerToPlay, card);
 
             if (actionResult.IsSuccess)
             {
@@ -74,10 +62,10 @@ namespace SheddingCardGame.UI
             }
 
             GameState.HasError = true;
-                
+
             var errorMessage = errorMessages[actionResult.MessageKey];
             if (actionResult.MessageKey == ActionResultMessageKey.InvalidPlay)
-                errorMessage = errorMessage.Replace("{Card}", cardComponent.Card.ToString(), StringComparison.InvariantCultureIgnoreCase);
+                errorMessage = errorMessage.Replace("{Card}", card.ToString());
 
             GameState.ErrorMessage = errorMessage;
             return false;

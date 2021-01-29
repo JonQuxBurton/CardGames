@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using SheddingCardGames;
 using SheddingCardGames.Domain;
+using SheddingCardGames.UiLogic;
 using Action = SheddingCardGames.Domain.Action;
 
 namespace SheddingCardGame.Cli
@@ -16,7 +16,8 @@ namespace SheddingCardGame.Cli
             
             var gameBuilder = new CrazyEightsGameBuilder();
             var game = gameBuilder.Build(deckBuilder.Build());
-
+            var gameController = new GameController(game);
+            
             Turn currentTurn = null;
 
             while (currentTurn == null || !currentTurn.HasWinner)
@@ -25,16 +26,16 @@ namespace SheddingCardGame.Cli
                 RenderTurn(currentTurn);
                 Console.WriteLine($"Moves: {string.Join(",", game.CardMoves)}");
                 if (currentTurn.NextAction == Action.SelectSuit)
-                    SelectSuit(game, currentTurn);
+                    SelectSuit(gameController, currentTurn);
                 else
-                    Play(game, currentTurn);
+                    Play(gameController, currentTurn);
                 currentTurn = game.GetCurrentTurn();
             }
 
             Console.WriteLine($"Player {currentTurn.Winner} has won!");
         }
 
-        private static void SelectSuit(Game game, Turn currentTurn)
+        private static void SelectSuit(IGameController game, Turn currentTurn)
         {
             Console.WriteLine($"Select a Suit:");
             var selectedSuitInput = Console.ReadLine();
@@ -51,7 +52,7 @@ namespace SheddingCardGame.Cli
 
             Console.WriteLine($"Player {currentTurn.PlayerToPlay} selects Suit: {selectedSuit}");
 
-            game.SelectSuit(currentTurn.PlayerToPlay, selectedSuit);
+            game.SelectSuit(selectedSuit);
         }
 
         private static (int Rank, Suit Suit) ParseInput(string input)
@@ -72,13 +73,13 @@ namespace SheddingCardGame.Cli
             return (rank, suit);
         }
         
-        private static void Play(Game game, Turn currentTurn)
+        private static void Play(IGameController game, Turn currentTurn)
         {
             if (!currentTurn.ValidPlays.Any())
             {
                 Console.WriteLine($"No valid plays, press any key to Take a card");
                 Console.ReadKey();
-                var actionResult  = game.Take(game.GetCurrentTurn().TurnNumber);
+                var actionResult  = game.Take();
                 Console.WriteLine($"Taken: {actionResult.Card}");
                 return;
             }
@@ -94,7 +95,7 @@ namespace SheddingCardGame.Cli
 
             Console.WriteLine($"Player {currentTurn.PlayerToPlay} plays: {play}");
 
-            var playResult = game.Play(currentTurn.PlayerToPlay, play);
+            var playResult = game.Play(play);
             Console.WriteLine($"IsValidPlay: {playResult}");
         }
 

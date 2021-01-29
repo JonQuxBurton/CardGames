@@ -1,17 +1,18 @@
 ﻿using SheddingCardGames.Domain;
+using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGame.UI
 {
-    public class BlazorGameController : IGameController
+    public class BlazorGameController
     {
-        private readonly GameController gameController;
+        private readonly IGameController gameController;
         private readonly InGameUiBuilder inGameUiBuilder;
         public UiState UiState { get; set; }
         public Turn CurrentTurn => gameController.CurrentTurn;
 
         public GameState GameState => gameController.GameState;
 
-        public BlazorGameController(GameController gameController, InGameUiBuilder inGameUiBuilder)
+        public BlazorGameController(IGameController gameController, InGameUiBuilder inGameUiBuilder)
         {
             this.gameController = gameController;
             this.inGameUiBuilder = inGameUiBuilder;
@@ -33,7 +34,7 @@ namespace SheddingCardGame.UI
             if (!cardComponent.IsTurnedUp)
                 return false;
 
-            var isSuccess = gameController.Play(cardComponent);
+            var isSuccess = gameController.Play(cardComponent.Card);
 
             if (isSuccess)
                 BringToTop(cardComponent);

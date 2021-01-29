@@ -6,6 +6,7 @@
 @using System.Drawing
 @using Blazor.Extensions.Canvas.Model
 @using SheddingCardGames.Domain
+@using SheddingCardGames.UiLogic
 @using Action = SheddingCardGames.Domain.Action
 
 @inject IJSRuntime JsRuntime;
@@ -55,7 +56,7 @@
             //var game = gameBuilder.Build(deck);
             var game = new SpecificGameBuilder(). Build(deck);
             var inGameUiBuilder = new InGameUiBuilder(context, cardsSpriteSheet, deck);
-            var gc = new GameController(game, inGameUiBuilder);
+            var gc = new GameController(game);
             gameController = new BlazorGameController(gc, inGameUiBuilder);
 
             gameController.UiState = new NewUiBuilder(gameController, screenWidth, screenHeight).BuildNewUiState();
