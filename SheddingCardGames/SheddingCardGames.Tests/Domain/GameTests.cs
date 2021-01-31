@@ -3,6 +3,7 @@ using System.Linq;
 using FluentAssertions;
 using Moq;
 using SheddingCardGames.Domain;
+using SheddingCardGames.UiLogic;
 using Xunit;
 
 namespace SheddingCardGames.Tests.Domain
@@ -17,6 +18,7 @@ namespace SheddingCardGames.Tests.Domain
                 var sut = new Game(new Rules(), new DummyShuffler(), new[] {new Player(1), new Player(2)});
 
                 sut.GetCurrentTurn().Should().BeNull();
+                sut.GameState.CurrentGamePhase.Should().Be(GamePhase.New);
             }
         }
 
@@ -152,6 +154,41 @@ namespace SheddingCardGames.Tests.Domain
             }
         }
 
+        public class DealShould
+        {
+            private Card discardCard;
+            private CardCollection player1Hand;
+            private CardCollection player2Hand;
+            private CardCollection stockPile;
+
+            [Fact]
+            public void SetGameStateToInGame()
+            {
+                player1Hand = new CardCollection(
+                    new Card(1, Suit.Clubs),
+                    new Card(2, Suit.Clubs)
+                );
+                player2Hand = new CardCollection(
+                    new Card(1, Suit.Diamonds),
+                    new Card(2, Suit.Diamonds)
+                );
+                discardCard = new Card(2, Suit.Hearts);
+
+                stockPile = new CardCollection(new Card(1, Suit.Spades));
+
+                var sut = new GameBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithDiscardCard(discardCard)
+                    .WithStockPile(stockPile)
+                    .Build();
+
+                sut.Deal();
+
+                sut.GameState.CurrentGamePhase.Should().Be(GamePhase.InGame);
+            }
+        }
+        
         public class PlayWhenValidShould
         {
             private readonly CardCollection deck;

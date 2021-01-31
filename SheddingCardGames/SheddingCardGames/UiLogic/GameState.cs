@@ -1,9 +1,12 @@
-﻿namespace SheddingCardGame.UI
+﻿namespace SheddingCardGames.UiLogic
 {
     public class GameState
     {
-        public GamePhase CurrentGamePhase = GamePhase.New;
-        public bool HasError { get; set; }
-        public string ErrorMessage { get; set; }
+        public GamePhase CurrentGamePhase { get;  }
+
+        public GameState(GamePhase currentGamePhase)
+        {
+            CurrentGamePhase = currentGamePhase;
+        }
     }
 }

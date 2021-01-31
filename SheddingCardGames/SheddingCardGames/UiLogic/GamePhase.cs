@@ -1,8 +1,9 @@
-﻿namespace SheddingCardGame.UI
+﻿namespace SheddingCardGames.UiLogic
 {
     public enum GamePhase
     {
         New,
-        InGame
+        InGame,
+        Completed
     }
 }

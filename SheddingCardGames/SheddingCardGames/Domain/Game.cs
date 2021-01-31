@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGames.Domain
 {
@@ -21,8 +22,10 @@ namespace SheddingCardGames.Domain
                 players.Add(player.Number, player);
 
             turns = new List<Turn>();
+            GameState = new GameState(GamePhase.New);
         }
 
+        public GameState GameState { get; private set; }
         public IEnumerable<Turn> Turns => turns;
 
         public IEnumerable<CardMoveEvent> CardMoves => board.CardMoves;
@@ -44,6 +47,11 @@ namespace SheddingCardGames.Domain
                 AddWinningTurn();
         }
 
+        public void Deal()
+        {
+            GameState = new GameState(GamePhase.InGame);
+        }
+        
         public ActionResult Play(int playerNumber, Card playedCard)
         {
             if (playerNumber == 0 || playerNumber > players.Count)

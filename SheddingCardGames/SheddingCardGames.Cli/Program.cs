@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using SheddingCardGames.Domain;
-using SheddingCardGames.UiLogic;
 using Action = SheddingCardGames.Domain.Action;
 
 namespace SheddingCardGame.Cli
@@ -16,7 +15,7 @@ namespace SheddingCardGame.Cli
             
             var gameBuilder = new CrazyEightsGameBuilder();
             var game = gameBuilder.Build(deckBuilder.Build());
-            var gameController = new GameController(game);
+            game.Deal();
             
             Turn currentTurn = null;
 
@@ -26,33 +25,26 @@ namespace SheddingCardGame.Cli
                 RenderTurn(currentTurn);
                 Console.WriteLine($"Moves: {string.Join(",", game.CardMoves)}");
                 if (currentTurn.NextAction == Action.SelectSuit)
-                    SelectSuit(gameController, currentTurn);
+                    SelectSuit(game, currentTurn);
                 else
-                    Play(gameController, currentTurn);
+                    Play(game, currentTurn);
                 currentTurn = game.GetCurrentTurn();
             }
 
             Console.WriteLine($"Player {currentTurn.Winner} has won!");
         }
 
-        private static void SelectSuit(IGameController game, Turn currentTurn)
+        private static void SelectSuit(Game game, Turn currentTurn)
         {
             Console.WriteLine($"Select a Suit:");
             var selectedSuitInput = Console.ReadLine();
             selectedSuitInput = selectedSuitInput.Trim().ToUpperInvariant();
 
-            var selectedSuit = Suit.Clubs;
-
-            if (selectedSuitInput == "D")
-                selectedSuit = Suit.Diamonds;
-            else if (selectedSuitInput == "H")
-                selectedSuit = Suit.Hearts;
-            else if (selectedSuitInput == "S")
-                selectedSuit = Suit.Spades;
+            var selectedSuit = new SuitParser().Parse(selectedSuitInput);
 
             Console.WriteLine($"Player {currentTurn.PlayerToPlay} selects Suit: {selectedSuit}");
 
-            game.SelectSuit(selectedSuit);
+            game.SelectSuit(currentTurn.PlayerToPlay, selectedSuit);
         }
 
         private static (int Rank, Suit Suit) ParseInput(string input)
@@ -60,26 +52,18 @@ namespace SheddingCardGame.Cli
             var rankString = input.Count() > 2 ? input.Substring(0, 2) : input.Substring(0, 1);
             var suitString = input.Last().ToString().Trim().ToUpperInvariant();
             var rank = int.Parse(rankString);
-            
-            var suit = Suit.Clubs;
-
-            if (suitString == "D")
-                suit = Suit.Diamonds;
-            else if (suitString == "H")
-                suit = Suit.Hearts;
-            else if (suitString == "S")
-                suit = Suit.Spades;
+            var suit = new SuitParser().Parse(suitString);
 
             return (rank, suit);
         }
-        
-        private static void Play(IGameController game, Turn currentTurn)
+
+        private static void Play(Game game, Turn currentTurn)
         {
             if (!currentTurn.ValidPlays.Any())
             {
                 Console.WriteLine($"No valid plays, press any key to Take a card");
                 Console.ReadKey();
-                var actionResult  = game.Take();
+                var actionResult  = game.Take(currentTurn.PlayerToPlay);
                 Console.WriteLine($"Taken: {actionResult.Card}");
                 return;
             }
@@ -95,7 +79,7 @@ namespace SheddingCardGame.Cli
 
             Console.WriteLine($"Player {currentTurn.PlayerToPlay} plays: {play}");
 
-            var playResult = game.Play(play);
+            var playResult = game.Play(currentTurn.PlayerToPlay, play);
             Console.WriteLine($"IsValidPlay: {playResult}");
         }
 

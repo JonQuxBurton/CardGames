@@ -1,8 +1,7 @@
 ﻿using System;
-using SheddingCardGames;
 using SheddingCardGames.Domain;
 
-namespace SheddingCardGame.UI
+namespace SheddingCardGames.UiLogic
 {
     public class SpecificGameBuilder
     {

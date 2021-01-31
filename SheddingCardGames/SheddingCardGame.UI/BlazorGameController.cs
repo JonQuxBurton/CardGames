@@ -5,28 +5,24 @@ namespace SheddingCardGame.UI
 {
     public class BlazorGameController
     {
-        private readonly IGameController gameController;
         private readonly InGameUiBuilder inGameUiBuilder;
+        private readonly Game game;
+        private readonly ActionResultMessageMapper actionResultMessageMapper;
         public UiState UiState { get; set; }
-        public Turn CurrentTurn => gameController.CurrentTurn;
-
-        public GameState GameState => gameController.GameState;
-
-        public BlazorGameController(IGameController gameController, InGameUiBuilder inGameUiBuilder)
+        public Turn CurrentTurn => game.GetCurrentTurn();
+        
+        public BlazorGameController(InGameUiBuilder inGameUiBuilder, Game game, ActionResultMessageMapper actionResultMessageMapper)
         {
-            this.gameController = gameController;
             this.inGameUiBuilder = inGameUiBuilder;
+            this.game = game;
+            this.actionResultMessageMapper = actionResultMessageMapper;
         }
 
         public async void Deal()
         {
             UiState = await inGameUiBuilder.Build(this);
-            gameController.Deal();
-        }
-
-        public void SelectSuit(Suit suit)
-        {
-            gameController.SelectSuit(suit);
+            game.Deal();
+            UiState.CurrentGamePhase = game.GameState.CurrentGamePhase;
         }
 
         public bool Play(CardComponent cardComponent)
@@ -34,17 +30,58 @@ namespace SheddingCardGame.UI
             if (!cardComponent.IsTurnedUp)
                 return false;
 
-            var isSuccess = gameController.Play(cardComponent.Card);
+            var actionResult = game.Play(CurrentTurn.PlayerToPlay, cardComponent.Card);
 
-            if (isSuccess)
+            if (actionResult.IsSuccess)
+            {
                 BringToTop(cardComponent);
+                UiState.HasError = false;
+                UiState.ErrorMessage = null;
+            }
+            else
+            {
+                var errorMessage = actionResultMessageMapper.ToString(actionResult.MessageKey);
+                if (actionResult.MessageKey == ActionResultMessageKey.InvalidPlay)
+                    errorMessage = errorMessage.Replace("{Card}", cardComponent.Card.ToString());
 
-            return isSuccess;
+                UiState.HasError = true;
+                UiState.ErrorMessage = errorMessage;
+            }
+
+            return actionResult.IsSuccess;
+        }
+
+        public void SelectSuit(Suit suit)
+        {
+            var actionResult = game.SelectSuit(CurrentTurn.PlayerToPlay, suit);
+
+            if (actionResult.IsSuccess)
+            {
+                UiState.HasError = false;
+                UiState.ErrorMessage = null;
+            }
+            else
+            {
+                UiState.HasError = true;
+                UiState.ErrorMessage = actionResultMessageMapper.ToString(actionResult.MessageKey);
+            }
+
         }
 
         public ActionResultWithCard Take()
         {
-            var actionResult = gameController.Take();
+            var actionResult = game.Take(CurrentTurn.PlayerToPlay);
+
+            if (actionResult.IsSuccess)
+            {
+                UiState.HasError = false;
+                UiState.ErrorMessage = null;
+            }
+            else
+            {
+                UiState.HasError = true;
+                UiState.ErrorMessage = actionResultMessageMapper.ToString(actionResult.MessageKey);
+            }
 
             if (actionResult.IsSuccess)
             {

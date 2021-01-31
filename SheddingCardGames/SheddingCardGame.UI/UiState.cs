@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using SheddingCardGames.Domain;
+using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGame.UI
 {
@@ -18,5 +19,9 @@ namespace SheddingCardGame.UI
         public LabelComponent PlayerToPlayLabel { get; set; }
         public LabelComponent InvalidPlayLabel { get; set; }
         public LabelComponent SelectedSuitLabel { get; set; }
+
+        public GamePhase CurrentGamePhase = GamePhase.New;
+        public bool HasError { get; set; }
+        public string ErrorMessage { get; set; }
     }
 }

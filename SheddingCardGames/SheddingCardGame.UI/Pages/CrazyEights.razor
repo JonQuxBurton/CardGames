@@ -56,8 +56,7 @@
             //var game = gameBuilder.Build(deck);
             var game = new SpecificGameBuilder(). Build(deck);
             var inGameUiBuilder = new InGameUiBuilder(context, cardsSpriteSheet, deck);
-            var gc = new GameController(game);
-            gameController = new BlazorGameController(gc, inGameUiBuilder);
+            gameController = new BlazorGameController(inGameUiBuilder, game, new ActionResultMessageMapper());
 
             gameController.UiState = new NewUiBuilder(gameController, screenWidth, screenHeight).BuildNewUiState();
         }
@@ -97,7 +96,7 @@
             }
         }
 
-        if (gameController.GameState.CurrentGamePhase == GamePhase.New)
+        if (gameController.UiState.CurrentGamePhase == GamePhase.New)
             return;
 
         var cardWidth = 154;
@@ -190,12 +189,10 @@
         }
 
         // Display invalid Play messages
-        var gameState = gameController.GameState;
-
-        if (gameState.HasError)
+        if (uiState.HasError)
         {
             uiState.InvalidPlayLabel.IsVisible = true;
-            uiState.InvalidPlayLabel.Label = gameState.ErrorMessage;
+            uiState.InvalidPlayLabel.Label = uiState.ErrorMessage;
         }
         else
         {
