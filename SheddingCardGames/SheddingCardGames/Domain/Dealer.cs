@@ -3,20 +3,23 @@ using System.Linq;
 
 namespace SheddingCardGames.Domain
 {
-    public class BoardBuilder
+    public class Dealer : IDealer
     {
         private readonly IRules rules;
         private readonly IShuffler shuffler;
+        private readonly CardCollection deck;
 
-        public BoardBuilder(IRules rules, IShuffler shuffler)
+        public Dealer(IRules rules, IShuffler shuffler, CardCollection deck)
         {
             this.rules = rules;
             this.shuffler = shuffler;
+            this.deck = deck;
         }
         
-        public Board Build(CardCollection deck, IEnumerable<Player> players)
+        public Board Build(IEnumerable<Player> players)
         {
             var shuffled = shuffler.Shuffle(deck.Cards);
+
             var board = new Board(players.ElementAt(0), players.ElementAt(1), new CardCollection(shuffled), new DiscardPile());
 
             board.Deal(rules.GetHandSize());

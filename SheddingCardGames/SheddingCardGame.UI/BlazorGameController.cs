@@ -20,8 +20,8 @@ namespace SheddingCardGame.UI
 
         public async void Deal()
         {
-            UiState = await inGameUiBuilder.Build(this);
             game.Deal();
+            UiState = await inGameUiBuilder.Build(this);
             UiState.CurrentGamePhase = game.GameState.CurrentGamePhase;
         }
 

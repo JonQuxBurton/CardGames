@@ -9,15 +9,14 @@ namespace SheddingCardGames.Domain
         public Game Build(CardCollection deck)
         {
             var players = new[] { new Player(1), new Player(2) };
-            var rules = new Rules();
+            var rules = new Rules(7);
             var shuffler = new Shuffler();
-            var game = new Game(rules, shuffler, players);
-            var boardBuilder = new BoardBuilder(rules, shuffler);
-            var board = boardBuilder.Build(deck, players);
+            var boardBuilder = new Dealer(rules, shuffler, deck);
+            var game = new Game(rules, shuffler, boardBuilder, players);
 
             var random = new Random();
             var firstPlayer = random.Next(2) + 1;
-            game.Setup(board, firstPlayer);
+            game.ChooseStartingPlayer(firstPlayer);
 
             return game;
         }

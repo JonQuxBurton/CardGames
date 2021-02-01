@@ -5,6 +5,18 @@ namespace SheddingCardGames.Domain
 {
     public class Rules : IRules
     {
+        public int HandSize { get; }
+
+        public Rules()
+        {
+            HandSize = 7;
+        }
+        
+        public Rules(int handSize)
+        {
+            HandSize = handSize;
+        }
+        
         public IEnumerable<Card> GetValidPlays(Card discard, CardCollection hand, int turnNumber, Suit? selectedSuit)
         {
             if (turnNumber == 1 && discard.Rank == 8)
@@ -51,7 +63,7 @@ namespace SheddingCardGames.Domain
 
         public int GetHandSize()
         {
-            return 7;
+            return HandSize;
         }
     }
 }

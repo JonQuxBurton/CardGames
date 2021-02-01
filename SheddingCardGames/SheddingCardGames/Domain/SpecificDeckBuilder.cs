@@ -10,7 +10,16 @@ namespace SheddingCardGames.Domain
         {
             Player1Hand = player1Hand;
             Player2Hand = player2Hand;
-            DiscardCard = discardCard;
+            DiscardPile = new CardCollection(discardCard);
+            StockPile = stockPile;
+        }
+
+        public SpecificDeckBuilder(CardCollection player1Hand, CardCollection player2Hand, CardCollection discardPile,
+            CardCollection stockPile)
+        {
+            Player1Hand = player1Hand;
+            Player2Hand = player2Hand;
+            DiscardPile = discardPile;
             StockPile = stockPile;
         }
 
@@ -18,7 +27,7 @@ namespace SheddingCardGames.Domain
 
         public CardCollection Player2Hand { get; }
 
-        public Card DiscardCard { get; }
+        public CardCollection DiscardPile { get; }
 
         public CardCollection StockPile { get; }
 
@@ -31,7 +40,7 @@ namespace SheddingCardGames.Domain
                 cards.Add(Player2Hand.Cards.ElementAt(i));
             }
 
-            cards.Add(DiscardCard);
+            cards.AddRange(DiscardPile.Cards);
             cards.AddRange(StockPile.Cards);
 
             return new CardCollection(cards);

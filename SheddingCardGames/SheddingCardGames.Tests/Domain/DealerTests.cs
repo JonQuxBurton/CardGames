@@ -6,7 +6,7 @@ using Xunit;
 
 namespace SheddingCardGames.Tests.Domain
 {
-    namespace BoardBuilderTests
+    namespace DealerTests
     {
         public class BuildShould
         {
@@ -14,7 +14,7 @@ namespace SheddingCardGames.Tests.Domain
             private readonly Card[] expectedCards;
             private readonly Rules rules;
             private readonly Mock<IShuffler> shufflerMock;
-            private readonly BoardBuilder sut;
+            private readonly Dealer sut;
             private readonly Player player1;
             private readonly Player player2;
 
@@ -47,7 +47,7 @@ namespace SheddingCardGames.Tests.Domain
                 shufflerMock = new Mock<IShuffler>();
                 shufflerMock.Setup(x => x.Shuffle(deck.Cards)).Returns(expectedCards);
                 rules = new Rules();
-                sut = new BoardBuilder(rules, shufflerMock.Object);
+                sut = new Dealer(rules, shufflerMock.Object, deck);
                 player1 = new Player(1);
                 player2 = new Player(2);
             }
@@ -55,7 +55,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ShuffleDeck()
             {
-                sut.Build(deck, new[] {player1, player2});
+                sut.Build(new[] {player1, player2});
 
                 shufflerMock.Verify(x => x.Shuffle(deck.Cards));
             }
@@ -63,7 +63,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void DealCardsToPlayer1()
             {
-                var actual = sut.Build(deck, new[] {player1, player2});
+                var actual = sut.Build(new[] {player1, player2});
 
                 actual.Player1.Hand.Cards.Should().Equal(
                     new Card(1, Suit.Diamonds),
@@ -79,7 +79,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void DealCardsToPlayer2()
             {
-                var actual = sut.Build(deck, new[] {player1, player2});
+                var actual = sut.Build(new[] {player1, player2});
 
                 actual.Player2.Hand.Cards.Should().Equal(
                     new Card(1, Suit.Spades),
@@ -95,7 +95,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void MoveCardToDiscardPile()
             {
-                var actual = sut.Build(deck, new[] {player1, player2});
+                var actual = sut.Build(new[] {player1, player2});
 
                 actual.StockPile.Cards.Count().Should().Be(expectedCards.Length - rules.GetHandSize() * 2 - 1);
                 actual.DiscardPile.CardToMatch.Should().Be(new Card(13, Suit.Hearts));

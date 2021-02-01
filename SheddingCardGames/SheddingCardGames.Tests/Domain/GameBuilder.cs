@@ -1,3 +1,4 @@
+using System.Linq;
 using SheddingCardGames.Domain;
 
 namespace SheddingCardGames.Tests.Domain
@@ -7,7 +8,7 @@ namespace SheddingCardGames.Tests.Domain
         private CardCollection discardPileCards = new CardCollection();
         private CardCollection player1Hand = new CardCollection();
         private CardCollection player2Hand = new CardCollection();
-        private IShuffler shuffler = new DummyShuffler();
+        private readonly IShuffler shuffler = new DummyShuffler();
         private int startingPlayerNumber = 1;
         private CardCollection stockPile = new CardCollection();
 
@@ -47,23 +48,17 @@ namespace SheddingCardGames.Tests.Domain
             return this;
         }
 
-        public GameBuilder WithShuffler(IShuffler shuffler)
-        {
-            this.shuffler = shuffler;
-            return this;
-        }
-
         public Game Build()
         {
-            var player1 = new Player(1) {Hand = player1Hand};
-            var player2 = new Player(2) {Hand = player2Hand};
-            var discardPile = new DiscardPile(discardPileCards.Cards);
-            discardPile.TurnUpTopCard();
+            var player1 = new Player(1);
+            var player2 = new Player(2);
 
-            var game = new Game(new Rules(), shuffler, new[] {player1, player2});
+            var deck = new SpecificDeckBuilder(player1Hand, player2Hand, discardPileCards.Cards.First(), stockPile).Build();
+            var rules = new Rules(player1Hand.Cards.Count());
+            var game = new Game(rules, shuffler, new Dealer(rules, shuffler, deck), new[] {player1, player2});
 
-            var board = new Board(player1, player2, stockPile, discardPile);
-            game.Setup(board, startingPlayerNumber);
+            game.ChooseStartingPlayer(startingPlayerNumber);
+            game.Deal();
 
             return game;
         }
