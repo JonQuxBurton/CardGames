@@ -15,10 +15,12 @@ namespace SheddingCardGames.Tests.Domain
                 new Dealer(new Rules(), new DummyShuffler(), new CardCollection()), new[] { player1, player2 });
         }
 
-        public Game CreateSetupGame(Card[] player1Hand, Card[] player2Hand, Card[] withDiscardPile, Card[] stockPile = null)
+        public Game CreateSetupGame(Card[] player1Hand, Card[] player2Hand, Card[] withDiscardPile, Card[] withStockPile = null)
         {
-            stockPile ??= new Card[0];
+            withStockPile ??= new Card[0];
 
+            var stockPile = new StockPile(new CardCollection(withStockPile));
+            
             var discardPile = new DiscardPile(withDiscardPile);
             discardPile.TurnUpTopCard();
             var player1 = new Player(1) {Hand = new CardCollection(player1Hand)};
@@ -26,7 +28,7 @@ namespace SheddingCardGames.Tests.Domain
                 
             var game = new Game(new Rules(), new DummyShuffler(), new Dealer(new Rules(), new DummyShuffler(), new CardCollection()), new [] { player1, player2});
                 
-            var board = new Board(player1, player2, new CardCollection(stockPile), discardPile);
+            var board = new Board(player1, player2, stockPile, discardPile);
             game.ChooseStartingPlayer(1);
                 
             return game;

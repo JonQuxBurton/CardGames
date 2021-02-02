@@ -116,7 +116,7 @@
         discardCardGameObject.SetY(discardPileY);
         discardCardGameObject.IsVisible = true;
 
-        var stockPileCard = gameController.CurrentTurn.StockPile.First();
+        var stockPileCard = gameController.CurrentTurn.StockPile.Cards.Cards.First();
         var stockPileGameObject = uiState.CardGameObjects[stockPileCard];
         stockPileGameObject.OnClick = () => gameController.Take();
         //stockPileGameObject.Tag = "StockPile";

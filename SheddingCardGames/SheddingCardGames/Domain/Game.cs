@@ -182,7 +182,7 @@ namespace SheddingCardGames.Domain
             turns.Add(
                 new Turn(1,
                     nextPlayer.Number,
-                    GameState.CurrentBoard.StockPile.Cards,
+                    GameState.CurrentBoard.StockPile,
                     GameState.CurrentBoard.DiscardPile,
                     players[1].Hand,
                     players[2].Hand,
@@ -202,7 +202,7 @@ namespace SheddingCardGames.Domain
             turns.Add(
                 new Turn(nextTurnNumber,
                     nextPlayer.Number,
-                    GameState.CurrentBoard.StockPile.Cards,
+                    GameState.CurrentBoard.StockPile,
                     GameState.CurrentBoard.DiscardPile,
                     players[1].Hand,
                     players[2].Hand,
@@ -221,7 +221,7 @@ namespace SheddingCardGames.Domain
             turns.Add(
                 new Turn(currentTurn.TurnNumber,
                     currentTurn.PlayerToPlay,
-                    GameState.CurrentBoard.StockPile.Cards,
+                    GameState.CurrentBoard.StockPile,
                     GameState.CurrentBoard.DiscardPile,
                     players[1].Hand,
                     players[2].Hand,
@@ -238,7 +238,7 @@ namespace SheddingCardGames.Domain
             turns.Add(
                 new Turn(currentTurn.TurnNumber,
                     CurrentPlayer.Number,
-                    GameState.CurrentBoard.StockPile.Cards,
+                    GameState.CurrentBoard.StockPile,
                     GameState.CurrentBoard.DiscardPile,
                     players[1].Hand,
                     players[2].Hand,

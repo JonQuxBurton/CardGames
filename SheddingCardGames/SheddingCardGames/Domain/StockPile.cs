@@ -11,7 +11,7 @@ namespace SheddingCardGames.Domain
             this.cards = cards;
         }
 
-        public IEnumerable<Card> Cards => cards.Cards;
+        public CardCollection Cards => cards;
 
         public Card Take()
         {

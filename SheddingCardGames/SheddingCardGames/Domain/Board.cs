@@ -6,11 +6,11 @@ namespace SheddingCardGames.Domain
     {
         private readonly List<CardMoveEvent> cardMoves;
 
-        public Board(Player player1, Player player2, CardCollection stockPile, DiscardPile discardPile)
+        public Board(Player player1, Player player2, StockPile stockPile, DiscardPile discardPile)
         {
             Player1 = player1;
             Player2 = player2;
-            StockPile = new StockPile(stockPile);
+            StockPile = stockPile;
             DiscardPile = discardPile;
             cardMoves = new List<CardMoveEvent>();
         }

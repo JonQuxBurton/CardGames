@@ -20,7 +20,7 @@ namespace SheddingCardGames.Domain
         {
             var shuffled = shuffler.Shuffle(deck.Cards);
 
-            var board = new Board(players.ElementAt(0), players.ElementAt(1), new CardCollection(shuffled), new DiscardPile());
+            var board = new Board(players.ElementAt(0), players.ElementAt(1), new StockPile(new CardCollection(shuffled)), new DiscardPile());
 
             board.Deal(rules.GetHandSize());
             board.TurnUpDiscardCard();

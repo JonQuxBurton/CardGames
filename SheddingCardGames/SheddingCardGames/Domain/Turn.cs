@@ -2,19 +2,11 @@ using System.Collections.Generic;
 
 namespace SheddingCardGames.Domain
 {
-    public enum Action
-    {
-        Play,
-        SelectSuit,
-        Take,
-        Won
-    }
-    
     public class Turn
     {
         public Turn(int turnNumber,
             int playerToPlay,
-            IEnumerable<Card> stockPile,
+            StockPile stockPile,
             DiscardPile discardPile,
             CardCollection player1Hand,
             CardCollection player2Hand,
@@ -39,7 +31,7 @@ namespace SheddingCardGames.Domain
 
         public int TurnNumber { get; }
         public int PlayerToPlay { get; }
-        public IEnumerable<Card> StockPile { get; }
+        public StockPile StockPile { get; }
         public DiscardPile DiscardPile { get; }
         public IEnumerable<Card> ValidPlays { get; }
         public CardCollection Player1Hand { get; }

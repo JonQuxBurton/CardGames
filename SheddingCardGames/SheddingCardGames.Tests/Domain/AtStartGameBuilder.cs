@@ -3,46 +3,40 @@ using SheddingCardGames.Domain;
 
 namespace SheddingCardGames.Tests.Domain
 {
-    public class GameBuilder
+    public class AtStartGameBuilder
     {
-        private CardCollection discardPileCards = new CardCollection();
+        private readonly IShuffler shuffler = new DummyShuffler();
+        private Card discardCard = new Card(1, Suit.Clubs);
         private CardCollection player1Hand = new CardCollection();
         private CardCollection player2Hand = new CardCollection();
-        private readonly IShuffler shuffler = new DummyShuffler();
         private int startingPlayerNumber = 1;
         private CardCollection stockPile = new CardCollection();
 
-        public GameBuilder WithPlayer1Hand(CardCollection hand)
+        public AtStartGameBuilder WithPlayer1Hand(CardCollection hand)
         {
             player1Hand = hand;
             return this;
         }
 
-        public GameBuilder WithPlayer2Hand(CardCollection hand)
+        public AtStartGameBuilder WithPlayer2Hand(CardCollection hand)
         {
             player2Hand = hand;
             return this;
         }
 
-        public GameBuilder WithDiscardCard(Card card)
+        public AtStartGameBuilder WithDiscardCard(Card card)
         {
-            discardPileCards = new CardCollection(card);
+            discardCard = card;
             return this;
         }
 
-        public GameBuilder WithDiscardPile(CardCollection cards)
-        {
-            discardPileCards = cards;
-            return this;
-        }
-
-        public GameBuilder WithStockPile(CardCollection cards)
+        public AtStartGameBuilder WithStockPile(CardCollection cards)
         {
             stockPile = cards;
             return this;
         }
 
-        public GameBuilder WithStartingPlayer(int playerNumber)
+        public AtStartGameBuilder WithStartingPlayer(int playerNumber)
         {
             startingPlayerNumber = playerNumber;
             return this;
@@ -53,7 +47,7 @@ namespace SheddingCardGames.Tests.Domain
             var player1 = new Player(1);
             var player2 = new Player(2);
 
-            var deck = new SpecificDeckBuilder(player1Hand, player2Hand, discardPileCards.Cards.First(), stockPile).Build();
+            var deck = new SpecificDeckBuilder(player1Hand, player2Hand, discardCard, stockPile).Build();
             var rules = new Rules(player1Hand.Cards.Count());
             var game = new Game(rules, shuffler, new Dealer(rules, shuffler, deck), new[] {player1, player2});
 

@@ -21,7 +21,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var sut = new StockPile(expectedCards);
 
-                sut.Cards.Should().Equal(expectedCards.Cards);
+                sut.Cards.Cards.Should().Equal(expectedCards.Cards);
             }
         }
 
@@ -54,7 +54,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 sut.Take();
 
-                sut.Cards.Should().Equal(
+                sut.Cards.Cards.Should().Equal(
                     new Card(2, Suit.Clubs),
                     new Card(3, Suit.Clubs)
                 );
@@ -113,7 +113,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.AddAtEnd(addedCard);
 
-                sut.Cards.Last().Should().Be(addedCard);
+                sut.Cards.Cards.Last().Should().Be(addedCard);
             }
         }
     }

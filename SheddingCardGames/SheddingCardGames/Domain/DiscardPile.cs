@@ -13,8 +13,22 @@ namespace SheddingCardGames.Domain
         {
             this.RestOfCards = new CardCollection(restOfCards);
         }
+        public DiscardPile(CardCollection restOfCards)
+        {
+            this.RestOfCards = restOfCards;
+        }
 
         public CardCollection RestOfCards { get; }
+        
+        public CardCollection AllCards {
+            get
+            {
+                var cards = new List<Card>();
+                cards.Add(CardToMatch);
+                cards.AddRange(RestOfCards.Cards);
+                return new CardCollection(cards);
+            }
+        }
 
         public Card CardToMatch { get; private set; }
 

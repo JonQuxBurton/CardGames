@@ -97,7 +97,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var actual = sut.Build(new[] {player1, player2});
 
-                actual.StockPile.Cards.Count().Should().Be(expectedCards.Length - rules.GetHandSize() * 2 - 1);
+                actual.StockPile.Cards.Cards.Count().Should().Be(expectedCards.Length - rules.GetHandSize() * 2 - 1);
                 actual.DiscardPile.CardToMatch.Should().Be(new Card(13, Suit.Hearts));
             }
         }
