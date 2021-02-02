@@ -21,18 +21,6 @@ namespace SheddingCardGames.Domain
         public DiscardPile DiscardPile { get; set; }
         public IEnumerable<CardMoveEvent> CardMoves => cardMoves;
 
-        public void Deal(int handSize)
-        {
-            for (var i = 0; i < handSize; i++)
-            {
-                if (!StockPile.IsEmpty())
-                {
-                    TakeCardFromStockPile(Player1);
-                    TakeCardFromStockPile(Player2);
-                }
-            }
-        }
-
         public void TurnUpDiscardCard()
         {
             var cardToTurnUp = StockPile.Take();

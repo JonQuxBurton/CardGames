@@ -127,13 +127,9 @@ namespace SheddingCardGames.Tests.Domain
 
         public class DealShould
         {
-            private readonly Card expectedDiscardCard;
-            private readonly CardCollection expectedValidPlaysForPlayer1;
-            private readonly CardCollection expectedValidPlaysForPlayer2;
             private readonly CardCollection player1Hand;
             private readonly CardCollection player2Hand;
             private readonly CardCollection stockPile;
-            private Game sut;
 
             public DealShould()
             {
@@ -155,28 +151,26 @@ namespace SheddingCardGames.Tests.Domain
                     new Card(6, Suit.Diamonds),
                     new Card(7, Suit.Diamonds)
                 );
-                expectedDiscardCard = new Card(2, Suit.Hearts);
-
                 stockPile = new CardCollection(new Card(1, Suit.Spades));
-                expectedValidPlaysForPlayer1 = new CardCollection(new Card(2, Suit.Clubs));
-                expectedValidPlaysForPlayer2 = new CardCollection(new Card(2, Suit.Diamonds));
-
-                var player1 = new Player(1) { Hand = player1Hand };
-                var player2 = new Player(2) { Hand = player2Hand };
-                var shuffler = new DummyShuffler();
-
-                var deckBuilder = new SpecificDeckBuilder(player1Hand, player2Hand, expectedDiscardCard, stockPile);
-                var deck = deckBuilder.Build();
-                var rules = new Rules(7);
-                
-                sut = new Game(rules, shuffler, 
-                    new Dealer(rules, shuffler, deck), new[] { player1, player2 });
             }
 
+            private Game CreateSut(int withStartingPlayer, Card withDiscardCard)
+            {
+                return new ReadyToDealGameBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithStockPile(stockPile)
+                    .WithDiscardCard(withDiscardCard)
+                    .WithStartingPlayer(withStartingPlayer)
+                    .Build();
+            }
+            
             [Fact]
             public void SetGameStateToInGame()
             {
-                sut.ChooseStartingPlayer(1);
+                var discardCard = new Card(2, Suit.Hearts);
+                var startingPlayer = 1;
+                var sut = CreateSut(startingPlayer, discardCard);
                 
                 sut.Deal();
 
@@ -188,8 +182,9 @@ namespace SheddingCardGames.Tests.Domain
             [InlineData(2)]
             public void PreserveStartingPlayer(int expectedStartingPlayer)
             {
-                sut.ChooseStartingPlayer(expectedStartingPlayer);
-                
+                var discardCard = new Card(2, Suit.Hearts);
+                var sut = CreateSut(expectedStartingPlayer, discardCard);
+
                 sut.Deal();
 
                 sut.GameState.StartingPlayer.Should().Be(expectedStartingPlayer);
@@ -198,8 +193,10 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void AddHandToPlayer1()
             {
-                sut.ChooseStartingPlayer(1);
-                
+                var discardCard = new Card(2, Suit.Hearts);
+                var startingPlayer = 1;
+                var sut = CreateSut(startingPlayer, discardCard);
+
                 sut.Deal();
 
                 var actual = sut.GetCurrentTurn();
@@ -209,8 +206,10 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void AddHandToPlayer2()
             {
-                sut.ChooseStartingPlayer(1);
-                
+                var discardCard = new Card(2, Suit.Hearts);
+                var startingPlayer = 1;
+                var sut = CreateSut(startingPlayer, discardCard);
+
                 sut.Deal();
 
                 var actual = sut.GetCurrentTurn();
@@ -220,8 +219,10 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void SetupDiscardPile()
             {
-                sut.ChooseStartingPlayer(1);
-                
+                var expectedDiscardCard = new Card(2, Suit.Hearts);
+                var startingPlayer = 1;
+                var sut = CreateSut(startingPlayer, expectedDiscardCard);
+
                 sut.Deal();
 
                 var actual = sut.GetCurrentTurn();
@@ -231,19 +232,24 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void SetupStockPile()
             {
-                sut.ChooseStartingPlayer(1);
-                
+                var discardCard = new Card(2, Suit.Hearts);
+                var startingPlayer = 1;
+                var sut = CreateSut(startingPlayer, discardCard);
+
                 sut.Deal();
 
                 var actual = sut.GetCurrentTurn();
-                actual.StockPile.Cards.Cards.Should().Equal(stockPile.Cards);
+                actual.StockPile.Cards.Should().Equal(stockPile.Cards);
             }
 
             [Fact]
             public void CreateFirstTurnWhenStartingWithPlayer1()
             {
-                sut.ChooseStartingPlayer(1);
-                
+                var expectedValidPlaysForPlayer1 = new CardCollection(new Card(2, Suit.Clubs));
+                var discardCard = new Card(2, Suit.Hearts);
+                var startingPlayer = 1;
+                var sut = CreateSut(startingPlayer, discardCard);
+
                 sut.Deal();
 
                 var actual = sut.GetCurrentTurn();
@@ -257,7 +263,10 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void CreateFirstTurnWhenStartingWithPlayer2()
             {
-                sut.ChooseStartingPlayer(2);
+                var expectedValidPlaysForPlayer2 = new CardCollection(new Card(2, Suit.Diamonds));
+                var discardCard = new Card(2, Suit.Hearts);
+                var startingPlayer = 2;
+                var sut = CreateSut(startingPlayer, discardCard);
 
                 sut.Deal();
 
@@ -272,13 +281,16 @@ namespace SheddingCardGames.Tests.Domain
             public void CreateFirstTurnWithNextActionTake()
             {
                 var discardCard = new Card(10, Suit.Spades);
-                sut = new AtStartGameBuilder()
+                var startingPlayer = 1;
+                var sut = new ReadyToDealGameBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
-                    .WithDiscardCard(discardCard)
                     .WithStockPile(stockPile)
-                    .WithStartingPlayer(2)
+                    .WithDiscardCard(discardCard)
+                    .WithStartingPlayer(startingPlayer)
                     .Build();
+
+                sut.Deal();
 
                 var actual = sut.GetCurrentTurn();
                 actual.TurnNumber.Should().Be(1);
@@ -300,20 +312,12 @@ namespace SheddingCardGames.Tests.Domain
 
                 player1Hand = new CardCollection(
                     deck.Get(2, Suit.Clubs),
-                    deck.Get(3, Suit.Clubs),
-                    deck.Get(4, Suit.Clubs),
-                    deck.Get(5, Suit.Clubs),
-                    deck.Get(6, Suit.Clubs),
                     deck.Get(1, Suit.Hearts)
                 );
                 player2Hand = new CardCollection(
                     deck.Get(1, Suit.Diamonds),
                     deck.Get(2, Suit.Diamonds),
-                    deck.Get(3, Suit.Diamonds),
-                    deck.Get(4, Suit.Diamonds),
-                    deck.Get(5, Suit.Diamonds),
-                    deck.Get(6, Suit.Diamonds),
-                    deck.Get(7, Suit.Diamonds)
+                    deck.Get(3, Suit.Diamonds)
                 );
             }
 
@@ -437,20 +441,16 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var discardCard = deck.Get(1, Suit.Hearts);
                 var playedCard = deck.Get(1, Suit.Clubs);
-                var player2Hand = new CardCollection(
+                var player2HandWithNoPlays = new CardCollection(
                     deck.Get(2, Suit.Diamonds),
                     deck.Get(3, Suit.Diamonds),
-                    deck.Get(4, Suit.Diamonds),
-                    deck.Get(5, Suit.Diamonds),
-                    deck.Get(6, Suit.Diamonds),
-                    deck.Get(7, Suit.Diamonds),
-                    deck.Get(9, Suit.Diamonds)
+                    deck.Get(4, Suit.Diamonds)
                 );
 
                 player1Hand.AddAtStart(playedCard);
                 sut = new AtStartGameBuilder()
                     .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
+                    .WithPlayer2Hand(player2HandWithNoPlays)
                     .WithDiscardCard(discardCard)
                     .Build();
 
@@ -508,12 +508,7 @@ namespace SheddingCardGames.Tests.Domain
                 );
                 var player2Hand = new CardCollection(
                     deck.Get(1, Suit.Diamonds),
-                    deck.Get(2, Suit.Diamonds),
-                    deck.Get(3, Suit.Diamonds),
-                    deck.Get(4, Suit.Diamonds),
-                    deck.Get(5, Suit.Diamonds),
-                    deck.Get(6, Suit.Diamonds),
-                    deck.Get(7, Suit.Diamonds)
+                    deck.Get(2, Suit.Diamonds)
                 );
                 sut = new AtStartGameBuilder()
                     .WithPlayer1Hand(player1Hand)
@@ -555,12 +550,7 @@ namespace SheddingCardGames.Tests.Domain
                 );
                 var player2Hand = new CardCollection(
                     deck.Get(8, Suit.Diamonds),
-                    deck.Get(2, Suit.Diamonds),
-                    deck.Get(3, Suit.Diamonds),
-                    deck.Get(4, Suit.Diamonds),
-                    deck.Get(5, Suit.Diamonds),
-                    deck.Get(6, Suit.Diamonds),
-                    deck.Get(7, Suit.Diamonds)
+                    deck.Get(2, Suit.Diamonds)
                 );
                 sut = new AtStartGameBuilder()
                     .WithPlayer1Hand(player1Hand)
@@ -596,18 +586,10 @@ namespace SheddingCardGames.Tests.Domain
                 var player1Hand = new CardCollection(
                     deck.Get(1, Suit.Clubs),
                     deck.Get(2, Suit.Clubs),
-                    deck.Get(3, Suit.Clubs),
-                    deck.Get(4, Suit.Clubs),
-                    deck.Get(5, Suit.Clubs),
-                    deck.Get(6, Suit.Clubs),
                     deck.Get(7, Suit.Hearts)
                 );
                 var player2Hand = new CardCollection(
                     deck.Get(1, Suit.Diamonds),
-                    deck.Get(2, Suit.Diamonds),
-                    deck.Get(3, Suit.Diamonds),
-                    deck.Get(4, Suit.Diamonds),
-                    deck.Get(5, Suit.Diamonds),
                     deck.Get(7, Suit.Diamonds),
                     deck.Get(10, Suit.Diamonds)
                 );
@@ -737,10 +719,11 @@ namespace SheddingCardGames.Tests.Domain
             public void ReturnTrueWhenPlayer1WonAtSetup()
             {
                 player1Hand = new CardCollection();
-
-                player2Hand = new CardCollection(new Card(2, Suit.Clubs), new Card(4, Suit.Clubs),
-                    new Card(6, Suit.Clubs), new Card(8, Suit.Clubs), new Card(10, Suit.Clubs),
-                    new Card(12, Suit.Clubs), new Card(1, Suit.Diamonds));
+                player2Hand = new CardCollection(
+                    new Card(2, Suit.Clubs), 
+                    new Card(4, Suit.Clubs),
+                    new Card(6, Suit.Clubs)
+                );
                 sut = new AtStartGameBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
@@ -763,12 +746,9 @@ namespace SheddingCardGames.Tests.Domain
                 player2Hand = new CardCollection(
                     new Card(2, Suit.Clubs),
                     new Card(4, Suit.Clubs),
-                    new Card(6, Suit.Clubs),
-                    new Card(8, Suit.Clubs),
-                    new Card(10, Suit.Clubs),
-                    new Card(12, Suit.Clubs),
-                    new Card(1, Suit.Diamonds));
-                sut = new AtStartGameBuilder()
+                    new Card(6, Suit.Clubs)
+                    );
+                    sut = new AtStartGameBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithDiscardCard(discardCard)
@@ -942,19 +922,19 @@ namespace SheddingCardGames.Tests.Domain
                 player1Hand = new CardCollection(
                     deck.Get(1, Suit.Clubs),
                     deck.Get(2, Suit.Clubs),
-                    deck.Get(3, Suit.Clubs),
-                    deck.Get(4, Suit.Clubs),
-                    deck.Get(5, Suit.Clubs),
-                    deck.Get(6, Suit.Clubs),
-                    deck.Get(7, Suit.Clubs)
+                    deck.Get(3, Suit.Clubs)
+                    //deck.Get(4, Suit.Clubs),
+                    //deck.Get(5, Suit.Clubs),
+                    //deck.Get(6, Suit.Clubs),
+                    //deck.Get(7, Suit.Clubs)
                 );
                 player2Hand = new CardCollection(
                     deck.Get(2, Suit.Diamonds),
                     deck.Get(3, Suit.Diamonds),
-                    deck.Get(4, Suit.Diamonds),
-                    deck.Get(5, Suit.Diamonds),
-                    deck.Get(6, Suit.Diamonds),
-                    deck.Get(7, Suit.Diamonds),
+                    //deck.Get(4, Suit.Diamonds),
+                    //deck.Get(5, Suit.Diamonds),
+                    //deck.Get(6, Suit.Diamonds),
+                    //deck.Get(7, Suit.Diamonds),
                     deck.Get(10, Suit.Diamonds)
                 );
             }
@@ -1022,7 +1002,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.GetCurrentTurn();
                 actual.Player1Hand.Cards.Should().Contain(new Card(1, Suit.Hearts));
-                actual.StockPile.Cards.Cards.Should().BeEmpty();
+                actual.StockPile.Cards.Should().BeEmpty();
             }
 
             [Fact]
@@ -1045,7 +1025,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.GetCurrentTurn();
                 actual.Player2Hand.Cards.Should().Contain(new Card(1, Suit.Hearts));
-                actual.StockPile.Cards.Cards.Should().Equal(deck.Get(2, Suit.Hearts));
+                actual.StockPile.Cards.Should().Equal(deck.Get(2, Suit.Hearts));
             }
 
             [Fact]
@@ -1067,7 +1047,6 @@ namespace SheddingCardGames.Tests.Domain
                 var stockPile = new StockPile(new CardCollection(
                     deck.Get(1, Suit.Clubs)
                 ));
-                deck = new SpecificDeckBuilder(player1Hand, player2Hand, discardPile.AllCards, stockPile.Cards).Build();
 
                 var currentTurn = new Turn(1, 1, stockPile, discardPile, player1Hand, player2Hand, new Card[0], false, null, Action.Take, null);
 
@@ -1085,7 +1064,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.GetCurrentTurn();
 
                 actual.DiscardPile.CardToMatch.Should().Be(deck.Get(1, Suit.Spades));
-                actual.StockPile.Cards.Cards.Should().Equal(
+                actual.StockPile.Cards.Should().Equal(
                     deck.Get(2, Suit.Hearts),
                     deck.Get(3, Suit.Hearts),
                     deck.Get(1, Suit.Hearts)
@@ -1184,7 +1163,6 @@ namespace SheddingCardGames.Tests.Domain
                 actual.MessageKey.Should().Be(ActionResultMessageKey.InvalidTake);
                 actual.Card.Should().Be(null);
             }
-
         }
     }
 }

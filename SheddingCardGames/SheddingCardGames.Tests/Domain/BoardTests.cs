@@ -77,122 +77,6 @@ namespace SheddingCardGames.Tests.Domain
             }
         }
 
-        public class DealShould
-        {
-            private Board sut;
-
-            public DealShould()
-            {
-                var originalStockPile = new StockPile(new CardCollection(
-                    new Card(1, Suit.Clubs),
-                    new Card(2, Suit.Clubs),
-                    new Card(3, Suit.Clubs),
-                    new Card(4, Suit.Clubs),
-                    new Card(5, Suit.Clubs),
-                    new Card(6, Suit.Clubs),
-                    new Card(7, Suit.Clubs),
-                    new Card(8, Suit.Clubs),
-                    new Card(9, Suit.Clubs),
-                    new Card(10, Suit.Clubs),
-                    new Card(13, Suit.Clubs),
-                    new Card(12, Suit.Clubs),
-                    new Card(13, Suit.Hearts),
-                    new Card(1, Suit.Diamonds),
-                    new Card(13, Suit.Diamonds),
-                    new Card(1, Suit.Hearts),
-                    new Card(2, Suit.Hearts)
-                ));
-                sut = new Board(new Player(1), new Player(2), originalStockPile, new DiscardPile());
-
-                sut.Deal(7);
-            }
-
-            [Fact]
-            public void DealCardsToPlayer1()
-            {
-                sut.Player1.Hand.Cards.Should().Equal(
-                    new Card(1, Suit.Clubs),
-                    new Card(3, Suit.Clubs),
-                    new Card(5, Suit.Clubs),
-                    new Card(7, Suit.Clubs),
-                    new Card(9, Suit.Clubs),
-                    new Card(13, Suit.Clubs),
-                    new Card(13, Suit.Hearts)
-                );
-            }
-
-            [Fact]
-            public void DealCardsToPlayer2()
-            {
-                sut.Player2.Hand.Cards.Should().Equal(
-                    new Card(2, Suit.Clubs),
-                    new Card(4, Suit.Clubs),
-                    new Card(6, Suit.Clubs),
-                    new Card(8, Suit.Clubs),
-                    new Card(10, Suit.Clubs),
-                    new Card(12, Suit.Clubs),
-                    new Card(1, Suit.Diamonds)
-                );
-            }
-
-            [Fact]
-            public void RemoveCardsFromStockPile()
-            {
-                sut.StockPile.Cards.Cards.Should().Equal(
-                    new Card(13, Suit.Diamonds),
-                    new Card(1, Suit.Hearts),
-                    new Card(2, Suit.Hearts)
-                );
-            }
-
-            [Fact]
-            public void DiscardPileToBeEmpty()
-            {
-                sut.DiscardPile.CardToMatch.Should().BeNull();
-                sut.DiscardPile.RestOfCards.Cards.Should().BeEmpty();
-            }
-
-            [Fact]
-            public void AddToCardMoveEvents()
-            {
-                sut.CardMoves.Should().NotBeEmpty();
-                sut.CardMoves.ElementAt(0).Should().Be(new CardMoveEvent(new Card(1, Suit.Clubs), CardMoveSources.StockPile, CardMoveSources.Player1Hand));
-                sut.CardMoves.ElementAt(2).Should().Be(new CardMoveEvent(new Card(3, Suit.Clubs), CardMoveSources.StockPile, CardMoveSources.Player1Hand));
-                sut.CardMoves.ElementAt(4).Should().Be(new CardMoveEvent(new Card(5, Suit.Clubs), CardMoveSources.StockPile, CardMoveSources.Player1Hand));
-                sut.CardMoves.ElementAt(6).Should().Be(new CardMoveEvent(new Card(7, Suit.Clubs), CardMoveSources.StockPile, CardMoveSources.Player1Hand));
-                sut.CardMoves.ElementAt(8).Should().Be(new CardMoveEvent(new Card(9, Suit.Clubs), CardMoveSources.StockPile, CardMoveSources.Player1Hand));
-                sut.CardMoves.ElementAt(10).Should().Be(new CardMoveEvent(new Card(13, Suit.Clubs), CardMoveSources.StockPile, CardMoveSources.Player1Hand));
-                sut.CardMoves.ElementAt(12).Should().Be(new CardMoveEvent(new Card(13, Suit.Hearts), CardMoveSources.StockPile, CardMoveSources.Player1Hand));
-                
-                sut.CardMoves.ElementAt(1).Should().Be(new CardMoveEvent(new Card(2, Suit.Clubs), CardMoveSources.StockPile, CardMoveSources.Player2Hand));
-                sut.CardMoves.ElementAt(3).Should().Be(new CardMoveEvent(new Card(4, Suit.Clubs), CardMoveSources.StockPile, CardMoveSources.Player2Hand));
-                sut.CardMoves.ElementAt(5).Should().Be(new CardMoveEvent(new Card(6, Suit.Clubs), CardMoveSources.StockPile, CardMoveSources.Player2Hand));
-                sut.CardMoves.ElementAt(7).Should().Be(new CardMoveEvent(new Card(8, Suit.Clubs), CardMoveSources.StockPile, CardMoveSources.Player2Hand));
-                sut.CardMoves.ElementAt(9).Should().Be(new CardMoveEvent(new Card(10, Suit.Clubs), CardMoveSources.StockPile, CardMoveSources.Player2Hand));
-                sut.CardMoves.ElementAt(11).Should().Be(new CardMoveEvent(new Card(12, Suit.Clubs), CardMoveSources.StockPile, CardMoveSources.Player2Hand));
-                sut.CardMoves.ElementAt(13).Should().Be(new CardMoveEvent(new Card(1, Suit.Diamonds), CardMoveSources.StockPile, CardMoveSources.Player2Hand));
-            }
-
-            [Fact]
-            public void DealCardsWhenHandSizeSmallerThanStockPile()
-            {
-                var originalStockPile = new StockPile(new CardCollection(
-                    new Card(1, Suit.Clubs),
-                    new Card(2, Suit.Clubs)
-                ));
-                sut = new Board(new Player(1), new Player(2), originalStockPile, new DiscardPile());
-
-                sut.Deal(7);
-
-                sut.Player1.Hand.Cards.Should().Equal(
-                    new Card(1, Suit.Clubs)
-                );
-                sut.Player2.Hand.Cards.Should().Equal(
-                    new Card(2, Suit.Clubs)
-                );
-            }
-        }
-
         public class TurnUpDiscardCardShould
         {
             private readonly Board sut;
@@ -210,7 +94,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void RemoveCardFromStockPile()
             {
-                sut.StockPile.Cards.Cards.Should().Equal(
+                sut.StockPile.Cards.Should().Equal(
                     new Card(1, Suit.Hearts)
                 );
             }
@@ -346,7 +230,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 sut.TakeCardFromStockPile(player1);
                 
-                sut.StockPile.Cards.Cards.Should().Equal(
+                sut.StockPile.Cards.Should().Equal(
                     new Card(10, Suit.Hearts)
                 );
             }
@@ -411,7 +295,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void AddCardsToStockPile()
             {
-                sut.StockPile.Cards.Cards.Should().Equal(
+                sut.StockPile.Cards.Should().Equal(
                     new Card(2, Suit.Diamonds),
                     new Card(3, Suit.Diamonds)
                 );

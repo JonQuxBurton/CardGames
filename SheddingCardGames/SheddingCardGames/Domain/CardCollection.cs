@@ -76,5 +76,15 @@ namespace SheddingCardGames.Domain
         {
             return !cards.Any();
         }
+
+        public Card First()
+        {
+            return cards.First();
+        }
+
+        public int Count()
+        {
+            return cards.Count();
+        }
     }
 }

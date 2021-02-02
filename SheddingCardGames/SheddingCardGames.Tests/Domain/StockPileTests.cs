@@ -12,16 +12,15 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void SetCards()
             {
-                var expectedCards = new CardCollection(new[]
-                {
-                    new Card(1, Suit.Clubs),
-                    new Card(2, Suit.Clubs),
+                var expectedCards = new CardCollection(
+                    new Card(1, Suit.Clubs), 
+                    new Card(2, Suit.Clubs), 
                     new Card(3, Suit.Clubs)
-                });
+                );
 
                 var sut = new StockPile(expectedCards);
 
-                sut.Cards.Cards.Should().Equal(expectedCards.Cards);
+                sut.Cards.Should().Equal(expectedCards.Cards);
             }
         }
 
@@ -31,12 +30,11 @@ namespace SheddingCardGames.Tests.Domain
 
             public TakeShould()
             {
-                var cards = new CardCollection(new[]
-                {
+                var cards = new CardCollection(
                     new Card(1, Suit.Clubs),
                     new Card(2, Suit.Clubs),
                     new Card(3, Suit.Clubs)
-                });
+                );
 
                 sut = new StockPile(cards);
             }
@@ -54,7 +52,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 sut.Take();
 
-                sut.Cards.Cards.Should().Equal(
+                sut.Cards.Should().Equal(
                     new Card(2, Suit.Clubs),
                     new Card(3, Suit.Clubs)
                 );
@@ -76,12 +74,11 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnFalseWhenContainsCards()
             {
-                var cards = new CardCollection(new[]
-                {
+                var cards = new CardCollection(
                     new Card(1, Suit.Clubs),
                     new Card(2, Suit.Clubs),
                     new Card(3, Suit.Clubs)
-                });
+                );
                 var sut = new StockPile(cards);
 
                 var actual = sut.IsEmpty();
@@ -96,12 +93,11 @@ namespace SheddingCardGames.Tests.Domain
 
             public AddAtEndShould()
             {
-                var cards = new CardCollection(new[]
-                {
+                var cards = new CardCollection(
                     new Card(1, Suit.Clubs),
                     new Card(2, Suit.Clubs),
                     new Card(3, Suit.Clubs)
-                });
+                );
 
                 sut = new StockPile(cards);
             }
@@ -113,7 +109,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.AddAtEnd(addedCard);
 
-                sut.Cards.Cards.Last().Should().Be(addedCard);
+                sut.Cards.Last().Should().Be(addedCard);
             }
         }
     }

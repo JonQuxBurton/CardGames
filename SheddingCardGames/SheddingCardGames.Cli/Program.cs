@@ -90,7 +90,7 @@ namespace SheddingCardGame.Cli
             Console.WriteLine($"PlayerToPlay: {turn.PlayerToPlay}");
             Console.WriteLine($"NextAction: {turn.NextAction}");
             Console.WriteLine($"SelectedSuit: {turn.SelectedSuit}");
-            Console.WriteLine($"Stock pile: {turn.StockPile.Cards.Cards.Count()} cards");
+            Console.WriteLine($"Stock pile: {turn.StockPile.Cards.Count()} cards");
             Console.WriteLine($"Discard pile: {turn.DiscardPile.CardToMatch} ({turn.DiscardPile.RestOfCards.Cards.Count()} other cards)");
 
             var player1Hand = string.Join(", ", turn.Player1Hand.Cards.Select(x => x.ToString()));
