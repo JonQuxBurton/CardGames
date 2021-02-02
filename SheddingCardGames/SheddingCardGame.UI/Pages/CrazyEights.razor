@@ -53,7 +53,7 @@
             deck = deckBuilder.Build();
 
             //var gameBuilder = new CrazyEightsGameBuilder();
-            //var game = gameBuilder.Build(deck);
+            //var game = gameBuilder.Deal(deck);
             var game = new SpecificGameBuilder(). Build(deck);
             var inGameUiBuilder = new InGameUiBuilder(context, cardsSpriteSheet, deck);
             gameController = new BlazorGameController(inGameUiBuilder, game, new ActionResultMessageMapper());

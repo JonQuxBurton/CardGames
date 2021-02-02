@@ -16,13 +16,11 @@ namespace SheddingCardGames.Domain
             this.deck = deck;
         }
         
-        public Board Build(IEnumerable<Player> players)
+        public Board Deal(IEnumerable<Player> players)
         {
             var shuffled = shuffler.Shuffle(deck.Cards);
 
             var board = new Board(players.ElementAt(0), players.ElementAt(1), new StockPile(new CardCollection(shuffled)), new DiscardPile());
-
-            //board.Deal(rules.GetHandSize());
 
             for (var i = 0; i < rules.GetHandSize(); i++)
             {

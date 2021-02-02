@@ -48,7 +48,6 @@ namespace SheddingCardGames.Tests.Domain
             return this;
         }
 
-
         public Game Build()
         {
             var rules = new Rules(7);

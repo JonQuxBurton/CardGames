@@ -50,7 +50,7 @@ namespace SheddingCardGames.Domain
         public void Deal()
         {
             GameState = new GameState(GamePhase.InGame, GameState.StartingPlayer);
-            GameState = GameState.WithBoard(GameState, dealer.Build(players.Values));
+            GameState = GameState.WithBoard(GameState, dealer.Deal(players.Values));
             AddFirstTurn(players[GameState.StartingPlayer.Value]);
 
             var winner = GetWinner();

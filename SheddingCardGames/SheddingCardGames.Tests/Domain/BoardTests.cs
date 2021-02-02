@@ -17,8 +17,7 @@ namespace SheddingCardGames.Tests.Domain
 
             public ConstructorShould()
             {
-                var expectedPlayer1Hand = new CardCollection(new[]
-                {
+                var expectedPlayer1Hand = new CardCollection(
                     new Card(1, Suit.Clubs),
                     new Card(3, Suit.Clubs),
                     new Card(5, Suit.Clubs),
@@ -26,24 +25,22 @@ namespace SheddingCardGames.Tests.Domain
                     new Card(9, Suit.Clubs),
                     new Card(13, Suit.Clubs),
                     new Card(13, Suit.Hearts)
-                });
+                );
 
-                var expectedPlayer2Hand = new CardCollection(new[]
-                {
-                    new Card(2, Suit.Clubs),
+                var expectedPlayer2Hand = new CardCollection(
+                new Card(2, Suit.Clubs),
                     new Card(4, Suit.Clubs),
                     new Card(6, Suit.Clubs),
                     new Card(8, Suit.Clubs),
                     new Card(10, Suit.Clubs),
                     new Card(12, Suit.Clubs),
                     new Card(1, Suit.Diamonds)
-                });
+                );
 
-                expectedDiscardPile = new CardCollection(new[]
-                {
-                    new Card(11, Suit.Diamonds),
+                expectedDiscardPile = new CardCollection(
+                new Card(11, Suit.Diamonds),
                     new Card(13, Suit.Diamonds)
-                });
+                );
 
                 expectedStockPile = new StockPile(new CardCollection(new Card(1, Suit.Hearts), new Card(2, Suit.Hearts)));
                 expectedPlayer1 = new Player(1) {Hand = expectedPlayer1Hand};
@@ -127,16 +124,12 @@ namespace SheddingCardGames.Tests.Domain
             {
                 player1 = new Player(1)
                 {
-                    Hand = new CardCollection(new[]
-                    {
+                    Hand = new CardCollection(
                         new Card(1, Suit.Clubs), 
                         new Card(10, Suit.Hearts)
-                    })
+                    )
                 };
-                var originalDiscardPile = new CardCollection(new[]
-                {
-                    new Card(5, Suit.Diamonds)
-                });
+                var originalDiscardPile = new CardCollection(new Card(5, Suit.Diamonds));
                 sut = new Board(player1, new Player(2), new StockPile(new CardCollection()), new DiscardPile(originalDiscardPile.Cards));
             }
             
@@ -168,11 +161,10 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var player = new Player(playerNumber)
                 {
-                    Hand = new CardCollection(new[]
-                    {
+                    Hand = new CardCollection(
                         new Card(1, Suit.Clubs),
                         new Card(10, Suit.Hearts)
-                    })
+                    )
                 };
                 sut.MoveCardToDiscardPile(player, new Card(10, Suit.Hearts));
 
@@ -193,11 +185,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 player1 = new Player(1)
                 {
-                    Hand = new CardCollection(new[]
-                        {
-                            new Card(1, Suit.Clubs),
-                        }
-                    )
+                    Hand = new CardCollection(new Card(1, Suit.Clubs))
                 };
                 var originalStockPile = new StockPile( new CardCollection(
                     new Card(5, Suit.Diamonds),
@@ -242,11 +230,9 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var player = new Player(playerNumber)
                 {
-                    Hand = new CardCollection(new[]
-                    {
+                    Hand = new CardCollection(
                         new Card(1, Suit.Clubs),
-                        new Card(10, Suit.Hearts)
-                    })
+                        new Card(10, Suit.Hearts))
                 };
                 sut.TakeCardFromStockPile(player);
 
@@ -261,24 +247,21 @@ namespace SheddingCardGames.Tests.Domain
         public class MoveDiscardPileToStockPileShould
         {
             private readonly Board sut;
-            private readonly Player player1;
 
             public MoveDiscardPileToStockPileShould()
             {
-                player1 = new Player(1)
+                var player1 = new Player(1)
                 {
-                    Hand = new CardCollection(new[]
-                    {
+                    Hand = new CardCollection(
                         new Card(1, Suit.Clubs),
                         new Card(10, Suit.Hearts)
-                    })
+                    )
                 };
-                var originalDiscardPile = new CardCollection(new[]
-                {
+                var originalDiscardPile = new CardCollection(
                     new Card(1, Suit.Diamonds),
                     new Card(2, Suit.Diamonds),
                     new Card(3, Suit.Diamonds)
-                });
+                );
                 var discardPile = new DiscardPile(originalDiscardPile.Cards);
                 discardPile.TurnUpTopCard();
                 sut = new Board(player1, new Player(2), new StockPile(new CardCollection()), discardPile);

@@ -4,6 +4,6 @@ namespace SheddingCardGames.Domain
 {
     public interface IDealer
     {
-        Board Build(IEnumerable<Player> players);
+        Board Deal(IEnumerable<Player> players);
     }
 }

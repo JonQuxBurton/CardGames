@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Net.NetworkInformation;
 using FluentAssertions;
 using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
@@ -912,7 +911,7 @@ namespace SheddingCardGames.Tests.Domain
 
         public class TakeShould
         {
-            private CardCollection deck;
+            private readonly CardCollection deck;
             private readonly CardCollection player1Hand;
             private readonly CardCollection player2Hand;
 
@@ -923,18 +922,10 @@ namespace SheddingCardGames.Tests.Domain
                     deck.Get(1, Suit.Clubs),
                     deck.Get(2, Suit.Clubs),
                     deck.Get(3, Suit.Clubs)
-                    //deck.Get(4, Suit.Clubs),
-                    //deck.Get(5, Suit.Clubs),
-                    //deck.Get(6, Suit.Clubs),
-                    //deck.Get(7, Suit.Clubs)
                 );
                 player2Hand = new CardCollection(
                     deck.Get(2, Suit.Diamonds),
                     deck.Get(3, Suit.Diamonds),
-                    //deck.Get(4, Suit.Diamonds),
-                    //deck.Get(5, Suit.Diamonds),
-                    //deck.Get(6, Suit.Diamonds),
-                    //deck.Get(7, Suit.Diamonds),
                     deck.Get(10, Suit.Diamonds)
                 );
             }

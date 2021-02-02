@@ -8,7 +8,7 @@ namespace SheddingCardGames.Tests.Domain
 {
     namespace DealerTests
     {
-        public class BuildShould
+        public class DealShould
         {
             private readonly CardCollection deck;
             private readonly Card[] expectedCards;
@@ -18,7 +18,7 @@ namespace SheddingCardGames.Tests.Domain
             private readonly Player player1;
             private readonly Player player2;
 
-            public BuildShould()
+            public DealShould()
             {
                 expectedCards = new[]
                 {
@@ -55,7 +55,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ShuffleDeck()
             {
-                sut.Build(new[] {player1, player2});
+                sut.Deal(new[] {player1, player2});
 
                 shufflerMock.Verify(x => x.Shuffle(deck.Cards));
             }
@@ -63,7 +63,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void DealCardsToPlayer1()
             {
-                var actual = sut.Build(new[] {player1, player2});
+                var actual = sut.Deal(new[] {player1, player2});
 
                 actual.Player1.Hand.Cards.Should().Equal(
                     new Card(1, Suit.Diamonds),
@@ -79,7 +79,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void DealCardsToPlayer2()
             {
-                var actual = sut.Build(new[] {player1, player2});
+                var actual = sut.Deal(new[] {player1, player2});
 
                 actual.Player2.Hand.Cards.Should().Equal(
                     new Card(1, Suit.Spades),
@@ -95,7 +95,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void MoveCardToDiscardPile()
             {
-                var actual = sut.Build(new[] {player1, player2});
+                var actual = sut.Deal(new[] {player1, player2});
 
                 actual.StockPile.Cards.Count().Should().Be(expectedCards.Length - rules.GetHandSize() * 2 - 1);
                 actual.DiscardPile.CardToMatch.Should().Be(new Card(13, Suit.Hearts));
