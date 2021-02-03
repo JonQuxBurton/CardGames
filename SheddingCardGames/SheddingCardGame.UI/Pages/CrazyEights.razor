@@ -52,10 +52,10 @@
             //deckBuilder = new DeckBuilder();
             deck = deckBuilder.Build();
 
-            //var gameBuilder = new CrazyEightsGameBuilder();
-            //var game = gameBuilder.Deal(deck);
-            var game = new SpecificGameBuilder(). Build(deck);
-            var inGameUiBuilder = new InGameUiBuilder(context, cardsSpriteSheet, deck);
+            var game = new CrazyEightsGameBuilder().Build(deck);
+            //var game = new SpecificGameBuilder(). Build(deck);
+
+            var inGameUiBuilder = new InGameUiBuilder(context, cardsSpriteSheet);
             gameController = new BlazorGameController(inGameUiBuilder, game, new ActionResultMessageMapper());
 
             gameController.UiState = new NewUiBuilder(gameController, screenWidth, screenHeight).BuildNewUiState();
@@ -130,9 +130,9 @@
             var card = gameController.CurrentTurn.Player1Hand.Cards.ElementAt(i);
             var x = i * cardWidth;
             var cardObject = uiState.CardGameObjects[card];
-            cardObject .IsTurnedUp = true;
-            cardObject .SetX(x);
-            cardObject .SetY(player1HandY);
+            cardObject.IsTurnedUp = true;
+            cardObject.SetX(x);
+            cardObject.SetY(player1HandY);
             cardObject.IsVisible = true;
         }
 
@@ -141,9 +141,9 @@
             var card = gameController.CurrentTurn.Player2Hand.Cards.ElementAt(i);
             var x = i * cardWidth;
             var cardObject = uiState.CardGameObjects[card];
-            cardObject .IsTurnedUp = true;
-            cardObject .SetX(x);
-            cardObject .SetY(player2HandY);
+            cardObject.IsTurnedUp = true;
+            cardObject.SetX(x);
+            cardObject.SetY(player2HandY);
             cardObject.IsVisible = true;
         }
 

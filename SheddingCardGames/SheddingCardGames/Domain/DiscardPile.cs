@@ -18,6 +18,16 @@ namespace SheddingCardGames.Domain
             this.RestOfCards = restOfCards;
         }
 
+        public CardCollection AllCards
+        {
+            get
+            {
+                var cards = new List<Card> {CardToMatch};
+                cards.AddRange(RestOfCards.Cards);
+                return new CardCollection(cards);
+            }
+        }
+
         public CardCollection RestOfCards { get; }
 
         public Card CardToMatch { get; private set; }

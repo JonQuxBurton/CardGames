@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace SheddingCardGames.Domain
+﻿namespace SheddingCardGames.Domain
 {
     public interface IShuffler
     {
-        IEnumerable<Card> Shuffle(IEnumerable<Card> cards);
+        CardCollection Shuffle(CardCollection cards);
     }
 }

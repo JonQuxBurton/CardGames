@@ -4,27 +4,26 @@ using System.Threading.Tasks;
 using Blazor.Extensions.Canvas.Canvas2D;
 using Microsoft.AspNetCore.Components;
 using SheddingCardGames.Domain;
+using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGame.UI
 {
     public class InGameUiBuilder
     {
         private readonly ElementReference cardsSpriteSheet;
-        private readonly CardCollection deck;
         private readonly Canvas2DContext context;
         private UiState uiState;
 
         public InGameUiBuilder(Canvas2DContext context,
-            ElementReference cardsSpriteSheet, CardCollection deck)
+            ElementReference cardsSpriteSheet)
         {
             this.context = context;
             this.cardsSpriteSheet = cardsSpriteSheet;
-            this.deck = deck;
         }
 
         public async Task<UiState> Build(BlazorGameController gameController)
         {
-            uiState = new UiState();
+            uiState = new UiState(){ CurrentGamePhase = GamePhase.InGame};
 
             var cardWidth = 154;
             var cardHeight = 240;
@@ -41,14 +40,14 @@ namespace SheddingCardGame.UI
             var player1LabelX = await GetXForText(context, "24px verdana", "Player 1", 1200);
             uiState.GameObjects.Add(new LabelComponent("Player 1", new Point(player1LabelX, player1LabelY), true));
 
-
             var statusAreaPosition = new Point(360, discardPileY + 60);
             SetupStatusArea(gameController, statusAreaPosition);
-
+            
             var deckX = 0;
             var deckY = 0;
             var counter = 0;
-            foreach (var card in deck.Cards)
+            
+            foreach (var card in gameController.AllCards.Cards)
             {
                 var cardComponent = new CardComponent(gameController, card,
                     new Sprite(cardsSpriteSheet, new Size(cardWidth, 240), new Point(deckX, deckY)), false);
@@ -96,7 +95,7 @@ namespace SheddingCardGame.UI
                 new LabelComponent("You cannot play the Card: 1 Clubs", new Point(statusAreaPosition.X, y), false);
             uiState.GameObjects.Add(uiState.InvalidPlayLabel);
             y += rowHeight;
-            
+
             uiState.TakeButton = new ButtonComponent("Take", new Point(statusAreaPosition.X, y), true, () => gameController.Take());
             uiState.GameObjects.Add(uiState.TakeButton);
             y += rowHeight;

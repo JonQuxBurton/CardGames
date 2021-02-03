@@ -1,4 +1,5 @@
-﻿using SheddingCardGames.Domain;
+﻿using System;
+using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGame.UI
@@ -10,7 +11,9 @@ namespace SheddingCardGame.UI
         private readonly ActionResultMessageMapper actionResultMessageMapper;
         public UiState UiState { get; set; }
         public Turn CurrentTurn => game.GetCurrentTurn();
-        
+
+        public CardCollection AllCards => game.GameState.CurrentBoard.AllCards;
+
         public BlazorGameController(InGameUiBuilder inGameUiBuilder, Game game, ActionResultMessageMapper actionResultMessageMapper)
         {
             this.inGameUiBuilder = inGameUiBuilder;
@@ -22,7 +25,6 @@ namespace SheddingCardGame.UI
         {
             game.Deal();
             UiState = await inGameUiBuilder.Build(this);
-            UiState.CurrentGamePhase = game.GameState.CurrentGamePhase;
         }
 
         public bool Play(CardComponent cardComponent)

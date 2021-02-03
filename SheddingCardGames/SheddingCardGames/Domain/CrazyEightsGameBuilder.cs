@@ -11,8 +11,8 @@ namespace SheddingCardGames.Domain
             var players = new[] { new Player(1), new Player(2) };
             var rules = new Rules(7);
             var shuffler = new Shuffler();
-            var boardBuilder = new Dealer(rules, shuffler, deck);
-            var game = new Game(rules, shuffler, boardBuilder, players);
+            var dealer = new Dealer(rules);
+            var game = new Game(rules, shuffler, dealer, players, deck);
 
             var random = new Random();
             var firstPlayer = random.Next(2) + 1;

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using SheddingCardGames.UiLogic;
@@ -10,13 +11,15 @@ namespace SheddingCardGames.Domain
         private readonly IRules rules;
         private readonly IShuffler shuffler;
         private readonly IDealer dealer;
+        private readonly CardCollection deck;
         private readonly List<Turn> turns;
 
-        public Game(IRules rules, IShuffler shuffler, IDealer dealer, IEnumerable<Player> withPlayers)
+        public Game(IRules rules, IShuffler shuffler, IDealer dealer, IEnumerable<Player> withPlayers, CardCollection deck)
         {
             this.rules = rules;
             this.shuffler = shuffler;
             this.dealer = dealer;
+            this.deck = deck;
 
             foreach (var player in withPlayers)
                 players.Add(player.Number, player);
@@ -49,8 +52,11 @@ namespace SheddingCardGames.Domain
 
         public void Deal()
         {
+            var shuffled = shuffler.Shuffle(deck);
+            var board = dealer.Deal(players.Values, shuffled);
             GameState = new GameState(GamePhase.InGame, GameState.StartingPlayer);
-            GameState = GameState.WithBoard(GameState, dealer.Deal(players.Values));
+            GameState = GameState.WithBoard(GameState, board);
+
             AddFirstTurn(players[GameState.StartingPlayer.Value]);
 
             var winner = GetWinner();
@@ -141,7 +147,7 @@ namespace SheddingCardGames.Domain
         {
             var restOfCards = GameState.CurrentBoard.DiscardPile.TakeRestOfCards();
             var turnedUpCard = GameState.CurrentBoard.DiscardPile.CardToMatch;
-            var shuffled = new CardCollection(shuffler.Shuffle(restOfCards.Cards));
+            var shuffled = shuffler.Shuffle(restOfCards);
             shuffled.AddAtStart(turnedUpCard);
             GameState.CurrentBoard.DiscardPile = new DiscardPile(shuffled.Cards);
             GameState.CurrentBoard.DiscardPile.TurnUpTopCard();

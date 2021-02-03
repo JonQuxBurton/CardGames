@@ -1,5 +1,6 @@
 using System.Linq;
 using FluentAssertions;
+using Moq;
 using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
 using Xunit;
@@ -14,7 +15,7 @@ namespace SheddingCardGames.Tests.Domain
             public void CreateGameAtNewState()
             {
                 var rules = new Rules(7);
-                var sut = new Game(rules, new DummyShuffler(), new Dealer(rules, new DummyShuffler(), new CardCollection() ), new[] {new Player(1), new Player(2)});
+                var sut = new Game(rules, new DummyShuffler(), new Dealer(rules ), new[] {new Player(1), new Player(2)}, new CardCollectionBuilder().Build());
 
                 sut.GetCurrentTurn().Should().BeNull();
                 sut.GameState.CurrentGamePhase.Should().Be(GamePhase.New);
@@ -28,7 +29,7 @@ namespace SheddingCardGames.Tests.Domain
             public InitialiseShould()
             {
                 var rules = new Rules(7);
-                sut = new Game(rules, new DummyShuffler(), new Dealer(rules, new DummyShuffler(), new CardCollection()), new[] { new Player(1), new Player(2) });
+                sut = new Game(rules, new DummyShuffler(), new Dealer(rules), new[] { new Player(1), new Player(2) }, new CardCollectionBuilder().Build());
             }
             
             [Fact]
@@ -102,7 +103,7 @@ namespace SheddingCardGames.Tests.Domain
                 var shuffler = new DummyShuffler();
                 var rules = new Rules(7);
                 var deck = new DeckBuilder().Build();
-                sut = new Game(rules, shuffler, new Dealer(rules, shuffler, deck), new[] { new Player(1), new Player(2) });
+                sut = new Game(rules, shuffler, new Dealer(rules), new[] { new Player(1), new Player(2) }, deck);
             }
 
             [Theory]
@@ -153,15 +154,35 @@ namespace SheddingCardGames.Tests.Domain
                 stockPile = new CardCollection(new Card(1, Suit.Spades));
             }
 
-            private Game CreateSut(int withStartingPlayer, Card withDiscardCard)
+            private Game CreateSut(int withStartingPlayer, Card withDiscardCard, IShuffler withShuffler = null)
             {
+                if (withShuffler == null)
+                    withShuffler = new DummyShuffler();
+                
                 return new ReadyToDealGameBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithStockPile(stockPile)
                     .WithDiscardCard(withDiscardCard)
                     .WithStartingPlayer(withStartingPlayer)
+                    .WithShuffler(withShuffler)
                     .Build();
+            }
+
+            [Fact]
+            public void ShuffleCards()
+            {
+                var discardCard = new Card(2, Suit.Hearts);
+                var expectedDeck = new SpecificDeckBuilder(player1Hand, player2Hand, discardCard, stockPile).Build();
+                var shufflerMock = new Mock<IShuffler>();
+                shufflerMock.Setup(x => x.Shuffle(It.Is<CardCollection>(y => y.Cards.SequenceEqual(expectedDeck.Cards) )))
+                    .Returns(expectedDeck);
+                var startingPlayer = 1;
+                var sut = CreateSut(startingPlayer, discardCard, shufflerMock.Object);
+
+                sut.Deal();
+                
+                shufflerMock.VerifyAll();
             }
             
             [Fact]
@@ -711,7 +732,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 discardCard = new Card(13, Suit.Diamonds);
                 var rules = new Rules(7);
-                sut = new Game(rules, new DummyShuffler(), new Dealer(rules, new DummyShuffler(), new CardCollection()), new[] {new Player(1), new Player(2)});
+                sut = new Game(rules, new DummyShuffler(), new Dealer(rules), new[] {new Player(1), new Player(2)}, new CardCollectionBuilder().Build());
             }
 
             [Fact]

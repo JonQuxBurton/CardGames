@@ -1,11 +1,12 @@
 using System.Linq;
 using SheddingCardGames.Domain;
+using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGames.Tests.Domain
 {
     public class ReadyToDealGameBuilder
     {
-        private readonly IShuffler shuffler = new DummyShuffler();
+        private IShuffler shuffler = new DummyShuffler();
         private Card discardCard = new Card(1, Suit.Clubs);
         private CardCollection player1Hand = new CardCollection();
         private CardCollection player2Hand = new CardCollection();
@@ -42,6 +43,12 @@ namespace SheddingCardGames.Tests.Domain
             return this;
         }
 
+        public ReadyToDealGameBuilder WithShuffler(IShuffler withShuffler)
+        {
+            shuffler = withShuffler;
+            return this;
+        }
+        
         public Game Build()
         {
             var player1 = new Player(1);
@@ -49,7 +56,7 @@ namespace SheddingCardGames.Tests.Domain
 
             var deck = new SpecificDeckBuilder(player1Hand, player2Hand, discardCard, stockPile).Build();
             var rules = new Rules(player1Hand.Cards.Count());
-            var game = new Game(rules, shuffler, new Dealer(rules, shuffler, deck), new[] { player1, player2 });
+            var game = new Game(rules, shuffler, new Dealer(rules), new[] { player1, player2 }, deck);
             game.ChooseStartingPlayer(startingPlayerNumber);
 
             return game;

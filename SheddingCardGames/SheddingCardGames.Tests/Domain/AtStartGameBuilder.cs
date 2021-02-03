@@ -1,5 +1,6 @@
 using System.Linq;
 using SheddingCardGames.Domain;
+using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGames.Tests.Domain
 {
@@ -49,7 +50,7 @@ namespace SheddingCardGames.Tests.Domain
 
             var deck = new SpecificDeckBuilder(player1Hand, player2Hand, discardCard, stockPile).Build();
             var rules = new Rules(player1Hand.Cards.Count());
-            var game = new Game(rules, shuffler, new Dealer(rules, shuffler, deck), new[] {player1, player2});
+            var game = new Game(rules, shuffler, new Dealer(rules), new[] {player1, player2}, deck);
 
             game.ChooseStartingPlayer(startingPlayerNumber);
             game.Deal();

@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using SheddingCardGames.Domain;
+﻿using SheddingCardGames.Domain;
 
 namespace SheddingCardGames.UiLogic
 {
     public class DummyShuffler : IShuffler
     {
-        public IEnumerable<Card> Shuffle(IEnumerable<Card> cards)
+        public CardCollection Shuffle(CardCollection cards)
         {
             return cards;
         }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
@@ -15,9 +14,9 @@ namespace SheddingCardGames.Domain
             random = new Random();
         }
 
-        public IEnumerable<Card> Shuffle(IEnumerable<Card> cards)
+        public CardCollection Shuffle(CardCollection cards)
         {
-            return cards.ToList().OrderBy(x => random.Next());
+            return new CardCollection(cards.Cards.ToList().OrderBy(x => random.Next()));
         }
     }
 }

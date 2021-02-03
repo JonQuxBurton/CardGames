@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SheddingCardGames.Domain
 {
@@ -20,6 +21,11 @@ namespace SheddingCardGames.Domain
         public StockPile StockPile { get; }
         public DiscardPile DiscardPile { get; set; }
         public IEnumerable<CardMoveEvent> CardMoves => cardMoves;
+
+        public CardCollection AllCards =>
+            new CardCollection(
+                new List<Card>().Concat(Player1.Hand.Cards).Concat(Player2.Hand.Cards)
+                    .Concat(DiscardPile.AllCards.Cards).Concat(StockPile.Cards));
 
         public void TurnUpDiscardCard()
         {
