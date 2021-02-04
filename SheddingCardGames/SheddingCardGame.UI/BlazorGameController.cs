@@ -1,5 +1,4 @@
-﻿using System;
-using SheddingCardGames.Domain;
+﻿using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGame.UI
@@ -10,7 +9,7 @@ namespace SheddingCardGame.UI
         private readonly Game game;
         private readonly ActionResultMessageMapper actionResultMessageMapper;
         public UiState UiState { get; set; }
-        public Turn CurrentTurn => game.GetCurrentTurn();
+        public Turn CurrentTurn => game.GameState.CurrentTurn;
 
         public CardCollection AllCards => game.GameState.CurrentBoard.AllCards;
 

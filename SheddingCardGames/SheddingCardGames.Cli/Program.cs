@@ -22,14 +22,14 @@ namespace SheddingCardGame.Cli
 
             while (currentTurn == null || !currentTurn.HasWinner)
             {
-                currentTurn = game.GetCurrentTurn();
+                currentTurn = game.GameState.CurrentTurn;
                 RenderTurn(currentTurn, game.GameState);
-                Console.WriteLine($"Moves: {string.Join(",", game.CardMoves)}");
+                //Console.WriteLine($"Moves: {string.Join(",", game.CardMoves)}");
                 if (currentTurn.NextAction == Action.SelectSuit)
                     SelectSuit(game, currentTurn);
                 else
                     Play(game, currentTurn);
-                currentTurn = game.GetCurrentTurn();
+                currentTurn = game.GameState.CurrentTurn;
             }
 
             Console.WriteLine($"Player {currentTurn.Winner} has won!");
