@@ -89,5 +89,15 @@ namespace SheddingCardGame.UI
 
             return boundingBox.Value.Contains(mousePosition);
         }
+
+        public void Show()
+        {
+            IsVisible = true;
+        }
+
+        public void Hide()
+        {
+            IsVisible = false;
+        }
     }
 }

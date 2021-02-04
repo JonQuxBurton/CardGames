@@ -121,7 +121,6 @@
         var stockPileCard = currentBoard.StockPile.Cards.First();
         var stockPileGameObject = uiState.CardGameObjects[stockPileCard];
         stockPileGameObject.OnClick = () => gameController.Take();
-        //stockPileGameObject.Tag = "StockPile";
         stockPileGameObject.IsTurnedUp = false;
         stockPileGameObject.SetX(0);
         stockPileGameObject.SetY(discardPileY);
@@ -149,57 +148,54 @@
             cardObject.IsVisible = true;
         }
 
-        // Update Labels
-        uiState.TurnLabel.Label = $"Turn {gameController.CurrentTurn.TurnNumber}";
+        // Update Buttons
+        if (gameController.CurrentTurn.NextAction == Action.SelectSuit)
+        {
+            gameController.Buttons[ButtonNames.Clubs].Show();
+            gameController.Buttons[ButtonNames.Diamonds].Show();
+            gameController.Buttons[ButtonNames.Hearts].Show();
+            gameController.Buttons[ButtonNames.Spades].Show();
+        }
+        else
+        {
+            gameController.Buttons[ButtonNames.Clubs].Hide();
+            gameController.Buttons[ButtonNames.Diamonds].Hide();
+            gameController.Buttons[ButtonNames.Hearts].Hide();
+            gameController.Buttons[ButtonNames.Spades].Hide();
+        }
 
+        // Update Labels
+        gameController.Labels[LabelNames.Turn].Show($"Turn {gameController.CurrentTurn.TurnNumber}");
+
+        var playerToPlayLabel = gameController.Labels[LabelNames.PlayerToPlay];
         if (gameController.CurrentTurn.HasWinner)
         {
-            uiState.PlayerToPlayLabel.Label = $"Player {gameController.CurrentTurn.Winner} has won!";
+            playerToPlayLabel.Show($"Player {gameController.CurrentTurn.Winner} has won!");
             return;
         }
 
-        uiState.PlayerToPlayLabel.Label = $"Player {gameController.CurrentTurn.PlayerToPlay} to {gameController.CurrentTurn.NextAction}";
+        playerToPlayLabel.Label = $"Player {gameController.CurrentTurn.PlayerToPlay} to {gameController.CurrentTurn.NextAction}";
+
+        var takeButton = gameController.Buttons[ButtonNames.Take];
 
         if (gameController.CurrentTurn.NextAction == Action.Take)
-            uiState.TakeButton.IsVisible = true;
+            takeButton.Show();
         else
-            uiState.TakeButton.IsVisible = false;
+            takeButton.Hide();
 
-        if (gameController.CurrentTurn.NextAction == Action.SelectSuit)
-        {
-            uiState.ClubsButton.IsVisible = true;
-            uiState.DiamondsButton.IsVisible = true;
-            uiState.HeartsButton.IsVisible = true;
-            uiState.SpadesButton.IsVisible = true;
-        }
-        else
-        {
-            uiState.ClubsButton.IsVisible = false;
-            uiState.DiamondsButton.IsVisible = false;
-            uiState.HeartsButton.IsVisible = false;
-            uiState.SpadesButton.IsVisible = false;
-        }
+
+        var selectedSuitLabel = gameController.Labels[LabelNames.SelectedSuit];
 
         if (gameController.CurrentTurn.SelectedSuit == null)
-        {
-            uiState.SelectedSuitLabel.IsVisible = false;
-        }
+            selectedSuitLabel.Hide();
         else
-        {
-            uiState.SelectedSuitLabel.Label = $"Selected Suit: {gameController.CurrentTurn.SelectedSuit}";
-            uiState.SelectedSuitLabel.IsVisible = true;
-        }
+            selectedSuitLabel.Show($"Selected Suit: {gameController.CurrentTurn.SelectedSuit}");
 
-        // Display invalid Play messages
+        var invalidPlayLabel = gameController.Labels[LabelNames.InvalidPlay];
         if (uiState.HasError)
-        {
-            uiState.InvalidPlayLabel.IsVisible = true;
-            uiState.InvalidPlayLabel.Label = uiState.ErrorMessage;
-        }
+            invalidPlayLabel.Show(uiState.ErrorMessage);
         else
-        {
-            uiState.InvalidPlayLabel.IsVisible = false;
-        }
+            invalidPlayLabel.Hide();
     }
 
     private async ValueTask Render(int screenWidth, int screenHeight)
@@ -216,7 +212,6 @@
     public async ValueTask GameLoop(float timeStamp)
     {
         gameTime.TotalTime = timeStamp;
-
 
         await Update(screenWidth, screenHeight);
         await Render(screenWidth, screenHeight);

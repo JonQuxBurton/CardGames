@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace SheddingCardGame.UI
+﻿namespace SheddingCardGame.UI
 {
     public class NewUiBuilder
     {
@@ -17,12 +15,12 @@ namespace SheddingCardGame.UI
         
         public UiState BuildNewUiState()
         {
-            var newUiState = new UiState(null)
-            {
-                DealButton = new ButtonComponent("Deal", new Point(screenWidth / 2, screenHeight / 2), true,
-                    () => gameController.Deal())
-            };
-            newUiState.GameObjects.Add(newUiState.DealButton);
+            var newUiState = new UiState(null);
+
+            var cursor = new Cursor(screenWidth / 2, screenHeight / 2, 0);
+            var buttonBuilder = new ButtonBuilder(newUiState);
+            buttonBuilder.Build(cursor, ButtonNames.Deal, ButtonNames.Deal.ToString().ToUpper(), () => gameController.Deal());
+            
             return newUiState;
         }
     }

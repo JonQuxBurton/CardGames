@@ -1,17 +1,39 @@
-﻿using SheddingCardGames.Domain;
+﻿using System.Collections.Generic;
+using System.Linq;
+using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGame.UI
 {
+    public enum LabelNames
+    {
+        Turn,
+        PlayerToPlay,
+        InvalidPlay,
+        SelectedSuit
+    }
+
+    public enum ButtonNames
+    {
+        Take,
+        Deal,
+        Clubs,
+        Diamonds,
+        Hearts,
+        Spades
+    }
+    
     public class BlazorGameController
     {
         private readonly InGameUiBuilder inGameUiBuilder;
         private readonly Game game;
         private readonly ActionResultMessageMapper actionResultMessageMapper;
-        public UiState UiState { get; set; }
         public Turn CurrentTurn => game.GameState.CurrentTurn;
-
         public CardCollection AllCards => game.GameState.CurrentBoard.AllCards;
+        
+        public UiState UiState { get; set; }
+        public readonly Dictionary<LabelNames, LabelComponent> Labels = new Dictionary<LabelNames, LabelComponent>();
+        public readonly Dictionary<ButtonNames, ButtonComponent> Buttons = new Dictionary<ButtonNames, ButtonComponent>();
 
         public BlazorGameController(InGameUiBuilder inGameUiBuilder, Game game, ActionResultMessageMapper actionResultMessageMapper)
         {
@@ -24,6 +46,18 @@ namespace SheddingCardGame.UI
         {
             game.Deal();
             UiState = await inGameUiBuilder.Build(this, game.GameState);
+
+            Labels.Add(LabelNames.Turn, UiState.GameObjects.First(x => x.Tag == LabelNames.Turn.ToString()) as LabelComponent);
+            Labels.Add(LabelNames.PlayerToPlay, UiState.GameObjects.First(x => x.Tag == LabelNames.PlayerToPlay.ToString()) as LabelComponent);
+            Labels.Add(LabelNames.InvalidPlay, UiState.GameObjects.First(x => x.Tag == LabelNames.InvalidPlay.ToString()) as LabelComponent);
+            Labels.Add(LabelNames.SelectedSuit, UiState.GameObjects.First(x => x.Tag == LabelNames.SelectedSuit.ToString()) as LabelComponent);
+            
+            Buttons.Add(ButtonNames.Take, UiState.GameObjects.First(x => x.Tag == ButtonNames.Take.ToString()) as ButtonComponent);
+
+            Buttons.Add(ButtonNames.Clubs, UiState.GameObjects.First(x => x.Tag == ButtonNames.Clubs.ToString()) as ButtonComponent);
+            Buttons.Add(ButtonNames.Diamonds, UiState.GameObjects.First(x => x.Tag == ButtonNames.Diamonds.ToString()) as ButtonComponent);
+            Buttons.Add(ButtonNames.Hearts, UiState.GameObjects.First(x => x.Tag == ButtonNames.Hearts.ToString()) as ButtonComponent);
+            Buttons.Add(ButtonNames.Spades, UiState.GameObjects.First(x => x.Tag == ButtonNames.Spades.ToString()) as ButtonComponent);
         }
 
         public bool Play(CardComponent cardComponent)

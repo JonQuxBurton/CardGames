@@ -36,5 +36,16 @@ namespace SheddingCardGame.UI
         {
             return false;
         }
+
+        public void Show(string message)
+        {
+            Label = message;
+            IsVisible = true;
+        }
+
+        public void Hide()
+        {
+            IsVisible = false;
+        }
     }
 }

@@ -8,24 +8,30 @@ using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGame.UI
 {
-    public class InGameUiBuilder
+    public partial class InGameUiBuilder
     {
         private readonly ElementReference cardsSpriteSheet;
         private readonly Canvas2DContext context;
         private UiState uiState;
+        private ButtonBuilder buttonBuilder;
+        private LabelBuilder labelBuilder;
+        private CardComponentBuilder cardComponentBuilder;
 
         public InGameUiBuilder(Canvas2DContext context,
             ElementReference cardsSpriteSheet)
         {
             this.context = context;
             this.cardsSpriteSheet = cardsSpriteSheet;
+            
         }
 
         public async Task<UiState> Build(BlazorGameController gameController, GameState gameState)
         {
             uiState = new UiState(gameState){ CurrentGamePhase = GamePhase.InGame};
+            buttonBuilder = new ButtonBuilder(uiState);
+            labelBuilder = new LabelBuilder(uiState);
+            cardComponentBuilder = new CardComponentBuilder(gameController, uiState, cardsSpriteSheet);
 
-            var cardWidth = 154;
             var cardHeight = 240;
 
             var player2LabelY = 10;
@@ -43,80 +49,32 @@ namespace SheddingCardGame.UI
             var statusAreaPosition = new Point(360, discardPileY + 60);
             SetupStatusArea(gameController, statusAreaPosition);
             
-            var deckX = 0;
-            var deckY = 0;
-            var counter = 0;
+            var cursor = new Cursor(0, 0, 0);
             
-            foreach (var card in gameController.AllCards.Cards)
-            {
-                var cardComponent = new CardComponent(gameController, card,
-                    new Sprite(cardsSpriteSheet, new Size(cardWidth, 240), new Point(deckX, deckY)), false);
-                cardComponent.OnClick = () => gameController.Play(cardComponent);
-                uiState.CardGameObjects.Add(card, cardComponent);
-                deckX += 30;
-                counter++;
-                if (counter == 13)
-                {
-                    counter = 0;
-                    deckY += cardHeight;
-                    deckX = 0;
-                }
-            }
-
-            uiState.GameObjects.AddRange(uiState.CardGameObjects.Values);
+            foreach (var card in gameController.AllCards.Cards) 
+                cardComponentBuilder.Build(cursor, card);
 
             return uiState;
         }
 
         public void SetupStatusArea(BlazorGameController gameController, Point statusAreaPosition)
         {
-            var y = statusAreaPosition.Y;
             var rowHeight = 30;
 
-            uiState.TurnLabel = new LabelComponent($"Turn {gameController.CurrentTurn.TurnNumber}",
-                new Point(statusAreaPosition.X, y), true);
-            uiState.GameObjects.Add(uiState.TurnLabel);
-            y += rowHeight;
-
-            uiState.PlayerToPlayLabel =
-                new LabelComponent(
-                    $"Player {gameController.CurrentTurn.PlayerToPlay} to {gameController.CurrentTurn.NextAction}",
-                    new Point(statusAreaPosition.X, y), true);
-            uiState.GameObjects.Add(uiState.PlayerToPlayLabel);
-            y += rowHeight;
+            var cursor = new Cursor(statusAreaPosition.X, statusAreaPosition.Y, rowHeight);
             
-            uiState.SelectedSuitLabel =
-                new LabelComponent("Selected Suit: X",
-                    new Point(statusAreaPosition.X, y), true);
-            uiState.GameObjects.Add(uiState.SelectedSuitLabel);
-            y += rowHeight;
+            labelBuilder.Build(cursor, LabelNames.Turn);
+            labelBuilder.Build(cursor, LabelNames.PlayerToPlay);
+            labelBuilder.Build(cursor, LabelNames.SelectedSuit);
+            labelBuilder.Build(cursor, LabelNames.InvalidPlay);
+            buttonBuilder.Build(cursor, ButtonNames.Take, "TAKE", () => gameController.Take());
 
-            uiState.InvalidPlayLabel =
-                new LabelComponent("You cannot play the Card: 1 Clubs", new Point(statusAreaPosition.X, y), false);
-            uiState.GameObjects.Add(uiState.InvalidPlayLabel);
-            y += rowHeight;
-
-            uiState.TakeButton = new ButtonComponent("Take", new Point(statusAreaPosition.X, y), true, () => gameController.Take());
-            uiState.GameObjects.Add(uiState.TakeButton);
-            y += rowHeight;
-
-            var x = statusAreaPosition.X + 500;
-            y = statusAreaPosition.Y;
-            uiState.ClubsButton = new ButtonComponent("Clubs", new Point(x, y), true, () => gameController.SelectSuit(Suit.Clubs));
-            uiState.GameObjects.Add(uiState.ClubsButton);
-            y += rowHeight;
-            
-            uiState.DiamondsButton = new ButtonComponent("Diamonds", new Point(x, y), true, () => gameController.SelectSuit(Suit.Diamonds));
-            uiState.GameObjects.Add(uiState.DiamondsButton);
-            y += rowHeight;
-            
-            uiState.HeartsButton = new ButtonComponent("Hearts", new Point(x, y), true, () => gameController.SelectSuit(Suit.Hearts));
-            uiState.GameObjects.Add(uiState.HeartsButton);
-            y += rowHeight;
-            
-            uiState.SpadesButton = new ButtonComponent("Spades", new Point(x, y), true, () => gameController.SelectSuit(Suit.Spades));
-            uiState.GameObjects.Add(uiState.SpadesButton);
-            y += rowHeight;
+            rowHeight = 40;
+            cursor = new Cursor(statusAreaPosition.X + 500, statusAreaPosition.Y, rowHeight);
+            buttonBuilder.Build(cursor, ButtonNames.Clubs, ButtonNames.Clubs.ToString().ToUpper(), () => gameController.SelectSuit(Suit.Clubs));
+            buttonBuilder.Build(cursor, ButtonNames.Diamonds, ButtonNames.Diamonds.ToString().ToUpper(), () => gameController.SelectSuit(Suit.Diamonds));
+            buttonBuilder.Build(cursor, ButtonNames.Hearts, ButtonNames.Hearts.ToString().ToUpper(), () => gameController.SelectSuit(Suit.Hearts));
+            buttonBuilder.Build(cursor, ButtonNames.Spades, ButtonNames.Spades.ToString().ToUpper(), () => gameController.SelectSuit(Suit.Spades));
         }
 
         public async Task<int> GetXForText(Canvas2DContext context, string fontInfo, string text, int areaWidth)

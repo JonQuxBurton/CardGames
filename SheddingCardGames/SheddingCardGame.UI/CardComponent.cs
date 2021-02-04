@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Threading.Tasks;
 using Blazor.Extensions.Canvas.Canvas2D;
 using SheddingCardGames.Domain;
@@ -8,17 +7,15 @@ namespace SheddingCardGame.UI
 {
     public class CardComponent : GameObject, IGameObject
     {
-        private readonly BlazorGameController gameController;
         public Card Card { get; }
         public Sprite Sprite { get; }
         public System.Action OnClick { get; set; }
 
         private Rectangle boundingBox;
-        private bool isActive = false;
+        private bool isActive;
 
-        public CardComponent(BlazorGameController gameController, Card card, Sprite sprite, bool isVisible, bool isTurned = false)
+        public CardComponent(Card card, Sprite sprite, bool isVisible, bool isTurned = false)
         {
-            this.gameController = gameController;
             Card = card;
             Tag = $"{Card}";
             IsTurnedUp = isTurned;
@@ -31,24 +28,14 @@ namespace SheddingCardGame.UI
 
         public string Tag { get; set; }
 
-        public int GetX()
-        {
-            return x;
-        }
-        
-        public void SetX(int newX)
+        public new void SetX(int newX)
         {
             this.x = newX;
             Sprite.Position = new Point(newX, Sprite.Position.Y);
             boundingBox = new Rectangle(Sprite.Position.X, Sprite.Position.Y, Sprite.Size.Width, Sprite.Size.Height);
         }
 
-        public int GetY()
-        {
-            return y;
-        }
-
-        public void SetY(int newY)
+        public new void SetY(int newY)
         {
             this.y = newY;
             Sprite.Position = new Point(Sprite.Position.X, newY);

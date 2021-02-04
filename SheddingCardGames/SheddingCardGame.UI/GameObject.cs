@@ -2,20 +2,19 @@
 {
     public class GameObject
     {
-        public bool IsVisible { get; set; } = true;
-        string Tag { get; set; }
-
         protected int x;
         protected int y;
+        public bool IsVisible { get; set; } = true;
+        private string Tag { get; set; }
 
         public int GetX()
         {
             return x;
         }
 
-        public void SetX(int x)
+        public void SetX(int newX)
         {
-            this.x = x;
+            x = newX;
         }
 
         public int GetY()
@@ -23,10 +22,9 @@
             return y;
         }
 
-        public void SetY(int y)
+        public void SetY(int newY)
         {
-            this.y = y;
+            y = newY;
         }
-
     }
 }
