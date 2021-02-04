@@ -33,7 +33,6 @@ namespace SheddingCardGames.Domain
         public void Initialise(GameState initialGameState)
         {
             gameState = initialGameState;
-            gameState.CurrentTurn = initialGameState.CurrentTurn;
         }
         
         public void ChooseStartingPlayer(int chosenPlayer)
@@ -45,7 +44,9 @@ namespace SheddingCardGames.Domain
         {
             var shuffled = shuffler.Shuffle(deck);
             var board = dealer.Deal(players.Values, shuffled);
-            gameState = new GameState(GamePhase.InGame, GameState.StartingPlayer, board);
+            gameState = gameState
+                .WithGamePhase(GamePhase.InGame)
+                .WithBoard(board);
 
             AddFirstTurn(players[GameState.StartingPlayer.Value]);
 
@@ -174,13 +175,14 @@ namespace SheddingCardGames.Domain
         {
             var winner = GetWinner();
             var validPlays = GetValidPlays(nextPlayer.Hand, GameState.CurrentBoard.DiscardPile.CardToMatch, 1, null).ToArray();
-
-            gameState.CurrentTurn = new Turn(1,
+            
+            var newTurn = new Turn(1,
                 nextPlayer.Number,
                 validPlays,
                 IsWinner(),
                 winner,
                 GetNextAction(validPlays), null);
+            gameState = gameState.WithCurrentTurn(newTurn);
         }
 
         private void AddNextTurn(Player nextPlayer, Suit? selectedSuit = null)
@@ -190,7 +192,7 @@ namespace SheddingCardGames.Domain
             var validPlays = GetValidPlays(nextPlayer.Hand, GameState.CurrentBoard.DiscardPile.CardToMatch, currentTurn.TurnNumber, selectedSuit)
                 .ToArray();
 
-            gameState.CurrentTurn=
+            var newTurn = 
                 new Turn(nextTurnNumber,
                     nextPlayer.Number,
                     validPlays,
@@ -198,32 +200,35 @@ namespace SheddingCardGames.Domain
                     null,
                     GetNextAction(validPlays),
                     selectedSuit);
+            gameState = gameState.WithCurrentTurn(newTurn);
         }
 
         private void AddCrazyEightTurn()
         {
             var currentTurn = gameState.CurrentTurn;
 
-            gameState.CurrentTurn = 
+            var newTurn = 
                 new Turn(currentTurn.TurnNumber,
                     currentTurn.PlayerToPlay,
                     new Card[0],
                     false,
                     null,
                     Action.SelectSuit, null);
+            gameState = gameState.WithCurrentTurn(newTurn);
         }
 
         private void AddWinningTurn()
         {
             var currentTurn = gameState.CurrentTurn;
 
-            gameState.CurrentTurn = 
+            var newTurn = 
                 new Turn(currentTurn.TurnNumber,
                     CurrentPlayer.Number,
                     new Card[0],
                     true,
                     CurrentPlayer.Number,
                     Action.Won, null);
+            gameState = gameState.WithCurrentTurn(newTurn);
         }
 
         private IEnumerable<Card> GetValidPlays(CardCollection hand, Card discard, int turnNumber, Suit? selectedSuit)
