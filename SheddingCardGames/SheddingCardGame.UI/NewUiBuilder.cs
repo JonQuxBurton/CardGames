@@ -17,7 +17,7 @@ namespace SheddingCardGame.UI
         
         public UiState BuildNewUiState()
         {
-            var newUiState = new UiState
+            var newUiState = new UiState(null)
             {
                 DealButton = new ButtonComponent("Deal", new Point(screenWidth / 2, screenHeight / 2), true,
                     () => gameController.Deal())

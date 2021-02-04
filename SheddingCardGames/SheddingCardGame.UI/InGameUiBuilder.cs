@@ -21,9 +21,9 @@ namespace SheddingCardGame.UI
             this.cardsSpriteSheet = cardsSpriteSheet;
         }
 
-        public async Task<UiState> Build(BlazorGameController gameController)
+        public async Task<UiState> Build(BlazorGameController gameController, GameState gameState)
         {
-            uiState = new UiState(){ CurrentGamePhase = GamePhase.InGame};
+            uiState = new UiState(gameState){ CurrentGamePhase = GamePhase.InGame};
 
             var cardWidth = 154;
             var cardHeight = 240;

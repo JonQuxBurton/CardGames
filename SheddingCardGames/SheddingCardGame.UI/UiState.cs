@@ -6,6 +6,15 @@ namespace SheddingCardGame.UI
 {
     public class UiState
     {
+        private readonly GameState gameState;
+
+        public UiState(GameState gameState)
+        {
+            this.gameState = gameState;
+        }
+
+        public Board CurrentBoard => gameState.CurrentBoard;
+        
         public readonly Dictionary<Card, CardComponent> CardGameObjects = new Dictionary<Card, CardComponent>();
 
         public readonly List<IGameObject> GameObjects = new List<IGameObject>();

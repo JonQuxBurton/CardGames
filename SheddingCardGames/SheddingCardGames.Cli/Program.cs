@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using SheddingCardGames.Domain;
+using SheddingCardGames.UiLogic;
 using Action = SheddingCardGames.Domain.Action;
 
 namespace SheddingCardGame.Cli
@@ -22,7 +23,7 @@ namespace SheddingCardGame.Cli
             while (currentTurn == null || !currentTurn.HasWinner)
             {
                 currentTurn = game.GetCurrentTurn();
-                RenderTurn(currentTurn);
+                RenderTurn(currentTurn, game.GameState);
                 Console.WriteLine($"Moves: {string.Join(",", game.CardMoves)}");
                 if (currentTurn.NextAction == Action.SelectSuit)
                     SelectSuit(game, currentTurn);
@@ -83,20 +84,22 @@ namespace SheddingCardGame.Cli
             Console.WriteLine($"IsValidPlay: {playResult}");
         }
 
-        private static void RenderTurn(Turn turn)
+        private static void RenderTurn(Turn turn, GameState gameState)
         {
+            var currentBoard = gameState.CurrentBoard;
+
             Console.WriteLine("--------------------------------------------------");
             Console.WriteLine($"Turn {turn.TurnNumber}");
             Console.WriteLine($"PlayerToPlay: {turn.PlayerToPlay}");
             Console.WriteLine($"NextAction: {turn.NextAction}");
             Console.WriteLine($"SelectedSuit: {turn.SelectedSuit}");
-            Console.WriteLine($"Stock pile: {turn.StockPile.Cards.Count()} cards");
-            Console.WriteLine($"Discard pile: {turn.DiscardPile.CardToMatch} ({turn.DiscardPile.RestOfCards.Cards.Count()} other cards)");
-
-            var player1Hand = string.Join(", ", turn.Player1Hand.Cards.Select(x => x.ToString()));
+            Console.WriteLine($"Stock pile: {currentBoard.StockPile.Cards.Count()} cards");
+            Console.WriteLine($"Discard pile: {currentBoard.DiscardPile.CardToMatch} ({currentBoard.DiscardPile.RestOfCards.Cards.Count()} other cards)");
+            
+            var player1Hand = string.Join(", ", currentBoard.Player1.Hand.Cards.Select(x => x.ToString()));
             Console.WriteLine($"Player 1 hand: {player1Hand} ");
 
-            var player2Hand = string.Join(", ", turn.Player2Hand.Cards.Select(x => x.ToString()));
+            var player2Hand = string.Join(", ", currentBoard.Player2.Hand.Cards.Select(x => x.ToString()));
             Console.WriteLine($"Player 2 hand: {player2Hand} ");
 
             Console.WriteLine($"Player {turn.PlayerToPlay} potential plays:");

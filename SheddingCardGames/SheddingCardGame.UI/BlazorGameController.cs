@@ -24,7 +24,7 @@ namespace SheddingCardGame.UI
         public async void Deal()
         {
             game.Deal();
-            UiState = await inGameUiBuilder.Build(this);
+            UiState = await inGameUiBuilder.Build(this, game.GameState);
         }
 
         public bool Play(CardComponent cardComponent)

@@ -6,10 +6,6 @@ namespace SheddingCardGames.Domain
     {
         public Turn(int turnNumber,
             int playerToPlay,
-            StockPile stockPile,
-            DiscardPile discardPile,
-            CardCollection player1Hand,
-            CardCollection player2Hand,
             IEnumerable<Card> validPlays,
             bool hasWinner,
             int? winner,
@@ -18,10 +14,6 @@ namespace SheddingCardGames.Domain
         {
             TurnNumber = turnNumber;
             PlayerToPlay = playerToPlay;
-            StockPile = stockPile;
-            DiscardPile = discardPile;
-            Player1Hand = player1Hand;
-            Player2Hand = player2Hand;
             ValidPlays = validPlays;
             HasWinner = hasWinner;
             Winner = winner;
@@ -31,11 +23,7 @@ namespace SheddingCardGames.Domain
 
         public int TurnNumber { get; }
         public int PlayerToPlay { get; }
-        public StockPile StockPile { get; }
-        public DiscardPile DiscardPile { get; }
         public IEnumerable<Card> ValidPlays { get; }
-        public CardCollection Player1Hand { get; }
-        public CardCollection Player2Hand { get; }
         public bool HasWinner { get; }
         public int? Winner { get; }
         public Action NextAction { get; }

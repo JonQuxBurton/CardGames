@@ -25,10 +25,11 @@ namespace SheddingCardGames.Domain
                 players.Add(player.Number, player);
 
             turns = new List<Turn>();
-            GameState = new GameState(GamePhase.New);
+            gameState = new GameState(GamePhase.New);
         }
 
-        public GameState GameState { get; private set; }
+        public GameState GameState => gameState;
+        private GameState gameState;
         public IEnumerable<Turn> Turns => turns;
 
         public IEnumerable<CardMoveEvent> CardMoves => GameState.CurrentBoard.CardMoves;
@@ -40,22 +41,21 @@ namespace SheddingCardGames.Domain
 
         public void Initialise(GameState initialGameState)
         {
-            GameState = initialGameState;
+            gameState = initialGameState;
             
             turns.Add(initialGameState.CurrentTurn);
         }
         
         public void ChooseStartingPlayer(int chosenPlayer)
         {
-            GameState = new GameState(GamePhase.ReadyToDeal, chosenPlayer);
+            gameState = new GameState(GamePhase.ReadyToDeal, chosenPlayer);
         }
 
         public void Deal()
         {
             var shuffled = shuffler.Shuffle(deck);
             var board = dealer.Deal(players.Values, shuffled);
-            GameState = new GameState(GamePhase.InGame, GameState.StartingPlayer);
-            GameState = GameState.WithBoard(GameState, board);
+            gameState = new GameState(GamePhase.InGame, GameState.StartingPlayer, board);
 
             AddFirstTurn(players[GameState.StartingPlayer.Value]);
 
@@ -188,10 +188,6 @@ namespace SheddingCardGames.Domain
             turns.Add(
                 new Turn(1,
                     nextPlayer.Number,
-                    GameState.CurrentBoard.StockPile,
-                    GameState.CurrentBoard.DiscardPile,
-                    players[1].Hand,
-                    players[2].Hand,
                     validPlays,
                     IsWinner(),
                     winner,
@@ -208,10 +204,6 @@ namespace SheddingCardGames.Domain
             turns.Add(
                 new Turn(nextTurnNumber,
                     nextPlayer.Number,
-                    GameState.CurrentBoard.StockPile,
-                    GameState.CurrentBoard.DiscardPile,
-                    players[1].Hand,
-                    players[2].Hand,
                     validPlays,
                     false,
                     null,
@@ -227,10 +219,6 @@ namespace SheddingCardGames.Domain
             turns.Add(
                 new Turn(currentTurn.TurnNumber,
                     currentTurn.PlayerToPlay,
-                    GameState.CurrentBoard.StockPile,
-                    GameState.CurrentBoard.DiscardPile,
-                    players[1].Hand,
-                    players[2].Hand,
                     new Card[0],
                     false,
                     null,
@@ -244,10 +232,6 @@ namespace SheddingCardGames.Domain
             turns.Add(
                 new Turn(currentTurn.TurnNumber,
                     CurrentPlayer.Number,
-                    GameState.CurrentBoard.StockPile,
-                    GameState.CurrentBoard.DiscardPile,
-                    players[1].Hand,
-                    players[2].Hand,
                     new Card[0],
                     true,
                     CurrentPlayer.Number,
