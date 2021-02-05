@@ -6,8 +6,10 @@ namespace SheddingCardGame.UI
     {
         public int ScreenHeight { get; set; } = 800;
         public int ScreenWidth { get; set; } = 1200;
-        public int CardHeight { get; set; } = 240;
-        public int CardWidth { get; set; } = 154;
+        public int SpriteSheetCardWidth { get; set; } = 154;
+        public int SpriteSheetCardHeight { get; set; } = 240;
+        public int CardWidth { get; set; } = 123;
+        public int CardHeight { get; set; } = 192;
 
         public int LabelHeight { get; set; } = 35;
 
@@ -24,13 +26,15 @@ namespace SheddingCardGame.UI
 
         public Point ScreenCentre => new Point(ScreenWidth / 2, ScreenHeight / 2);
 
-        public Rectangle TopPlayerInfoSection => new Rectangle(0, 10, ScreenWidth, LabelHeight);
-        public Rectangle TopPlayerHandSection => new Rectangle(0, TopPlayerInfoSection.Bottom, ScreenWidth, CardHeight);
-        public Rectangle TableSection => new Rectangle(0, TopPlayerHandSection.Bottom, ScreenWidth, CardHeight);
-        public Rectangle BottomPlayerHandSection => new Rectangle(0, TableSection.Bottom, ScreenWidth, CardHeight);
-        public Rectangle BottomPlayerInfoSection => new Rectangle(0, BottomPlayerHandSection.Bottom, ScreenWidth, LabelHeight);
+        public int Margin { get; set; } = 10;
 
-        public Rectangle InfoSection => new Rectangle(360, TableSection.Y + LabelHeight, TableSection.Width - 360 - 500, TableSection.Height);
+        public Rectangle TopPlayerInfoSection => new Rectangle(Margin, Margin, ScreenWidth, LabelHeight);
+        public Rectangle TopPlayerHandSection => new Rectangle(Margin, TopPlayerInfoSection.Bottom, ScreenWidth, CardHeight);
+        public Rectangle TableSection => new Rectangle(Margin, TopPlayerHandSection.Bottom, ScreenWidth, CardHeight);
+        public Rectangle BottomPlayerHandSection => new Rectangle(Margin, TableSection.Bottom, ScreenWidth, CardHeight);
+        public Rectangle BottomPlayerInfoSection => new Rectangle(Margin, BottomPlayerHandSection.Bottom + Margin, ScreenWidth, LabelHeight);
+
+        public Rectangle InfoSection => new Rectangle(360, TableSection.Y + Margin, TableSection.Width - 360 - 500, TableSection.Height);
         public Rectangle ActionsSection => new Rectangle(InfoSection.Right, TableSection.Y + LabelHeight, TableSection.Width - 360 - 500, TableSection.Height);
 
         public Rectangle StockPileSection => new Rectangle(TableSection.X, TableSection.Y, CardWidth, CardHeight);
