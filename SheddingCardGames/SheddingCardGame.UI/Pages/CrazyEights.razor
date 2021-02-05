@@ -30,6 +30,7 @@
 
     private int screenWidth = 1200;
     private int screenHeight = 800;
+    private Config config;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -55,7 +56,7 @@
             var game = new CrazyEightsGameBuilder().Build(deck);
             //var game = new SpecificGameBuilder(). Build(deck);
 
-            var config = new Config();
+            config = new Config();
             var inGameUiBuilder = new InGameUiBuilder(config, context, cardsSpriteSheet);
             gameController = new BlazorGameController(inGameUiBuilder, game, new ActionResultMessageMapper());
             gameController.UiState = new NewUiBuilder(config, gameController).BuildNewUiState();
@@ -101,50 +102,41 @@
 
         var currentBoard = gameController.UiState.CurrentBoard;
 
-        var cardWidth = 154;
-        var cardHeight = 240;
-
-        var player2LabelY = 10;
-        var player2HandY = player2LabelY + 30;
-        var discardPileY = player2HandY + cardHeight;
-        var player1HandY = discardPileY + cardHeight;
-        var player1LabelY = player1HandY + cardHeight;
-
         // Update Cards
-        var discardCard = gameController.UiState.CurrentBoard.DiscardPile.CardToMatch;
-        var discardCardGameObject = uiState.CardGameObjects[discardCard];
-        discardCardGameObject.IsTurnedUp = true;
-        discardCardGameObject.SetX(cardWidth);
-        discardCardGameObject.SetY(discardPileY);
-        discardCardGameObject.IsVisible = true;
-
         var stockPileCard = currentBoard.StockPile.Cards.First();
         var stockPileGameObject = uiState.CardGameObjects[stockPileCard];
         stockPileGameObject.OnClick = () => gameController.Take();
         stockPileGameObject.IsTurnedUp = false;
-        stockPileGameObject.SetX(0);
-        stockPileGameObject.SetY(discardPileY);
+        stockPileGameObject.SetX(config.StockPileSection.X);
+        stockPileGameObject.SetY(config.StockPileSection.Y);
         stockPileGameObject.IsVisible = true;
 
-        for (int i = 0; i < currentBoard.Player1.Hand.Cards.Count(); i++)
-        {
-            var card = currentBoard.Player1.Hand.Cards.ElementAt(i);
-            var x = i * cardWidth;
-            var cardObject = uiState.CardGameObjects[card];
-            cardObject.IsTurnedUp = true;
-            cardObject.SetX(x);
-            cardObject.SetY(player1HandY);
-            cardObject.IsVisible = true;
-        }
+        var discardCard = gameController.UiState.CurrentBoard.DiscardPile.CardToMatch;
+        var discardCardGameObject = uiState.CardGameObjects[discardCard];
+        discardCardGameObject.IsTurnedUp = true;
+        discardCardGameObject.SetX(config.DiscardPileSection.X);
+        discardCardGameObject.SetY(config.DiscardPileSection.Y);
+        discardCardGameObject.IsVisible = true;
 
         for (int i = 0; i < currentBoard.Player2.Hand.Cards.Count(); i++)
         {
             var card = currentBoard.Player2.Hand.Cards.ElementAt(i);
-            var x = i * cardWidth;
+            var x = (i * config.CardWidth) + config.TopPlayerHandSection.X;
             var cardObject = uiState.CardGameObjects[card];
             cardObject.IsTurnedUp = true;
             cardObject.SetX(x);
-            cardObject.SetY(player2HandY);
+            cardObject.SetY(config.TopPlayerHandSection.Y);
+            cardObject.IsVisible = true;
+        }
+
+        for (int i = 0; i < currentBoard.Player1.Hand.Cards.Count(); i++)
+        {
+            var card = currentBoard.Player1.Hand.Cards.ElementAt(i);
+            var x = (i * config.CardWidth) + config.BottomPlayerHandSection.X;
+            var cardObject = uiState.CardGameObjects[card];
+            cardObject.IsTurnedUp = true;
+            cardObject.SetX(x);
+            cardObject.SetY(config.BottomPlayerHandSection.Y);
             cardObject.IsVisible = true;
         }
 
@@ -164,6 +156,14 @@
             gameController.Buttons[ButtonNames.Spades].Hide();
         }
 
+        var takeButton = gameController.Buttons[ButtonNames.Take];
+
+        if (gameController.CurrentTurn.NextAction == Action.Take)
+            takeButton.Show();
+        else
+            takeButton.Hide();
+
+
         // Update Labels
         gameController.Labels[LabelNames.Turn].Show($"Turn {gameController.CurrentTurn.TurnNumber}");
 
@@ -175,14 +175,6 @@
         }
 
         playerToPlayLabel.Label = $"Player {gameController.CurrentTurn.PlayerToPlay} to {gameController.CurrentTurn.NextAction}";
-
-        var takeButton = gameController.Buttons[ButtonNames.Take];
-
-        if (gameController.CurrentTurn.NextAction == Action.Take)
-            takeButton.Show();
-        else
-            takeButton.Hide();
-
 
         var selectedSuitLabel = gameController.Labels[LabelNames.SelectedSuit];
 
@@ -200,7 +192,7 @@
 
     private async ValueTask Render(int screenWidth, int screenHeight)
     {
-        await context.SetFillStyleAsync("green");
+        await context.SetFillStyleAsync(config.BackgroundColour);
         await context.FillRectAsync(0, 0, screenWidth, screenHeight);
 
         foreach (var visibleGameObject in gameController.UiState.GameObjects.Where(x => x.IsVisible))

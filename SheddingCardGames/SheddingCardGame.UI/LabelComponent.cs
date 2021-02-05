@@ -6,11 +6,13 @@ namespace SheddingCardGame.UI
 {
     public class LabelComponent : GameObject, IGameObject
     {
+        private readonly Config config;
         public string Label { get; set; }
         public Point Position { get; }
 
-        public LabelComponent(string label, Point position, bool isVisible)
+        public LabelComponent(Config config, string label, Point position, bool isVisible)
         {
+            this.config = config;
             Label = label;
             Tag = label;
             Position = position;
@@ -26,9 +28,9 @@ namespace SheddingCardGame.UI
 
         public async ValueTask Render(Canvas2DContext context)
         {
-            await context.SetFontAsync("24px verdana");
-            await context.SetStrokeStyleAsync("White");
-            await context.SetFillStyleAsync("White");
+            await context.SetFontAsync(config.Font);
+            await context.SetStrokeStyleAsync(config.FontColour);
+            await context.SetFillStyleAsync(config.FontColour);
             await context.FillTextAsync($"{Label}", Position.X, Position.Y);
         }
 

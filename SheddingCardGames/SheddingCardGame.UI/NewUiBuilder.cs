@@ -16,7 +16,7 @@
             var newUiState = new UiState(null);
 
             var cursor = new Cursor(config.ScreenCentre);
-            var buttonBuilder = new ButtonComponentBuilder(newUiState);
+            var buttonBuilder = new ButtonComponentBuilder(config, newUiState);
             buttonBuilder.Build(cursor, ButtonNames.Deal, ButtonNames.Deal.ToString().ToUpper(),
                 () => gameController.Deal());
 

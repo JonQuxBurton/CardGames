@@ -28,8 +28,8 @@ namespace SheddingCardGame.UI
         public async Task<UiState> Build(BlazorGameController gameController, GameState gameState)
         {
             uiState = new UiState(gameState){ CurrentGamePhase = GamePhase.InGame};
-            buttonComponentBuilder = new ButtonComponentBuilder(uiState);
-            labelComponentBuilder = new LabelComponentBuilder(uiState);
+            buttonComponentBuilder = new ButtonComponentBuilder(config, uiState);
+            labelComponentBuilder = new LabelComponentBuilder(config, uiState);
             cardComponentBuilder = new CardComponentBuilder(config, gameController, uiState, cardsSpriteSheet);
 
             var player2LabelX = await GetXForCentredText(context, config.Font, config.TopPlayerLabel, config.TableSection.Width);

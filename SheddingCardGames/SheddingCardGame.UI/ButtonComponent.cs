@@ -8,16 +8,17 @@ namespace SheddingCardGame.UI
 {
     public class ButtonComponent : GameObject, IGameObject
     {
+        private readonly Config config;
         public Action ButtonAction { get; set; }
         public string Label { get; }
         public Point Position { get; }
-        public Rectangle? BoundingBox => boundingBox;
 
         private Rectangle? boundingBox;
         private bool isActive;
 
-        public ButtonComponent(string label, Point position, bool isVisible, Action buttonAction)
+        public ButtonComponent(Config config, string label, Point position, bool isVisible, Action buttonAction)
         {
+            this.config = config;
             ButtonAction = buttonAction;
             Label = label;
             Tag = label;
@@ -42,30 +43,29 @@ namespace SheddingCardGame.UI
 
         public async ValueTask Render(Canvas2DContext context)
         {
-            var fontInfo = "24px verdana";
-            var padding = 5;
-            await context.SetFontAsync(fontInfo);
+            var padding = config.ButtonPadding;
+            await context.SetFontAsync(config.Font);
 
             if (boundingBox == null)
             {
                 TextMetrics metrics = await context.MeasureTextAsync(Label);
                 var width = metrics.Width + padding*2;
-                var height = await GetTextHeightAsync(context, fontInfo) + padding * 2;
+                var height = await GetTextHeightAsync(context, config.Font) + padding * 2;
                 boundingBox = new Rectangle(Position.X, Position.Y, Round(width), Round(height));
             }
 
-            await context.SetLineWidthAsync(2);
-            await context.SetStrokeStyleAsync("White");
+            await context.SetLineWidthAsync(config.ButtonBorderWidth);
+            await context.SetStrokeStyleAsync(config.FontColour);
             await context.StrokeRectAsync(boundingBox.Value.X, boundingBox.Value.Y, boundingBox.Value.Width, boundingBox.Value.Height);
-            await context.SetFillStyleAsync("White");
+            await context.SetFillStyleAsync(config.FontColour);
             await context.FillTextAsync($"{Label}", Position.X + padding, Position.Y + padding);
 
             if (isActive)
             {
                 var box = boundingBox.Value;
                 await context.BeginPathAsync();
-                await context.SetStrokeStyleAsync($"rgb(255,0,0)");
-                await context.SetLineWidthAsync(4);
+                await context.SetStrokeStyleAsync(config.HighlightColour);
+                await context.SetLineWidthAsync(config.HighlightWidth);
                 await context.StrokeRectAsync(box.X, box.Y, box.Width, box.Height);
             }
         }

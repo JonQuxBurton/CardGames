@@ -11,10 +11,14 @@ namespace SheddingCardGame.UI
 
         public int LabelHeight { get; set; } = 35;
 
-        public string TopPlayerLabel { get; set; } = "Player 1";
-        public string BottomPlayerLabel { get; set; } = "Player 2";
+        public string TopPlayerLabel { get; set; } = "Player 2";
+        public string BottomPlayerLabel { get; set; } = "Player 1";
         
         public string Font { get; set; } = "24px verdana";
+        public string FontColour { get; set; } = "White";
+        public string BackgroundColour { get; set; } = "Green";
+        public int ButtonBorderWidth { get; set; } = 2;
+        public int ButtonPadding { get; set; } = 5;
         public string HighlightColour { get; set; } = "rgb(255,0,0)";
         public int HighlightWidth { get; set; } = 4;
 
@@ -28,5 +32,8 @@ namespace SheddingCardGame.UI
 
         public Rectangle InfoSection => new Rectangle(360, TableSection.Y + LabelHeight, TableSection.Width - 360 - 500, TableSection.Height);
         public Rectangle ActionsSection => new Rectangle(InfoSection.Right, TableSection.Y + LabelHeight, TableSection.Width - 360 - 500, TableSection.Height);
+
+        public Rectangle StockPileSection => new Rectangle(TableSection.X, TableSection.Y, CardWidth, CardHeight);
+        public Rectangle DiscardPileSection => new Rectangle(StockPileSection.Right, TableSection.Y, CardWidth, CardHeight);
     }
 }
