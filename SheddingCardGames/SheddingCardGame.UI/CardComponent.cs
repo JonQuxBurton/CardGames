@@ -7,6 +7,7 @@ namespace SheddingCardGame.UI
 {
     public class CardComponent : GameObject, IGameObject
     {
+        private readonly Config config;
         public Card Card { get; }
         public Sprite Sprite { get; }
         public System.Action OnClick { get; set; }
@@ -14,8 +15,9 @@ namespace SheddingCardGame.UI
         private Rectangle boundingBox;
         private bool isActive;
 
-        public CardComponent(Card card, Sprite sprite, bool isVisible, bool isTurned = false)
+        public CardComponent(Config config, Card card, Sprite sprite, bool isVisible, bool isTurned = false)
         {
+            this.config = config;
             Card = card;
             Tag = $"{Card}";
             IsTurnedUp = isTurned;
@@ -81,8 +83,8 @@ namespace SheddingCardGame.UI
             if (isActive)
             {
                 await context.BeginPathAsync();
-                await context.SetStrokeStyleAsync($"rgb(255,0,0)");
-                await context.SetLineWidthAsync(4);
+                await context.SetStrokeStyleAsync(config.HighlightColour);
+                await context.SetLineWidthAsync(config.HighlightWidth);
                 await context.StrokeRectAsync(boundingBox.X, boundingBox.Y, boundingBox.Width, boundingBox.Height);
             }
         }

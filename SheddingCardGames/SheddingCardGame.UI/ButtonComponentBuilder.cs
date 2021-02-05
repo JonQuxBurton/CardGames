@@ -3,11 +3,11 @@ using System.Drawing;
 
 namespace SheddingCardGame.UI
 {
-    public class ButtonBuilder
+    public class ButtonComponentBuilder
     {
         private readonly UiState uiState;
 
-        public ButtonBuilder(UiState uiState)
+        public ButtonComponentBuilder(UiState uiState)
         {
             this.uiState = uiState;
         }

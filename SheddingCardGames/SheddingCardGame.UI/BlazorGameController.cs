@@ -5,24 +5,6 @@ using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGame.UI
 {
-    public enum LabelNames
-    {
-        Turn,
-        PlayerToPlay,
-        InvalidPlay,
-        SelectedSuit
-    }
-
-    public enum ButtonNames
-    {
-        Take,
-        Deal,
-        Clubs,
-        Diamonds,
-        Hearts,
-        Spades
-    }
-    
     public class BlazorGameController
     {
         private readonly InGameUiBuilder inGameUiBuilder;

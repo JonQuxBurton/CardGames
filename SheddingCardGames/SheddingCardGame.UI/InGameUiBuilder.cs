@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Threading.Tasks;
 using Blazor.Extensions.Canvas.Canvas2D;
 using Microsoft.AspNetCore.Components;
@@ -8,76 +7,61 @@ using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGame.UI
 {
-    public partial class InGameUiBuilder
+    public class InGameUiBuilder
     {
         private readonly ElementReference cardsSpriteSheet;
+        private readonly Config config;
         private readonly Canvas2DContext context;
         private UiState uiState;
-        private ButtonBuilder buttonBuilder;
-        private LabelBuilder labelBuilder;
+        private ButtonComponentBuilder buttonComponentBuilder;
+        private LabelComponentBuilder labelComponentBuilder;
         private CardComponentBuilder cardComponentBuilder;
 
-        public InGameUiBuilder(Canvas2DContext context,
+        public InGameUiBuilder(Config config, Canvas2DContext context,
             ElementReference cardsSpriteSheet)
         {
+            this.config = config;
             this.context = context;
             this.cardsSpriteSheet = cardsSpriteSheet;
-            
         }
 
         public async Task<UiState> Build(BlazorGameController gameController, GameState gameState)
         {
             uiState = new UiState(gameState){ CurrentGamePhase = GamePhase.InGame};
-            buttonBuilder = new ButtonBuilder(uiState);
-            labelBuilder = new LabelBuilder(uiState);
-            cardComponentBuilder = new CardComponentBuilder(gameController, uiState, cardsSpriteSheet);
+            buttonComponentBuilder = new ButtonComponentBuilder(uiState);
+            labelComponentBuilder = new LabelComponentBuilder(uiState);
+            cardComponentBuilder = new CardComponentBuilder(config, gameController, uiState, cardsSpriteSheet);
 
-            var cardHeight = 240;
+            var player2LabelX = await GetXForCentredText(context, config.Font, config.TopPlayerLabel, config.TableSection.Width);
+            var player1LabelX = await GetXForCentredText(context, config.Font, config.BottomPlayerLabel, config.TableSection.Width);
+            labelComponentBuilder.Build(new Cursor(player2LabelX, config.TopPlayerInfoSection.Y), LabelNames.Player2, config.TopPlayerLabel);
+            labelComponentBuilder.Build(new Cursor(player1LabelX, config.BottomPlayerInfoSection.Y), LabelNames.Player1, config.BottomPlayerLabel);
 
-            var player2LabelY = 10;
-            var player2HandY = player2LabelY + 30;
-            var discardPileY = player2HandY + cardHeight;
-            var player1HandY = discardPileY + cardHeight;
-            var player1LabelY = player1HandY + cardHeight;
-
-
-            var player2LabelX = await GetXForText(context, "24px verdana", "Player 2", 1200);
-            uiState.GameObjects.Add(new LabelComponent("Player 2", new Point(player2LabelX, player2LabelY), true));
-            var player1LabelX = await GetXForText(context, "24px verdana", "Player 1", 1200);
-            uiState.GameObjects.Add(new LabelComponent("Player 1", new Point(player1LabelX, player1LabelY), true));
-
-            var statusAreaPosition = new Point(360, discardPileY + 60);
-            SetupStatusArea(gameController, statusAreaPosition);
-            
-            var cursor = new Cursor(0, 0, 0);
+            SetupInfoSection(gameController);
             
             foreach (var card in gameController.AllCards.Cards) 
-                cardComponentBuilder.Build(cursor, card);
+                cardComponentBuilder.Build(new Cursor(0, 0), card);
 
             return uiState;
         }
 
-        public void SetupStatusArea(BlazorGameController gameController, Point statusAreaPosition)
+        public void SetupInfoSection(BlazorGameController gameController)
         {
-            var rowHeight = 30;
+            var cursor = new Cursor(config.InfoSection.X, config.InfoSection.Y, config.LabelHeight);
+            labelComponentBuilder.Build(cursor, LabelNames.Turn);
+            labelComponentBuilder.Build(cursor, LabelNames.PlayerToPlay);
+            labelComponentBuilder.Build(cursor, LabelNames.SelectedSuit);
+            labelComponentBuilder.Build(cursor, LabelNames.InvalidPlay);
+            buttonComponentBuilder.Build(cursor, ButtonNames.Take, ButtonNames.Take.ToString().ToUpper(), () => gameController.Take());
 
-            var cursor = new Cursor(statusAreaPosition.X, statusAreaPosition.Y, rowHeight);
-            
-            labelBuilder.Build(cursor, LabelNames.Turn);
-            labelBuilder.Build(cursor, LabelNames.PlayerToPlay);
-            labelBuilder.Build(cursor, LabelNames.SelectedSuit);
-            labelBuilder.Build(cursor, LabelNames.InvalidPlay);
-            buttonBuilder.Build(cursor, ButtonNames.Take, "TAKE", () => gameController.Take());
-
-            rowHeight = 40;
-            cursor = new Cursor(statusAreaPosition.X + 500, statusAreaPosition.Y, rowHeight);
-            buttonBuilder.Build(cursor, ButtonNames.Clubs, ButtonNames.Clubs.ToString().ToUpper(), () => gameController.SelectSuit(Suit.Clubs));
-            buttonBuilder.Build(cursor, ButtonNames.Diamonds, ButtonNames.Diamonds.ToString().ToUpper(), () => gameController.SelectSuit(Suit.Diamonds));
-            buttonBuilder.Build(cursor, ButtonNames.Hearts, ButtonNames.Hearts.ToString().ToUpper(), () => gameController.SelectSuit(Suit.Hearts));
-            buttonBuilder.Build(cursor, ButtonNames.Spades, ButtonNames.Spades.ToString().ToUpper(), () => gameController.SelectSuit(Suit.Spades));
+            cursor = new Cursor(config.ActionsSection.X, config.ActionsSection.Y, config.LabelHeight);
+            buttonComponentBuilder.Build(cursor, ButtonNames.Clubs, ButtonNames.Clubs.ToString().ToUpper(), () => gameController.SelectSuit(Suit.Clubs));
+            buttonComponentBuilder.Build(cursor, ButtonNames.Diamonds, ButtonNames.Diamonds.ToString().ToUpper(), () => gameController.SelectSuit(Suit.Diamonds));
+            buttonComponentBuilder.Build(cursor, ButtonNames.Hearts, ButtonNames.Hearts.ToString().ToUpper(), () => gameController.SelectSuit(Suit.Hearts));
+            buttonComponentBuilder.Build(cursor, ButtonNames.Spades, ButtonNames.Spades.ToString().ToUpper(), () => gameController.SelectSuit(Suit.Spades));
         }
 
-        public async Task<int> GetXForText(Canvas2DContext context, string fontInfo, string text, int areaWidth)
+        private async Task<int> GetXForCentredText(Canvas2DContext context, string fontInfo, string text, int areaWidth)
         {
             await context.SetFontAsync(fontInfo);
             var metrics = await context.MeasureTextAsync(text);

@@ -55,10 +55,10 @@
             var game = new CrazyEightsGameBuilder().Build(deck);
             //var game = new SpecificGameBuilder(). Build(deck);
 
-            var inGameUiBuilder = new InGameUiBuilder(context, cardsSpriteSheet);
+            var config = new Config();
+            var inGameUiBuilder = new InGameUiBuilder(config, context, cardsSpriteSheet);
             gameController = new BlazorGameController(inGameUiBuilder, game, new ActionResultMessageMapper());
-
-            gameController.UiState = new NewUiBuilder(gameController, screenWidth, screenHeight).BuildNewUiState();
+            gameController.UiState = new NewUiBuilder(config, gameController).BuildNewUiState();
         }
     }
 
