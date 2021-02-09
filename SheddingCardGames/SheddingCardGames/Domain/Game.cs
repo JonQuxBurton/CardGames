@@ -12,6 +12,8 @@ namespace SheddingCardGames.Domain
         private readonly IDealer dealer;
         private readonly CardCollection deck;
 
+        private Dictionary<string, Card> cards = new Dictionary<string, Card>();
+        
         public Game(IRules rules, IShuffler shuffler, IDealer dealer, IEnumerable<Player> withPlayers, CardCollection deck)
         {
             this.rules = rules;
@@ -19,6 +21,12 @@ namespace SheddingCardGames.Domain
             this.dealer = dealer;
             this.deck = deck;
 
+            foreach (var card in deck.Cards)
+            {
+                if (!cards.ContainsKey($"{card.Rank}|{card.Suit}"))
+                    cards.Add($"{card.Rank}|{card.Suit}", card);
+            }
+            
             foreach (var player in withPlayers)
                 players.Add(player.Number, player);
 
@@ -29,6 +37,11 @@ namespace SheddingCardGames.Domain
         private GameState gameState;
 
         public IEnumerable<CardMoveEvent> CardMoves => GameState.CurrentBoard.CardMoves;
+
+        public Card GetCard(int rank, Suit suit)
+        {
+            return cards[$"{rank}|{suit}"];
+        }
 
         public void Initialise(GameState initialGameState)
         {

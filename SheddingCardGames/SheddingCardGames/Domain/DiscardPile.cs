@@ -22,7 +22,11 @@ namespace SheddingCardGames.Domain
         {
             get
             {
-                var cards = new List<Card> {CardToMatch};
+                var cards = new List<Card>();
+                
+                if (CardToMatch != null)
+                    cards.Add(CardToMatch);
+                
                 cards.AddRange(RestOfCards.Cards);
                 return new CardCollection(cards);
             }
