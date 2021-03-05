@@ -6,16 +6,17 @@ namespace SheddingCardGames.Domain
     {
         public DiscardPile()
         {
-            this.RestOfCards = new CardCollection();
+            RestOfCards = new CardCollection();
         }
-        
+
         public DiscardPile(IEnumerable<Card> restOfCards)
         {
-            this.RestOfCards = new CardCollection(restOfCards);
+            RestOfCards = new CardCollection(restOfCards);
         }
+
         public DiscardPile(CardCollection restOfCards)
         {
-            this.RestOfCards = restOfCards;
+            RestOfCards = restOfCards;
         }
 
         public CardCollection AllCards
@@ -23,10 +24,10 @@ namespace SheddingCardGames.Domain
             get
             {
                 var cards = new List<Card>();
-                
+
                 if (CardToMatch != null)
                     cards.Add(CardToMatch);
-                
+
                 cards.AddRange(RestOfCards.Cards);
                 return new CardCollection(cards);
             }

@@ -38,13 +38,61 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void SetRestOfCardsToEmptyWhenNoCardSuplied()
+            public void SetRestOfCardsToEmptyWhenNoCardSupplied()
             {
                 sut = new DiscardPile();
                 sut.RestOfCards.Cards.Should().BeEmpty();
             }
         }
 
+        public class AllCardsShould
+        {
+            private DiscardPile sut;
+
+            [Fact]
+            public void ReturnEmptyWhenNoCards()
+            {
+                sut = new DiscardPile();
+                
+                var actual = sut.AllCards;
+
+                actual.Cards.Should().BeEmpty();
+            }
+            
+            [Fact]
+            public void ReturnCardsWhenNoCardToMatch()
+            {
+                var expectedCards = new[]
+                {
+                    new Card(1, Suit.Clubs),
+                    new Card(2, Suit.Clubs),
+                    new Card(3, Suit.Clubs)
+                };
+                sut = new DiscardPile(expectedCards);
+                
+                var actual = sut.AllCards;
+
+                actual.Cards.Should().Equal(expectedCards);
+            }
+            
+            [Fact]
+            public void ReturnCardsWhenCardToMatch()
+            {
+                var expectedCards = new[]
+                {
+                    new Card(1, Suit.Clubs),
+                    new Card(2, Suit.Clubs),
+                    new Card(3, Suit.Clubs)
+                };
+                sut = new DiscardPile(expectedCards);
+                sut.TurnUpTopCard();
+                
+                var actual = sut.AllCards;
+
+                actual.Cards.Should().Equal(expectedCards);
+            }
+        }
+        
         public class TurnUpTopCardShould
         {
             private readonly Card[] cards;
