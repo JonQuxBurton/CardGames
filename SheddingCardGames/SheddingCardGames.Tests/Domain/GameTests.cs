@@ -125,6 +125,82 @@ namespace SheddingCardGames.Tests.Domain
             }
         }
 
+        public class GetCardShould
+        {
+            private readonly Game sut;
+
+            public GetCardShould()
+            {
+                var player1Hand = new CardCollection(
+                    new Card(1, Suit.Clubs),
+                    new Card(2, Suit.Clubs),
+                    new Card(3, Suit.Clubs),
+                    new Card(4, Suit.Clubs),
+                    new Card(5, Suit.Clubs),
+                    new Card(6, Suit.Clubs),
+                    new Card(7, Suit.Clubs)
+                );
+                var player2Hand = new CardCollection(
+                    new Card(1, Suit.Diamonds),
+                    new Card(2, Suit.Diamonds),
+                    new Card(3, Suit.Diamonds),
+                    new Card(4, Suit.Diamonds),
+                    new Card(5, Suit.Diamonds),
+                    new Card(6, Suit.Diamonds),
+                    new Card(7, Suit.Diamonds)
+                );
+                var stockPile = new CardCollection(new Card(1, Suit.Spades));
+                var discardCard = new Card(2, Suit.Hearts);
+
+                sut = new ReadyToDealGameBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithStockPile(stockPile)
+                    .WithDiscardCard(discardCard)
+                    .Build();
+            }
+
+            [Fact]
+            public void ReturnCardFromStockPile()
+            {
+                var actual = sut.GetCard(1, Suit.Spades);
+
+                actual.Should().Be(new Card(1, Suit.Spades));
+            }
+            
+            [Fact]
+            public void ReturnCardFromDiscardPile()
+            {
+                var actual = sut.GetCard(2, Suit.Hearts);
+
+                actual.Should().Be(new Card(2, Suit.Hearts));
+            }
+            
+            [Fact]
+            public void ReturnCardFromPlayer1Hand()
+            {
+                var actual = sut.GetCard(7, Suit.Clubs);
+
+                actual.Should().Be(new Card(7, Suit.Clubs));
+            }
+            
+            [Fact]
+            public void ReturnCardFromPlayer2Hand()
+            {
+                var actual = sut.GetCard(4, Suit.Diamonds);
+
+                actual.Should().Be(new Card(4, Suit.Diamonds));
+            }
+            
+            [Fact]
+            public void ReturnNullWhenCardNotFound()
+            {
+                var actual = sut.GetCard(13, Suit.Spades);
+
+                actual.Should().BeNull();
+            }
+        }
+
         public class DealShould
         {
             private readonly CardCollection player1Hand;

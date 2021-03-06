@@ -40,7 +40,11 @@ namespace SheddingCardGames.Domain
 
         public Card GetCard(int rank, Suit suit)
         {
-            return cards[$"{rank}|{suit}"];
+            var key = $"{rank}|{suit}";
+            if (cards.ContainsKey(key))
+                return cards[key];
+
+            return null;
         }
 
         public void Initialise(GameState initialGameState)
