@@ -5,10 +5,10 @@ namespace SheddingCardGames.Domain
     public class Turn
     {
         public Turn(int turnNumber,
-            int playerToPlay,
+            Player playerToPlay,
             IEnumerable<Card> validPlays,
             bool hasWinner,
-            int? winner,
+            Player winner,
             Action nextAction, 
             Suit? selectedSuit)
         {
@@ -22,10 +22,10 @@ namespace SheddingCardGames.Domain
         }
 
         public int TurnNumber { get; }
-        public int PlayerToPlay { get; }
+        public Player PlayerToPlay { get; }
         public IEnumerable<Card> ValidPlays { get; }
         public bool HasWinner { get; }
-        public int? Winner { get; }
+        public Player Winner { get; }
         public Action NextAction { get; }
         public Suit? SelectedSuit { get; }
     }

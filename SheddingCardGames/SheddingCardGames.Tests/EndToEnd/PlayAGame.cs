@@ -362,7 +362,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             IDeckBuilder deckBuilder = new SpecificDeckBuilder(player1Hand, player2Hand, discardCard, stockPile);
             var deck = deckBuilder.Build();
 
-            var players = new[] {new Player(1), new Player(2)};
+            var players = new[] {new Player(1, "Alice"), new Player(2, "Bob")};
             var rules = new Rules(7);
             var shuffler = new DummyShuffler();
             var dealer = new Dealer(rules);
@@ -400,7 +400,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(discardCard);
             sut.GameState.CurrentBoard.Player1.Hand.Cards.Should().BeEmpty();
             sut.GameState.CurrentTurn.HasWinner.Should().BeTrue();
-            sut.GameState.CurrentTurn.Winner.Should().Be(1);
+            sut.GameState.CurrentTurn.Winner.Number.Should().Be(1);
         }
         private void VerifyPlayer2Won(ActionResult result, int turnNumber, Card discardCard)
         {
@@ -409,7 +409,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(discardCard);
             sut.GameState.CurrentBoard.Player2.Hand.Cards.Should().BeEmpty();
             sut.GameState.CurrentTurn.HasWinner.Should().BeTrue();
-            sut.GameState.CurrentTurn.Winner.Should().Be(2);
+            sut.GameState.CurrentTurn.Winner.Number.Should().Be(2);
         }
 
         private void VerifyPlayer1Play(ActionResult result, int turnNumber, Card discardCard, Card[] player1Hand)

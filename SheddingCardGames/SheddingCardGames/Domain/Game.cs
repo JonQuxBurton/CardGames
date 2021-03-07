@@ -12,7 +12,7 @@ namespace SheddingCardGames.Domain
         private readonly IDealer dealer;
         private readonly CardCollection deck;
 
-        private Dictionary<string, Card> cards = new Dictionary<string, Card>();
+        private readonly Dictionary<string, Card> cards = new Dictionary<string, Card>();
         
         public Game(IRules rules, IShuffler shuffler, IDealer dealer, IEnumerable<Player> withPlayers, CardCollection deck)
         {
@@ -132,14 +132,14 @@ namespace SheddingCardGames.Domain
             return new ActionResultWithCard(true, ActionResultMessageKey.Success, takenCard);
         }
 
-        private Player CurrentPlayer
+        public Player CurrentPlayer
         {
             get
             {
                 if (gameState.CurrentTurn == null)
                     return players[GameState.StartingPlayer.Value];
                 
-                return players[gameState.CurrentTurn.PlayerToPlay];
+                return players[gameState.CurrentTurn.PlayerToPlay.Number];
             }
         }
 
@@ -173,12 +173,12 @@ namespace SheddingCardGames.Domain
             return CurrentPlayer.Hand.IsEmpty();
         }
 
-        private int? GetWinner()
+        private Player GetWinner()
         {
-            int? winner = null;
+            Player winner = null;
 
             if (CurrentPlayer.Hand.IsEmpty())
-                winner = CurrentPlayer.Number;
+                winner = CurrentPlayer;
 
             return winner;
         }
@@ -194,7 +194,7 @@ namespace SheddingCardGames.Domain
             var validPlays = GetValidPlays(nextPlayer.Hand, GameState.CurrentBoard.DiscardPile.CardToMatch, 1, null).ToArray();
             
             var newTurn = new Turn(1,
-                nextPlayer.Number,
+                nextPlayer,
                 validPlays,
                 IsWinner(),
                 winner,
@@ -211,7 +211,7 @@ namespace SheddingCardGames.Domain
 
             var newTurn = 
                 new Turn(nextTurnNumber,
-                    nextPlayer.Number,
+                    nextPlayer,
                     validPlays,
                     false,
                     null,
@@ -240,10 +240,10 @@ namespace SheddingCardGames.Domain
 
             var newTurn = 
                 new Turn(currentTurn.TurnNumber,
-                    CurrentPlayer.Number,
+                    CurrentPlayer,
                     new Card[0],
                     true,
-                    CurrentPlayer.Number,
+                    CurrentPlayer,
                     Action.Won, null);
             gameState = gameState.WithCurrentTurn(newTurn);
         }

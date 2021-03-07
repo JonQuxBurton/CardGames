@@ -32,10 +32,11 @@ namespace SheddingCardGame.UI
             labelComponentBuilder = new LabelComponentBuilder(config, uiState);
             cardComponentBuilder = new CardComponentBuilder(config, gameController, uiState, cardsSpriteSheet);
 
-            var player2LabelX = await GetXForCentredText(context, config.Font, config.TopPlayerLabel, config.TableSection.Width);
-            var player1LabelX = await GetXForCentredText(context, config.Font, config.BottomPlayerLabel, config.TableSection.Width);
-            labelComponentBuilder.Build(new Cursor(player2LabelX, config.TopPlayerInfoSection.Y), LabelNames.Player2, config.TopPlayerLabel);
-            labelComponentBuilder.Build(new Cursor(player1LabelX, config.BottomPlayerInfoSection.Y), LabelNames.Player1, config.BottomPlayerLabel);
+            var player2LabelX = await GetXForCentredText(context, config.Font, gameState.CurrentBoard.Player2.Name, config.TableSection.Width);
+            var player1LabelX = await GetXForCentredText(context, config.Font, gameState.CurrentBoard.Player1.Name, config.TableSection.Width);
+            
+            labelComponentBuilder.Build(new Cursor(player2LabelX, config.TopPlayerInfoSection.Y), LabelNames.Player2, gameState.CurrentBoard.Player2.Name);
+            labelComponentBuilder.Build(new Cursor(player1LabelX, config.BottomPlayerInfoSection.Y), LabelNames.Player1, gameState.CurrentBoard.Player1.Name);
 
             SetupInfoSection(gameController);
             

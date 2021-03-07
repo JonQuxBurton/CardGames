@@ -51,8 +51,11 @@ namespace SheddingCardGames.Tests.Domain
         
         public Game Build()
         {
-            var player1 = new Player(1);
-            var player2 = new Player(2);
+            var sampleData = new SampleData();
+            var player1 = sampleData.Player1;
+            player1.Hand = player1Hand;
+            var player2 = sampleData.Player2;
+            player2.Hand = player2Hand;
 
             var deck = new SpecificDeckBuilder(player1Hand, player2Hand, discardCard, stockPile).Build();
             var rules = new Rules(player1Hand.Cards.Count());

@@ -42,9 +42,12 @@ namespace SheddingCardGames.Tests.Domain
                     new Card(13, Suit.Diamonds)
                 );
 
+                var sampleData = new SampleData();
                 expectedStockPile = new StockPile(new CardCollection(new Card(1, Suit.Hearts), new Card(2, Suit.Hearts)));
-                expectedPlayer1 = new Player(1) {Hand = expectedPlayer1Hand};
-                expectedPlayer2 = new Player(2) {Hand = expectedPlayer2Hand};
+                expectedPlayer1 = sampleData.Player1;
+                expectedPlayer1.Hand = expectedPlayer1Hand;
+                expectedPlayer2 = sampleData.Player2;
+                expectedPlayer2.Hand = expectedPlayer2Hand;
 
                 sut = new Board(expectedPlayer1, expectedPlayer2, expectedStockPile, new DiscardPile(expectedDiscardPile.Cards));
             }
@@ -84,7 +87,8 @@ namespace SheddingCardGames.Tests.Domain
                     new Card(13, Suit.Diamonds),
                     new Card(1, Suit.Hearts)
                 ));
-                sut = new Board(new Player(1), new Player(2), originalStockPile, new DiscardPile());
+                var sampleData = new SampleData();
+                sut = new Board(sampleData.Player1, sampleData.Player2, originalStockPile, new DiscardPile());
                 sut.TurnUpDiscardCard();
             }
             
@@ -122,15 +126,14 @@ namespace SheddingCardGames.Tests.Domain
             
             public MoveCardToDiscardPileShould()
             {
-                player1 = new Player(1)
-                {
-                    Hand = new CardCollection(
+                var sampleData = new SampleData();
+                player1 = sampleData.Player1;
+                player1.Hand = new CardCollection(
                         new Card(1, Suit.Clubs), 
                         new Card(10, Suit.Hearts)
-                    )
-                };
+                );
                 var originalDiscardPile = new CardCollection(new Card(5, Suit.Diamonds));
-                sut = new Board(player1, new Player(2), new StockPile(new CardCollection()), new DiscardPile(originalDiscardPile.Cards));
+                sut = new Board(player1, sampleData.Player2, new StockPile(new CardCollection()), new DiscardPile(originalDiscardPile.Cards));
             }
             
             [Fact]
@@ -159,13 +162,12 @@ namespace SheddingCardGames.Tests.Domain
             [InlineData(2, "Player2Hand")]
             public void AddToCardMoveEvent(int playerNumber, string expectedSource)
             {
-                var player = new Player(playerNumber)
-                {
-                    Hand = new CardCollection(
+                var sampleData = new SampleData();
+                var player = sampleData.GetPlayer(playerNumber);
+                player.Hand = new CardCollection(
                         new Card(1, Suit.Clubs),
                         new Card(10, Suit.Hearts)
-                    )
-                };
+                );
                 sut.MoveCardToDiscardPile(player, new Card(10, Suit.Hearts));
 
                 sut.CardMoves.Should().NotBeEmpty();
@@ -183,15 +185,14 @@ namespace SheddingCardGames.Tests.Domain
 
             public TakeCardFromStockPileShould()
             {
-                player1 = new Player(1)
-                {
-                    Hand = new CardCollection(new Card(1, Suit.Clubs))
-                };
+                var sampleData = new SampleData();
+                player1 = sampleData.Player1;
+                player1.Hand = new CardCollection(new Card(1, Suit.Clubs));
                 var originalStockPile = new StockPile( new CardCollection(
                     new Card(5, Suit.Diamonds),
                     new Card(10, Suit.Hearts)
                 ));
-                sut = new Board(player1, new Player(2), originalStockPile, new DiscardPile());
+                sut = new Board(player1, sampleData.Player2, originalStockPile, new DiscardPile());
             }
             
             [Fact]
@@ -228,12 +229,11 @@ namespace SheddingCardGames.Tests.Domain
             [InlineData(2, "Player2Hand")]
             public void AddToCardMoveEvent(int playerNumber, string expectedSource)
             {
-                var player = new Player(playerNumber)
-                {
-                    Hand = new CardCollection(
+                var sampleData = new SampleData();
+                var player = sampleData.GetPlayer(playerNumber);
+                player.    Hand = new CardCollection(
                         new Card(1, Suit.Clubs),
-                        new Card(10, Suit.Hearts))
-                };
+                        new Card(10, Suit.Hearts));
                 sut.TakeCardFromStockPile(player);
 
                 sut.CardMoves.Should().NotBeEmpty();
@@ -250,13 +250,13 @@ namespace SheddingCardGames.Tests.Domain
 
             public MoveDiscardPileToStockPileShould()
             {
-                var player1 = new Player(1)
-                {
-                    Hand = new CardCollection(
+                var sampleData = new SampleData();
+                var player1 = sampleData.Player1;
+                player1.Hand = new CardCollection(
                         new Card(1, Suit.Clubs),
                         new Card(10, Suit.Hearts)
-                    )
-                };
+                    );
+                var player2 = sampleData.Player2;
                 var originalDiscardPile = new CardCollection(
                     new Card(1, Suit.Diamonds),
                     new Card(2, Suit.Diamonds),
@@ -264,7 +264,7 @@ namespace SheddingCardGames.Tests.Domain
                 );
                 var discardPile = new DiscardPile(originalDiscardPile.Cards);
                 discardPile.TurnUpTopCard();
-                sut = new Board(player1, new Player(2), new StockPile(new CardCollection()), discardPile);
+                sut = new Board(player1, player2, new StockPile(new CardCollection()), discardPile);
                 sut.MoveDiscardPileToStockPile();
             }
 

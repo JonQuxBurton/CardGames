@@ -22,8 +22,9 @@ namespace SheddingCardGames.Tests.Domain
                 deckCount = deck.Count();
                 rules = new Rules();
                 sut = new Dealer(rules);
-                player1 = new Player(1);
-                player2 = new Player(2);
+                var sampleData = new SampleData();
+                player1 = sampleData.Player1;
+                player2 = sampleData.Player2;
             }
 
             [Fact]

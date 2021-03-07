@@ -7,7 +7,7 @@ namespace SheddingCardGames.UiLogic
     {
         public Game Build(CardCollection deck)
         {
-            var players = new[] {new Player(1), new Player(2)};
+            var players = new[] {new Player(1, "Alice"), new Player(2,"Bob")};
             var rules = new Rules(7);
             var shuffler = new DummyShuffler();
             var dealer = new Dealer(rules);

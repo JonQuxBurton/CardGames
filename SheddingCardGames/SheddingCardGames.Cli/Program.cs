@@ -32,7 +32,7 @@ namespace SheddingCardGame.Cli
                 currentTurn = game.GameState.CurrentTurn;
             }
 
-            Console.WriteLine($"Player {currentTurn.Winner} has won!");
+            Console.WriteLine($"{currentTurn.Winner.Name} has won!");
         }
 
         private static void SelectSuit(Game game, Turn currentTurn)
@@ -43,9 +43,9 @@ namespace SheddingCardGame.Cli
 
             var selectedSuit = new SuitParser().Parse(selectedSuitInput);
 
-            Console.WriteLine($"Player {currentTurn.PlayerToPlay} selects Suit: {selectedSuit}");
+            Console.WriteLine($"{currentTurn.PlayerToPlay.Name} selects Suit: {selectedSuit}");
 
-            game.SelectSuit(currentTurn.PlayerToPlay, selectedSuit);
+            game.SelectSuit(currentTurn.PlayerToPlay.Number, selectedSuit);
         }
 
         private static (int Rank, Suit Suit) ParseInput(string input)
@@ -64,12 +64,12 @@ namespace SheddingCardGame.Cli
             {
                 Console.WriteLine($"No valid plays, press any key to Take a card");
                 Console.ReadKey();
-                var actionResult  = game.Take(currentTurn.PlayerToPlay);
+                var actionResult  = game.Take(currentTurn.PlayerToPlay.Number);
                 Console.WriteLine($"Taken: {actionResult.Card}");
                 return;
             }
             
-            Console.WriteLine($"Enter Player {currentTurn.PlayerToPlay}'s play in format RS (RankSuit):");
+            Console.WriteLine($"Enter {currentTurn.PlayerToPlay.Name}'s play in format RS (RankSuit):");
             var playInput = Console.ReadLine();
 
             var parsedInput = ParseInput(playInput);
@@ -78,9 +78,9 @@ namespace SheddingCardGame.Cli
 
             var play = new Card(playInputRank, playSuit);
 
-            Console.WriteLine($"Player {currentTurn.PlayerToPlay} plays: {play}");
+            Console.WriteLine($"{currentTurn.PlayerToPlay.Name} plays: {play}");
 
-            var playResult = game.Play(currentTurn.PlayerToPlay, play);
+            var playResult = game.Play(currentTurn.PlayerToPlay.Number, play);
             Console.WriteLine($"IsValidPlay: {playResult}");
         }
 
@@ -90,19 +90,19 @@ namespace SheddingCardGame.Cli
 
             Console.WriteLine("--------------------------------------------------");
             Console.WriteLine($"Turn {turn.TurnNumber}");
-            Console.WriteLine($"PlayerToPlay: {turn.PlayerToPlay}");
+            Console.WriteLine($"PlayerToPlay: {turn.PlayerToPlay.Name}");
             Console.WriteLine($"NextAction: {turn.NextAction}");
             Console.WriteLine($"SelectedSuit: {turn.SelectedSuit}");
             Console.WriteLine($"Stock pile: {currentBoard.StockPile.Cards.Count()} cards");
             Console.WriteLine($"Discard pile: {currentBoard.DiscardPile.CardToMatch} ({currentBoard.DiscardPile.RestOfCards.Cards.Count()} other cards)");
             
             var player1Hand = string.Join(", ", currentBoard.Player1.Hand.Cards.Select(x => x.ToString()));
-            Console.WriteLine($"Player 1 hand: {player1Hand} ");
+            Console.WriteLine($"Player 1 ({currentBoard.Player1.Name}) hand: {player1Hand} ");
 
             var player2Hand = string.Join(", ", currentBoard.Player2.Hand.Cards.Select(x => x.ToString()));
-            Console.WriteLine($"Player 2 hand: {player2Hand} ");
+            Console.WriteLine($"Player 2 ({currentBoard.Player2.Name}) hand: {player2Hand} ");
 
-            Console.WriteLine($"Player {turn.PlayerToPlay} potential plays:");
+            Console.WriteLine($"{turn.PlayerToPlay.Name} potential plays:");
             if (!turn.ValidPlays.Any())
             {
                 Console.WriteLine("None");

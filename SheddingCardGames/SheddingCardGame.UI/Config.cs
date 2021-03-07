@@ -13,9 +13,6 @@ namespace SheddingCardGame.UI
 
         public int LabelHeight { get; set; } = 35;
 
-        public string TopPlayerLabel { get; set; } = "Player 2";
-        public string BottomPlayerLabel { get; set; } = "Player 1";
-        
         public string Font { get; set; } = "24px verdana";
         public string FontColour { get; set; } = "White";
         public string BackgroundColour { get; set; } = "Green";

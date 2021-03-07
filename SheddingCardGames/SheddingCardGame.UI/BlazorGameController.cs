@@ -47,7 +47,7 @@ namespace SheddingCardGame.UI
             if (!cardComponent.IsTurnedUp)
                 return false;
 
-            var actionResult = game.Play(CurrentTurn.PlayerToPlay, cardComponent.Card);
+            var actionResult = game.Play(CurrentTurn.PlayerToPlay.Number, cardComponent.Card);
 
             if (actionResult.IsSuccess)
             {
@@ -70,7 +70,7 @@ namespace SheddingCardGame.UI
 
         public void SelectSuit(Suit suit)
         {
-            var actionResult = game.SelectSuit(CurrentTurn.PlayerToPlay, suit);
+            var actionResult = game.SelectSuit(CurrentTurn.PlayerToPlay.Number, suit);
 
             if (actionResult.IsSuccess)
             {
@@ -87,7 +87,7 @@ namespace SheddingCardGame.UI
 
         public ActionResultWithCard Take()
         {
-            var actionResult = game.Take(CurrentTurn.PlayerToPlay);
+            var actionResult = game.Take(CurrentTurn.PlayerToPlay.Number);
 
             if (actionResult.IsSuccess)
             {
