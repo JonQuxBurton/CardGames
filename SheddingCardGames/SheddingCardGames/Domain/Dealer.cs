@@ -14,15 +14,16 @@ namespace SheddingCardGames.Domain
         
         public Board Deal(IEnumerable<Player> players, CardCollection cardsToDeal)
         {
-            var board = new Board(players.ElementAt(0), players.ElementAt(1), new StockPile(cardsToDeal), new DiscardPile());
+            var playersArray = players as Player[] ?? players.ToArray();
+            var board = new Board(new StockPile(cardsToDeal), new DiscardPile(), playersArray.ToArray());
 
             for (var i = 0; i < rules.GetHandSize(); i++)
             {
-                if (!board.StockPile.IsEmpty())
-                {
-                    board.TakeCardFromStockPile(board.Player1);
-                    board.TakeCardFromStockPile(board.Player2);
-                }
+                if (board.StockPile.IsEmpty()) break;
+
+                for (var j=0; j< playersArray.Count(); j++)
+                    board.TakeCardFromStockPile(board.Players[j]);
+                
             }
 
             board.TurnUpDiscardCard();

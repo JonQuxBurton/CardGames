@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace SheddingCardGames.Domain
@@ -7,25 +8,36 @@ namespace SheddingCardGames.Domain
     {
         private readonly List<CardMoveEvent> cardMoves;
 
-        public Board(Player player1, Player player2, StockPile stockPile, DiscardPile discardPile)
+        public Board(StockPile stockPile, DiscardPile discardPile, params Player[] players)
         {
-            Player1 = player1;
-            Player2 = player2;
+            Players = new ReadOnlyCollection<Player>(players);
             StockPile = stockPile;
             DiscardPile = discardPile;
             cardMoves = new List<CardMoveEvent>();
         }
 
-        public Player Player1 { get; }
-        public Player Player2 { get; }
+        public ReadOnlyCollection<Player> Players { get; }
         public StockPile StockPile { get; }
         public DiscardPile DiscardPile { get; set; }
         public IEnumerable<CardMoveEvent> CardMoves => cardMoves;
 
-        public CardCollection AllCards =>
-            new CardCollection(
-                new List<Card>().Concat(Player1.Hand.Cards).Concat(Player2.Hand.Cards)
-                    .Concat(DiscardPile.AllCards.Cards).Concat(StockPile.Cards));
+        public CardCollection AllCards
+        {
+            get
+            {
+                var playersCard = new List<Card>();
+                foreach (var player in Players)
+                {
+                    playersCard.AddRange(player.Hand.Cards);
+                }
+
+                return new CardCollection(
+                    new List<Card>()
+                        .Concat(playersCard)
+                        .Concat(DiscardPile.AllCards.Cards)
+                        .Concat(StockPile.Cards));
+            }
+        }
 
         public void TurnUpDiscardCard()
         {
@@ -62,10 +74,7 @@ namespace SheddingCardGames.Domain
 
         private static string GetPlayerSource(Player player)
         {
-            var playerSource = CardMoveSources.Player1Hand;
-            if (player.Number == 2)
-                playerSource = CardMoveSources.Player2Hand;
-            return playerSource;
+            return CardMoveSources.PlayerHand(player.Number);
         }
     }
 }

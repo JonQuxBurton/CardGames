@@ -96,11 +96,11 @@ namespace SheddingCardGame.Cli
             Console.WriteLine($"Stock pile: {currentBoard.StockPile.Cards.Count()} cards");
             Console.WriteLine($"Discard pile: {currentBoard.DiscardPile.CardToMatch} ({currentBoard.DiscardPile.RestOfCards.Cards.Count()} other cards)");
             
-            var player1Hand = string.Join(", ", currentBoard.Player1.Hand.Cards.Select(x => x.ToString()));
-            Console.WriteLine($"Player 1 ({currentBoard.Player1.Name}) hand: {player1Hand} ");
+            var player1Hand = string.Join(", ", currentBoard.Players[0].Hand.Cards.Select(x => x.ToString()));
+            Console.WriteLine($"Player 1 ({currentBoard.Players[0].Name}) hand: {player1Hand} ");
 
-            var player2Hand = string.Join(", ", currentBoard.Player2.Hand.Cards.Select(x => x.ToString()));
-            Console.WriteLine($"Player 2 ({currentBoard.Player2.Name}) hand: {player2Hand} ");
+            var player2Hand = string.Join(", ", currentBoard.Players[1].Hand.Cards.Select(x => x.ToString()));
+            Console.WriteLine($"Player 2 ({currentBoard.Players[1].Name}) hand: {player2Hand} ");
 
             Console.WriteLine($"{turn.PlayerToPlay.Name} potential plays:");
             if (!turn.ValidPlays.Any())

@@ -5,31 +5,42 @@ namespace SheddingCardGames.Domain
 {
     public class SpecificDeckBuilder : IDeckBuilder
     {
-        public SpecificDeckBuilder(CardCollection player1Hand, CardCollection player2Hand, Card discardCard,
+        public SpecificDeckBuilder(CardCollection[] playerHands,
+            Card discardCard,
             CardCollection stockPile)
         {
-            Player1Hand = player1Hand;
-            Player2Hand = player2Hand;
+            Player1Hand = playerHands[0];
+            Player2Hand = playerHands[1];
+
+            if (playerHands.Length > 2)
+                Player3Hand = playerHands[2];
+
             DiscardPile = new CardCollection(discardCard);
             StockPile = stockPile;
         }
-
-        public SpecificDeckBuilder(CardCollection player1Hand, CardCollection player2Hand, CardCollection discardPile,
+        
+        public SpecificDeckBuilder(CardCollection[] playerHands,
+            CardCollection discardPile,
             CardCollection stockPile)
         {
-            Player1Hand = player1Hand;
-            Player2Hand = player2Hand;
+            Player1Hand = playerHands[0];
+            Player2Hand = playerHands[1];
+
+            if (playerHands.Length > 2)
+                Player3Hand = playerHands[2];
+
             DiscardPile = discardPile;
             StockPile = stockPile;
         }
 
-        public CardCollection Player1Hand { get; }
+        private CardCollection Player1Hand { get; }
 
-        public CardCollection Player2Hand { get; }
+        private CardCollection Player2Hand { get; }
+        private CardCollection Player3Hand { get; }
 
-        public CardCollection DiscardPile { get; }
+        private CardCollection DiscardPile { get; }
 
-        public CardCollection StockPile { get; }
+        private CardCollection StockPile { get; }
 
         public CardCollection Build()
         {
@@ -38,6 +49,9 @@ namespace SheddingCardGames.Domain
             {
                 cards.Add(Player1Hand.Cards.ElementAt(i));
                 cards.Add(Player2Hand.Cards.ElementAt(i));
+
+                if (Player3Hand != null && Player3Hand.Count() > i)
+                    cards.Add(Player3Hand.Cards.ElementAt(i));
             }
 
             cards.AddRange(DiscardPile.Cards);

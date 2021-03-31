@@ -43,8 +43,10 @@
 
             IDeckBuilder deckBuilder;
             deckBuilder = new SpecificDeckBuilder(
-                new CardCollection(new Card(8, Suit.Hearts), new Card(1, Suit.Clubs), new Card(2, Suit.Clubs), new Card(3, Suit.Clubs), new Card(4, Suit.Clubs), new Card(5, Suit.Clubs), new Card(6, Suit.Clubs), new Card(7, Suit.Clubs)),
-                new CardCollection(new Card(8, Suit.Spades), new Card(1, Suit.Diamonds), new Card(2, Suit.Diamonds), new Card(3, Suit.Diamonds), new Card(4, Suit.Diamonds), new Card(5, Suit.Diamonds), new Card(6, Suit.Diamonds), new Card(7, Suit.Diamonds)),
+                new []{
+                    new CardCollection(new Card(8, Suit.Hearts), new Card(1, Suit.Clubs), new Card(2, Suit.Clubs), new Card(3, Suit.Clubs), new Card(4, Suit.Clubs), new Card(5, Suit.Clubs), new Card(6, Suit.Clubs), new Card(7, Suit.Clubs)),
+                    new CardCollection(new Card(8, Suit.Spades), new Card(1, Suit.Diamonds), new Card(2, Suit.Diamonds), new Card(3, Suit.Diamonds), new Card(4, Suit.Diamonds), new Card(5, Suit.Diamonds), new Card(6, Suit.Diamonds), new Card(7, Suit.Diamonds)),
+                },
                 new Card(1, Suit.Hearts),
                 new CardCollection(new Card(1, Suit.Spades))
             );
@@ -118,9 +120,9 @@
         discardCardGameObject.SetY(config.DiscardPileSection.Y);
         discardCardGameObject.IsVisible = true;
 
-        for (int i = 0; i < currentBoard.Player2.Hand.Cards.Count(); i++)
+        for (int i = 0; i < currentBoard.Players[1].Hand.Cards.Count(); i++)
         {
-            var card = currentBoard.Player2.Hand.Cards.ElementAt(i);
+            var card = currentBoard.Players[1].Hand.Cards.ElementAt(i);
             var x = (i * config.CardWidth) + config.TopPlayerHandSection.X;
             var cardObject = uiState.CardGameObjects[card];
             cardObject.IsTurnedUp = true;
@@ -129,9 +131,9 @@
             cardObject.IsVisible = true;
         }
 
-        for (int i = 0; i < currentBoard.Player1.Hand.Cards.Count(); i++)
+        for (int i = 0; i < currentBoard.Players[0].Hand.Cards.Count(); i++)
         {
-            var card = currentBoard.Player1.Hand.Cards.ElementAt(i);
+            var card = currentBoard.Players[0].Hand.Cards.ElementAt(i);
             var x = (i * config.CardWidth) + config.BottomPlayerHandSection.X;
             var cardObject = uiState.CardGameObjects[card];
             cardObject.IsTurnedUp = true;
