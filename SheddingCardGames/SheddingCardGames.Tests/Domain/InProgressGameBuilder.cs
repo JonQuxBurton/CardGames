@@ -69,7 +69,7 @@ namespace SheddingCardGames.Tests.Domain
 
         public Game Build()
         {
-            var deck = new SpecificDeckBuilder(new []{ player1.Hand, player2.Hand}, discardPile.AllCards, new CardCollection(stockPile.Cards)).Build();
+            var deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards), player1.Hand, player2.Hand).Build();
             var rules = new Rules(7);
             var sut = new Game(rules, new DummyShuffler(), new Dealer(rules),
                 new[] {player1, player2}, deck);

@@ -255,7 +255,7 @@ namespace SheddingCardGames.Tests.Domain
             public void ShuffleCards()
             {
                 var discardCard = new Card(2, Suit.Hearts);
-                var expectedDeck = new SpecificDeckBuilder(new [] { player1Hand, player2Hand }, discardCard, stockPile).Build();
+                var expectedDeck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand).Build();
                 var shufflerMock = new Mock<IShuffler>();
                 shufflerMock.Setup(x => x.Shuffle(It.Is<CardCollection>(y => y.Cards.SequenceEqual(expectedDeck.Cards) )))
                     .Returns(expectedDeck);

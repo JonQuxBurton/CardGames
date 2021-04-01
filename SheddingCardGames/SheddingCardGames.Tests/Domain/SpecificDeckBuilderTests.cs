@@ -32,7 +32,7 @@ namespace SheddingCardGames.Tests.Domain
                     new Card(6, Suit.Hearts)
                 );
 
-                var deck = new SpecificDeckBuilder(new []{ player1Hand, player2Hand }, discardCard, stockPile).Build();
+                var deck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand).Build();
 
                 deck.Cards.Should().Equal(
                     player1Hand.Cards.ElementAt(0),
@@ -82,7 +82,7 @@ namespace SheddingCardGames.Tests.Domain
                 );
 
                 var deck =
-                    new SpecificDeckBuilder(new [] {player1Hand, player2Hand, player3Hand}, discardCard, stockPile).Build();
+                    new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand, player3Hand).Build();
 
                 deck.Cards.Should().Equal(
                     player1Hand.Cards.ElementAt(0),

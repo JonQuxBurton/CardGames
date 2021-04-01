@@ -42,14 +42,10 @@
             await JsRuntime.InvokeAsync<object>("initGame", DotNetObjectReference.Create(this));
 
             IDeckBuilder deckBuilder;
-            deckBuilder = new SpecificDeckBuilder(
-                new []{
-                    new CardCollection(new Card(8, Suit.Hearts), new Card(1, Suit.Clubs), new Card(2, Suit.Clubs), new Card(3, Suit.Clubs), new Card(4, Suit.Clubs), new Card(5, Suit.Clubs), new Card(6, Suit.Clubs), new Card(7, Suit.Clubs)),
-                    new CardCollection(new Card(8, Suit.Spades), new Card(1, Suit.Diamonds), new Card(2, Suit.Diamonds), new Card(3, Suit.Diamonds), new Card(4, Suit.Diamonds), new Card(5, Suit.Diamonds), new Card(6, Suit.Diamonds), new Card(7, Suit.Diamonds)),
-                },
-                new Card(1, Suit.Hearts),
-                new CardCollection(new Card(1, Suit.Spades))
-            );
+            deckBuilder = new SpecificDeckBuilder(new Card(1, Suit.Hearts),
+                new CardCollection(new Card(1, Suit.Spades)), 
+                new CardCollection(new Card(8, Suit.Hearts), new Card(1, Suit.Clubs), new Card(2, Suit.Clubs), new Card(3, Suit.Clubs), new Card(4, Suit.Clubs), new Card(5, Suit.Clubs), new Card(6, Suit.Clubs), new Card(7, Suit.Clubs)), 
+                new CardCollection(new Card(8, Suit.Spades), new Card(1, Suit.Diamonds), new Card(2, Suit.Diamonds), new Card(3, Suit.Diamonds), new Card(4, Suit.Diamonds), new Card(5, Suit.Diamonds), new Card(6, Suit.Diamonds), new Card(7, Suit.Diamonds)));
 
             //deckBuilder = new MinimalDeckBuilder();
             //deckBuilder = new DeckBuilder();
