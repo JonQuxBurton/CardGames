@@ -10,8 +10,10 @@ namespace SheddingCardGames.Tests.Domain
         private Card discardCard = new Card(1, Suit.Clubs);
         private CardCollection player1Hand = new CardCollection();
         private CardCollection player2Hand = new CardCollection();
+        private CardCollection player3Hand = new CardCollection();
         private CardCollection stockPile = new CardCollection();
         private int startingPlayerNumber = 1;
+        private int numberOfPlayers = 2;
 
         public ReadyToDealGameBuilder WithPlayer1Hand(CardCollection hand)
         {
@@ -22,6 +24,12 @@ namespace SheddingCardGames.Tests.Domain
         public ReadyToDealGameBuilder WithPlayer2Hand(CardCollection hand)
         {
             player2Hand = hand;
+            return this;
+        }
+        public ReadyToDealGameBuilder WithPlayer3Hand(CardCollection hand)
+        {
+            numberOfPlayers = 3;
+            player3Hand = hand;
             return this;
         }
 
@@ -57,9 +65,24 @@ namespace SheddingCardGames.Tests.Domain
             var player2 = sampleData.Player2;
             player2.Hand = player2Hand;
 
-            var deck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand).Build();
             var rules = new Rules(player1Hand.Cards.Count());
-            var game = new Game(rules, shuffler, new Dealer(rules), new[] { player1, player2 }, deck);
+
+            CardCollection deck;
+            Game game;
+
+            if (numberOfPlayers > 2)
+            {
+                var player3 = sampleData.Player3;
+                player3.Hand = player3Hand;
+                deck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand, player3Hand).Build();
+                game = new Game(rules, shuffler, new Dealer(rules), deck, new[] { player1, player2, player3 });
+            }
+            else
+            {
+                deck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand).Build();
+                game = new Game(rules, shuffler, new Dealer(rules), deck, new[] { player1, player2 });
+            }
+
             game.ChooseStartingPlayer(startingPlayerNumber);
 
             return game;

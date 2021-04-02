@@ -411,7 +411,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             var shuffler = new DummyShuffler();
             var dealer = new Dealer(rules);
 
-            sut = new Game(rules, shuffler, dealer, players, deck);
+            sut = new Game(rules, shuffler, dealer, deck, players);
             //sut = CreateSut(player1Hand, player2Hand, discardCard, stockPile);
             
             sut.ChooseStartingPlayer(3);
@@ -552,7 +552,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             var shuffler = new DummyShuffler();
             var dealer = new Dealer(rules);
 
-            return new Game(rules, shuffler, dealer, players, deck);
+            return new Game(rules, shuffler, dealer, deck, players);
         }
 
         private Card Card(int rank, Suit suit)

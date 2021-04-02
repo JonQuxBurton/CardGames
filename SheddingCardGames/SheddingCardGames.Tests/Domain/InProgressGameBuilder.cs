@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
 
@@ -5,19 +7,11 @@ namespace SheddingCardGames.Tests.Domain
 {
     public class InProgressGameBuilder
     {
+        private readonly List<Player> players = new List<Player>();
+        private Turn currentTurn;
         private DiscardPile discardPile = new DiscardPile();
-        private Player player1;
-        private Player player2;
         private int startingPlayer = 1;
         private StockPile stockPile = new StockPile(new CardCollection());
-        private Turn currentTurn;
-
-        public InProgressGameBuilder()
-        {
-            var sampleData = new SampleData();
-            player1 = sampleData.Player1;
-            player2 = sampleData.Player2;
-        }
 
         public InProgressGameBuilder WithStartingPlayer(int playerNumber)
         {
@@ -25,29 +19,11 @@ namespace SheddingCardGames.Tests.Domain
             return this;
         }
 
-        public InProgressGameBuilder WithPlayer1(Player player)
+        public InProgressGameBuilder WithPlayer(Player player)
         {
-            player1 = player;
+            players.Add(player);
             return this;
         }
-
-        //public InProgressGameBuilder WithPlayer1Hand(CardCollection hand)
-        //{
-        //    player1.Hand = hand;
-        //    return this;
-        //}
-
-        public InProgressGameBuilder WithPlayer2(Player player)
-        {
-            player2 = player;
-            return this;
-        }
-        
-        //public InProgressGameBuilder WithPlayer2Hand(CardCollection hand)
-        //{
-        //    player2.Hand = hand;
-        //    return this;
-        //}
 
         public InProgressGameBuilder WithStockPile(StockPile withStockPile)
         {
@@ -69,11 +45,22 @@ namespace SheddingCardGames.Tests.Domain
 
         public Game Build()
         {
-            var deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards), player1.Hand, player2.Hand).Build();
+            if (!players.Any())
+            {
+                var sampleData = new SampleData();
+                players.Add(sampleData.Player1);
+                players.Add(sampleData.Player2);
+            }
+
+            var deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards),
+                players.Select(x => x.Hand).ToArray()).Build();
             var rules = new Rules(7);
-            var sut = new Game(rules, new DummyShuffler(), new Dealer(rules),
-                new[] {player1, player2}, deck);
-            var expectedBoard = new Board(stockPile, discardPile, player1, player2);
+            var sut = new Game(rules, new DummyShuffler(), new Dealer(rules), deck, new[]
+            {
+                players.ElementAt(0),
+                players.ElementAt(1)
+            });
+            var expectedBoard = new Board(stockPile, discardPile, players.ToArray());
             var gameState = new GameState(GamePhase.InGame, startingPlayer, expectedBoard, currentTurn);
 
             sut.Initialise(gameState);

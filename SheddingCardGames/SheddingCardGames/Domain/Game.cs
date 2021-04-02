@@ -14,7 +14,8 @@ namespace SheddingCardGames.Domain
 
         private readonly Dictionary<string, Card> cards = new Dictionary<string, Card>();
         
-        public Game(IRules rules, IShuffler shuffler, IDealer dealer, IEnumerable<Player> withPlayers, CardCollection deck)
+        public Game(IRules rules, IShuffler shuffler, IDealer dealer, CardCollection deck,
+            Player[] withPlayers)
         {
             this.rules = rules;
             this.shuffler = shuffler;
@@ -143,7 +144,18 @@ namespace SheddingCardGames.Domain
             }
         }
 
-        private Player NextPlayer => CurrentPlayer.Number == 1 ? players[2] : players[1];
+        private Player NextPlayer
+        {
+            get
+            {
+                var nextPlayerNumber = CurrentPlayer.Number + 1;
+
+                if (nextPlayerNumber > players.Count)
+                    nextPlayerNumber = 1;
+
+                return players[nextPlayerNumber];
+            }
+        }
 
         private void MoveDiscardPileToStockPile()
         {

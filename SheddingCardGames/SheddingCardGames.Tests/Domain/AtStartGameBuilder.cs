@@ -10,8 +10,10 @@ namespace SheddingCardGames.Tests.Domain
         private Card discardCard = new Card(1, Suit.Clubs);
         private CardCollection player1Hand = new CardCollection();
         private CardCollection player2Hand = new CardCollection();
+        private CardCollection player3Hand = new CardCollection();
         private int startingPlayerNumber = 1;
         private CardCollection stockPile = new CardCollection();
+        private int numberOfPlayers = 2;
 
         public AtStartGameBuilder WithPlayer1Hand(CardCollection hand)
         {
@@ -22,6 +24,13 @@ namespace SheddingCardGames.Tests.Domain
         public AtStartGameBuilder WithPlayer2Hand(CardCollection hand)
         {
             player2Hand = hand;
+            return this;
+        }
+        
+        public AtStartGameBuilder WithPlayer3Hand(CardCollection hand)
+        {
+            numberOfPlayers = 3;
+            player3Hand = hand;
             return this;
         }
 
@@ -45,12 +54,26 @@ namespace SheddingCardGames.Tests.Domain
 
         public Game Build()
         {
-            var player1 = new Player(1, "Alice");
-            var player2 = new Player(2, "Bob");
+            var sampleData = new SampleData();
+            var player1 = sampleData.Player1;
+            var player2 = sampleData.Player2;
 
-            var deck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand).Build();
             var rules = new Rules(player1Hand.Cards.Count());
-            var game = new Game(rules, shuffler, new Dealer(rules), new[] {player1, player2}, deck);
+
+            CardCollection deck;
+            Game game;
+
+            if (numberOfPlayers > 2)
+            {
+                var player3 = sampleData.Player3;
+                deck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand, player3Hand).Build();
+                game = new Game(rules, shuffler, new Dealer(rules), deck, new[] { player1, player2, player3 });
+            }
+            else
+            {
+                deck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand).Build();
+                game = new Game(rules, shuffler, new Dealer(rules), deck, new[] { player1, player2 });
+            }
 
             game.ChooseStartingPlayer(startingPlayerNumber);
             game.Deal();
