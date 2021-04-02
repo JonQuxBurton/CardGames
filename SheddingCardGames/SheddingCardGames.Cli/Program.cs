@@ -10,12 +10,13 @@ namespace SheddingCardGame.Cli
     {
         static void Main(string[] args)
         {
+            var numberOfPlayers = 3;
             IDeckBuilder deckBuilder;
-            deckBuilder = new MinimalDeckBuilder();
+            deckBuilder = new MinimalDeckBuilder(numberOfPlayers);
             //deckBuilder = new DeckBuilder();
             
             var gameBuilder = new CrazyEightsGameBuilder();
-            var game = gameBuilder.Build(deckBuilder.Build());
+            var game = gameBuilder.Build(deckBuilder.Build(), numberOfPlayers);
             game.Deal();
             
             Turn currentTurn = null;
@@ -96,11 +97,11 @@ namespace SheddingCardGame.Cli
             Console.WriteLine($"Stock pile: {currentBoard.StockPile.Cards.Count()} cards");
             Console.WriteLine($"Discard pile: {currentBoard.DiscardPile.CardToMatch} ({currentBoard.DiscardPile.RestOfCards.Cards.Count()} other cards)");
             
-            var player1Hand = string.Join(", ", currentBoard.Players[0].Hand.Cards.Select(x => x.ToString()));
-            Console.WriteLine($"Player 1 ({currentBoard.Players[0].Name}) hand: {player1Hand} ");
-
-            var player2Hand = string.Join(", ", currentBoard.Players[1].Hand.Cards.Select(x => x.ToString()));
-            Console.WriteLine($"Player 2 ({currentBoard.Players[1].Name}) hand: {player2Hand} ");
+            foreach (var player in currentBoard.Players)
+            {
+                var playerHand = string.Join(", ", player.Hand.Cards.Select(x => x.ToString()));
+                Console.WriteLine($"Player {player.Number} ({player.Name}) hand: {playerHand} ");
+            }
 
             Console.WriteLine($"{turn.PlayerToPlay.Name} potential plays:");
             if (!turn.ValidPlays.Any())
