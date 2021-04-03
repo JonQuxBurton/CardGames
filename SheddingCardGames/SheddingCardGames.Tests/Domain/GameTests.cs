@@ -1048,6 +1048,69 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
+            public void ReturnTrueWhenWonOnTurn2()
+            {
+                player1Hand = new CardCollection(
+                    new Card(1, Suit.Clubs)
+                    );
+                player2Hand = new CardCollection(
+                    new Card(1, Suit.Diamonds)
+                    );
+                sut = new AtStartGameBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithDiscardCard(discardCard)
+                    .WithStockPile(new CardCollection
+                    (
+                        new Card(2, Suit.Clubs)
+                    ))
+                    .Build();
+                sut.Take(1);
+                sut.Play(2, player2Hand.Cards.First());
+
+                var actual = sut.GameState.CurrentTurn;
+                
+                actual.HasWinner.Should().BeTrue();
+                actual.Winner.Number.Should().Be(2);
+                actual.TurnNumber.Should().Be(2);
+                actual.ValidPlays.Should().BeEmpty();
+                actual.NextAction.Should().Be(Action.Won);
+            }
+
+            [Fact]
+            public void ReturnTrueWhenWonOnTurn3()
+            {
+                player1Hand = new CardCollection(
+                    new Card(13, Suit.Clubs),
+                    new Card(1, Suit.Clubs)
+                    );
+                player2Hand = new CardCollection(
+                    new Card(2, Suit.Clubs),
+                    new Card(3, Suit.Clubs)
+                    );
+                sut = new AtStartGameBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithDiscardCard(discardCard)
+                    .WithStockPile(new CardCollection
+                    (
+                        new Card(1, Suit.Hearts)
+                    ))
+                    .Build();
+                sut.Play(1, new Card(13, Suit.Clubs));
+                sut.Play(2, new Card(2, Suit.Clubs));
+                sut.Play(1, new Card(1, Suit.Clubs));
+
+                var actual = sut.GameState.CurrentTurn;
+                
+                actual.HasWinner.Should().BeTrue();
+                actual.Winner.Number.Should().Be(1);
+                actual.TurnNumber.Should().Be(3);
+                actual.ValidPlays.Should().BeEmpty();
+                actual.NextAction.Should().Be(Action.Won);
+            }
+
+            [Fact]
             public void ReturnTrueWhenPlayer2WonAfterPlay()
             {
                 player1Hand = new CardCollection(
