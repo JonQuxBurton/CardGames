@@ -360,48 +360,36 @@ namespace SheddingCardGames.Tests.EndToEnd
         public void WherePlayer3Wins()
         {
             var player1Hand = new CardCollection(
-                new Card(1, Suit.Diamonds),
-                new Card(2, Suit.Diamonds),
+                new Card(1, Suit.Clubs),
                 new Card(3, Suit.Diamonds),
-                new Card(4, Suit.Diamonds),
-                new Card(5, Suit.Diamonds)
+                new Card(5, Suit.Clubs),
+                new Card(7, Suit.Diamonds),
+                new Card(9, Suit.Clubs)
             );
             var player2Hand = new CardCollection(
-                new Card(1, Suit.Hearts),
-                new Card(2, Suit.Hearts),
-                new Card(3, Suit.Hearts),
-                new Card(4, Suit.Hearts),
-                new Card(5, Suit.Hearts)
+                new Card(3, Suit.Clubs),
+                new Card(5, Suit.Diamonds),
+                new Card(7, Suit.Clubs),
+                new Card(9, Suit.Diamonds),
+                new Card(11, Suit.Clubs)
             );
             var player3Hand = new CardCollection(
-                new Card(9, Suit.Clubs),
-                new Card(10, Suit.Clubs),
-                new Card(11, Suit.Clubs),
-                new Card(12, Suit.Clubs),
-                new Card(13, Suit.Clubs)
+                new Card(1, Suit.Spades),
+                new Card(3, Suit.Spades),
+                new Card(5, Suit.Spades),
+                new Card(7, Suit.Spades),
+                new Card(9, Suit.Spades)
             );
-            var discardCard = new Card(1, Suit.Clubs);
+            var discardCard = new Card(1, Suit.Hearts);
             var stockPile = new CardCollection(
-                new Card(6, Suit.Diamonds),
-                new Card(6, Suit.Hearts),
-                new Card(7, Suit.Diamonds),
-                new Card(7, Suit.Hearts),
-                new Card(9, Suit.Diamonds),
-                new Card(9, Suit.Hearts),
-                new Card(10, Suit.Diamonds),
-                new Card(10, Suit.Hearts),
-                new Card(11, Suit.Diamonds),
-                new Card(11, Suit.Hearts)
+                new Card(2, Suit.Hearts),
+                new Card(3, Suit.Hearts),
+                new Card(4, Suit.Hearts)
             );
 
             var player1 = new Player(1, "Alice");
-            player1.Hand = player1Hand;
-            
             var player2 = new Player(2, "Bob");
-            player2.Hand = player2Hand;
-            
             var player3 = new Player(3, "Carol");
-            player3.Hand = player3Hand;
 
             IDeckBuilder deckBuilder = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand, player3Hand);
             var deck = deckBuilder.Build();
@@ -412,7 +400,6 @@ namespace SheddingCardGames.Tests.EndToEnd
             var dealer = new Dealer(rules);
 
             sut = new Game(rules, shuffler, dealer, deck, players);
-            //sut = CreateSut(player1Hand, player2Hand, discardCard, stockPile);
             
             sut.ChooseStartingPlayer(3);
             sut.Deal();
@@ -420,125 +407,102 @@ namespace SheddingCardGames.Tests.EndToEnd
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(1);
             sut.GameState.CurrentBoard.Players[0].Hand.Cards.Should().Equal(player1Hand.Cards);
             sut.GameState.CurrentBoard.Players[1].Hand.Cards.Should().Equal(player2Hand.Cards);
-            //sut.GameState.CurrentBoard.Player3.Hand.Cards.Should().Equal(player3Hand.Cards);
+            sut.GameState.CurrentBoard.Players[2].Hand.Cards.Should().Equal(player3Hand.Cards);
             sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(discardCard);
             sut.GameState.CurrentBoard.StockPile.Cards.Should().Equal(stockPile.Cards);
 
-            //var result = sut.Play(2, Card(1, Suit.Spades));
-            //VerifyPlayer2Play(result, 2, Card(1, Suit.Spades), new[]
-            //{
-            //        Card(2, Suit.Diamonds),
-            //        Card(3, Suit.Hearts),
-            //        Card(4, Suit.Diamonds),
-            //        Card(5, Suit.Hearts),
-            //        Card(6, Suit.Diamonds),
-            //        Card(7, Suit.Hearts)
-            //});            
-            
-            //result = sut.Play(2, Card(1, Suit.Spades));
-            //VerifyPlayer2Play(result, 2, Card(1, Suit.Spades), new[]
-            //{
-            //        Card(2, Suit.Diamonds),
-            //        Card(3, Suit.Hearts),
-            //        Card(4, Suit.Diamonds),
-            //        Card(5, Suit.Hearts),
-            //        Card(6, Suit.Diamonds),
-            //        Card(7, Suit.Hearts)
-            //});
+            var result = sut.Play(3, Card(1, Suit.Spades));
+            VerifyPlayer3Play(result, 2, Card(1, Suit.Spades), new[]
+            {
+                new Card(3, Suit.Spades),
+                new Card(5, Suit.Spades),
+                new Card(7, Suit.Spades),
+                new Card(9, Suit.Spades)
+            });
 
-            //result = sut.Play(1, Card(1, Suit.Diamonds));
-            //VerifyPlayer1Play(result, 3, Card(1, Suit.Diamonds), new[]
-            //{
-            //        Card(2, Suit.Hearts),
-            //        Card(3, Suit.Diamonds),
-            //        Card(4, Suit.Hearts),
-            //        Card(5, Suit.Diamonds),
-            //        Card(6, Suit.Hearts),
-            //        Card(7, Suit.Diamonds)
-            //});
+            result = sut.Play(1, Card(1, Suit.Clubs));
+            VerifyPlayer1Play(result, 3, Card(1, Suit.Clubs), new[]
+            {
+                new Card(3, Suit.Diamonds),
+                new Card(5, Suit.Clubs),
+                new Card(7, Suit.Diamonds),
+                new Card(9, Suit.Clubs)
+            });
 
-            //result = sut.Play(2, Card(2, Suit.Diamonds));
-            //VerifyPlayer2Play(result, 4, Card(2, Suit.Diamonds), new[]
-            //{
-            //    Card(3, Suit.Hearts),
-            //    Card(4, Suit.Diamonds),
-            //    Card(5, Suit.Hearts),
-            //    Card(6, Suit.Diamonds),
-            //    Card(7, Suit.Hearts)
-            //});
+            result = sut.Play(2, Card(3, Suit.Clubs));
+            VerifyPlayer2Play(result, 4, Card(3, Suit.Clubs), new[]
+            {
+                new Card(5, Suit.Diamonds),
+                new Card(7, Suit.Clubs),
+                new Card(9, Suit.Diamonds),
+                new Card(11, Suit.Clubs)
+            });
 
-            //result = sut.Play(1, Card(2, Suit.Hearts));
-            //VerifyPlayer1Play(result, 5, Card(2, Suit.Hearts), new[]
-            //{
-            //    Card(3, Suit.Diamonds),
-            //    Card(4, Suit.Hearts),
-            //    Card(5, Suit.Diamonds),
-            //    Card(6, Suit.Hearts),
-            //    Card(7, Suit.Diamonds)
-            //});
+            result = sut.Play(3, Card(3, Suit.Spades));
+            VerifyPlayer3Play(result, 5, Card(3, Suit.Spades), new[]
+            {
+                new Card(5, Suit.Spades),
+                new Card(7, Suit.Spades),
+                new Card(9, Suit.Spades)
+            });
 
-            //result = sut.Play(2, Card(3, Suit.Hearts));
-            //VerifyPlayer2Play(result, 6, Card(3, Suit.Hearts), new[]
-            //{
-            //    Card(4, Suit.Diamonds),
-            //    Card(5, Suit.Hearts),
-            //    Card(6, Suit.Diamonds),
-            //    Card(7, Suit.Hearts)
-            //});
+            result = sut.Play(1, Card(3, Suit.Diamonds));
+            VerifyPlayer1Play(result, 6, Card(3, Suit.Diamonds), new[]
+            {
+                new Card(5, Suit.Clubs),
+                new Card(7, Suit.Diamonds),
+                new Card(9, Suit.Clubs)
+            });
 
-            //result = sut.Play(1, Card(3, Suit.Diamonds));
-            //VerifyPlayer1Play(result, 7, Card(3, Suit.Diamonds), new[]
-            //{
-            //    Card(4, Suit.Hearts),
-            //    Card(5, Suit.Diamonds),
-            //    Card(6, Suit.Hearts),
-            //    Card(7, Suit.Diamonds)
-            //});
-            
-            //result = sut.Play(2, Card(4, Suit.Diamonds));
-            //VerifyPlayer2Play(result, 8, Card(4, Suit.Diamonds), new[]
-            //{
-            //    Card(5, Suit.Hearts),
-            //    Card(6, Suit.Diamonds),
-            //    Card(7, Suit.Hearts)
-            //});
+            result = sut.Play(2, Card(5, Suit.Diamonds));
+            VerifyPlayer2Play(result, 7, Card(5, Suit.Diamonds), new[]
+            {
+                new Card(7, Suit.Clubs),
+                new Card(9, Suit.Diamonds),
+                new Card(11, Suit.Clubs)
+            });
 
-            //result = sut.Play(1, Card(4, Suit.Hearts));
-            //VerifyPlayer1Play(result, 9, Card(4, Suit.Hearts), new[]
-            //{
-            //    Card(5, Suit.Diamonds),
-            //    Card(6, Suit.Hearts),
-            //    Card(7, Suit.Diamonds)
-            //});
+            result = sut.Play(3, Card(5, Suit.Spades));
+            VerifyPlayer3Play(result, 8, Card(5, Suit.Spades), new[]
+            {
+                new Card(7, Suit.Spades),
+                new Card(9, Suit.Spades)
+            });
 
-            //result = sut.Play(2, Card(5, Suit.Hearts));
-            //VerifyPlayer2Play(result, 10, Card(5, Suit.Hearts), new[]
-            //{
-            //    Card(6, Suit.Diamonds),
-            //    Card(7, Suit.Hearts)
-            //});
+            result = sut.Play(1, Card(5, Suit.Clubs));
+            VerifyPlayer1Play(result, 9, Card(5, Suit.Clubs), new[]
+            {
+                new Card(7, Suit.Diamonds),
+                new Card(9, Suit.Clubs)
+            });
 
-            //result = sut.Play(1, Card(5, Suit.Diamonds));
-            //VerifyPlayer1Play(result,11, Card(5, Suit.Diamonds), new[]
-            //{
-            //    Card(6, Suit.Hearts),
-            //    Card(7, Suit.Diamonds)
-            //});
+            result = sut.Play(2, Card(7, Suit.Clubs));
+            VerifyPlayer2Play(result, 10, Card(7, Suit.Clubs), new[]
+            {
+                new Card(9, Suit.Diamonds),
+                new Card(11, Suit.Clubs)
+            });
 
-            //result = sut.Play(2, Card(6, Suit.Diamonds));
-            //VerifyPlayer2Play(result, 12, Card(6, Suit.Diamonds), new[]
-            //{
-            //    Card(7, Suit.Hearts)
-            //});
+            result = sut.Play(3, Card(7, Suit.Spades));
+            VerifyPlayer3Play(result, 11, Card(7, Suit.Spades), new[]
+            {
+                new Card(9, Suit.Spades)
+            });
 
-            //result = sut.Play(1, Card(6, Suit.Hearts));
-            //VerifyPlayer1Play(result, 13, Card(6, Suit.Hearts), new[]
-            //{
-            //    Card(7, Suit.Diamonds)
-            //});
+            result = sut.Play(1, Card(7, Suit.Diamonds));
+            VerifyPlayer1Play(result, 12, Card(7, Suit.Diamonds), new[]
+            {
+                new Card(9, Suit.Clubs)
+            });
 
-            //result = sut.Play(2, Card(7, Suit.Hearts));
-            //VerifyPlayer3Won(result, 13, Card(7, Suit.Hearts));
+            result = sut.Play(2, Card(9, Suit.Diamonds));
+            VerifyPlayer2Play(result, 13, Card(9, Suit.Diamonds), new[]
+            {
+                new Card(11, Suit.Clubs)
+            });
+
+            result = sut.Play(3, Card(9, Suit.Spades));
+            VerifyPlayer3Won(result, 13, Card(9, Suit.Spades));
         }
 
         private Game CreateSut(CardCollection player1Hand, CardCollection player2Hand, Card discardCard,
@@ -602,7 +566,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             result.IsSuccess.Should().BeTrue();
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(turnNumber);
             sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(discardCard);
-            //sut.GameState.CurrentBoard.Player2.Hand.Cards.Should().BeEmpty();
+            sut.GameState.CurrentBoard.Players[2].Hand.Cards.Should().BeEmpty();
             sut.GameState.CurrentTurn.HasWinner.Should().BeTrue();
             sut.GameState.CurrentTurn.Winner.Number.Should().Be(3);
         }
@@ -621,6 +585,14 @@ namespace SheddingCardGames.Tests.EndToEnd
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(turnNumber);
             sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(discardCard);
             sut.GameState.CurrentBoard.Players[1].Hand.Cards.Should().Equal(player2Hand);
+        }
+
+        private void VerifyPlayer3Play(ActionResult result, int turnNumber, Card discardCard, Card[] player3Hand)
+        {
+            result.IsSuccess.Should().BeTrue();
+            sut.GameState.CurrentTurn.TurnNumber.Should().Be(turnNumber);
+            sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(discardCard);
+            sut.GameState.CurrentBoard.Players[2].Hand.Cards.Should().Equal(player3Hand);
         }
     }
 }
