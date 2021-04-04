@@ -205,7 +205,7 @@ namespace SheddingCardGames.Domain
             var winner = GetWinner();
             var validPlays = GetValidPlays(nextPlayer.Hand, GameState.CurrentBoard.DiscardPile.CardToMatch, 1, null).ToArray();
             
-            var newTurn = new Turn(1,
+            var newTurn = new CurrentTurn(1,
                 nextPlayer,
                 validPlays,
                 IsWinner(),
@@ -222,7 +222,7 @@ namespace SheddingCardGames.Domain
                 .ToArray();
 
             var newTurn = 
-                new Turn(nextTurnNumber,
+                new CurrentTurn(nextTurnNumber,
                     nextPlayer,
                     validPlays,
                     false,
@@ -237,7 +237,7 @@ namespace SheddingCardGames.Domain
             var currentTurn = gameState.CurrentTurn;
 
             var newTurn = 
-                new Turn(currentTurn.TurnNumber,
+                new CurrentTurn(currentTurn.TurnNumber,
                     currentTurn.PlayerToPlay,
                     new Card[0],
                     false,
@@ -251,7 +251,7 @@ namespace SheddingCardGames.Domain
             var currentTurn = gameState.CurrentTurn;
 
             var newTurn = 
-                new Turn(currentTurn.TurnNumber,
+                new CurrentTurn(currentTurn.TurnNumber,
                     CurrentPlayer,
                     new Card[0],
                     true,

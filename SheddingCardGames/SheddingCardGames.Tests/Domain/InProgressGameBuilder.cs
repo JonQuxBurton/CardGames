@@ -8,7 +8,7 @@ namespace SheddingCardGames.Tests.Domain
     public class InProgressGameBuilder
     {
         private readonly List<Player> players = new List<Player>();
-        private Turn currentTurn;
+        private CurrentTurn currentTurn;
         private DiscardPile discardPile = new DiscardPile();
         private int startingPlayer = 1;
         private StockPile stockPile = new StockPile(new CardCollection());
@@ -37,7 +37,7 @@ namespace SheddingCardGames.Tests.Domain
             return this;
         }
 
-        public InProgressGameBuilder WithCurrentTurn(Turn withCurrentTurn)
+        public InProgressGameBuilder WithCurrentTurn(CurrentTurn withCurrentTurn)
         {
             currentTurn = withCurrentTurn;
             return this;

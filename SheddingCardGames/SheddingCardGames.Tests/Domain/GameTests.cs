@@ -86,7 +86,7 @@ namespace SheddingCardGames.Tests.Domain
                 var player3 = sampleData.Player3;
                 player3.Hand = player3Hand;
                 var expectedStartingPlayer = sampleData.GetPlayer(expectedStartingPlayerNumber);
-                var expectedTurn = new Turn(1, expectedStartingPlayer, new Card[0],
+                var expectedTurn = new CurrentTurn(1, expectedStartingPlayer, new Card[0],
                     false, null, Action.Play, null);
                 sut = new InProgressGameBuilder()
                     .WithStartingPlayer(expectedStartingPlayer.Number)
@@ -1490,7 +1490,7 @@ namespace SheddingCardGames.Tests.Domain
                 var player3 = sampleData.Player3;
                 player3.Hand = player3Hand;
 
-                var currentTurn = new Turn(1, player1, new Card[0], false, null, Action.Take, null);
+                var currentTurn = new CurrentTurn(1, player1, new Card[0], false, null, Action.Take, null);
                 
                 var sut = new InProgressGameBuilder()
                     .WithStartingPlayer(1)

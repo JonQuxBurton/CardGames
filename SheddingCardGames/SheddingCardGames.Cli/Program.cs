@@ -19,7 +19,7 @@ namespace SheddingCardGame.Cli
             var game = gameBuilder.Build(deckBuilder.Build(), numberOfPlayers);
             game.Deal();
             
-            Turn currentTurn = null;
+            CurrentTurn currentTurn = null;
 
             while (currentTurn == null || !currentTurn.HasWinner)
             {
@@ -36,7 +36,7 @@ namespace SheddingCardGame.Cli
             Console.WriteLine($"{currentTurn.Winner.Name} has won!");
         }
 
-        private static void SelectSuit(Game game, Turn currentTurn)
+        private static void SelectSuit(Game game, CurrentTurn currentTurn)
         {
             Console.WriteLine($"Select a Suit:");
             var selectedSuitInput = Console.ReadLine();
@@ -59,7 +59,7 @@ namespace SheddingCardGame.Cli
             return (rank, suit);
         }
 
-        private static void Play(Game game, Turn currentTurn)
+        private static void Play(Game game, CurrentTurn currentTurn)
         {
             if (!currentTurn.ValidPlays.Any())
             {
@@ -85,7 +85,7 @@ namespace SheddingCardGame.Cli
             Console.WriteLine($"IsValidPlay: {playResult}");
         }
 
-        private static void RenderTurn(Turn turn, GameState gameState)
+        private static void RenderTurn(CurrentTurn turn, GameState gameState)
         {
             var currentBoard = gameState.CurrentBoard;
 

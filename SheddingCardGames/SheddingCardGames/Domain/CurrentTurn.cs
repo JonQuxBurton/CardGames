@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 namespace SheddingCardGames.Domain
 {
-    public class Turn
+    public class CurrentTurn
     {
-        public Turn(int turnNumber,
+        public CurrentTurn(int turnNumber,
             Player playerToPlay,
             IEnumerable<Card> validPlays,
             bool hasWinner,

@@ -7,9 +7,9 @@ namespace SheddingCardGames.UiLogic
         public GamePhase CurrentGamePhase { get;  }
         public Board CurrentBoard { get; }
         public int? StartingPlayer { get; }
-        public Turn CurrentTurn { get; }
+        public CurrentTurn CurrentTurn { get; }
 
-        public GameState(GamePhase currentGamePhase, int? startingPlayer = null, Board currentBoard = null, Turn currentTurn = null)
+        public GameState(GamePhase currentGamePhase, int? startingPlayer = null, Board currentBoard = null, CurrentTurn currentTurn = null)
         {
             CurrentGamePhase = currentGamePhase;
             CurrentBoard = currentBoard;
@@ -27,7 +27,7 @@ namespace SheddingCardGames.UiLogic
             return new GameState(CurrentGamePhase, StartingPlayer, newBoard, CurrentTurn);
         }
         
-        public GameState WithCurrentTurn(Turn newCurrentTurn)
+        public GameState WithCurrentTurn(CurrentTurn newCurrentTurn)
         {
             return new GameState(CurrentGamePhase, StartingPlayer, CurrentBoard, newCurrentTurn);
         }
