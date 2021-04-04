@@ -1,6 +1,6 @@
 ﻿using SheddingCardGames.Domain;
 
-namespace SheddingCardGame.Cli
+namespace SheddingCardGames.UiLogic
 {
     public class SuitParser
     {
