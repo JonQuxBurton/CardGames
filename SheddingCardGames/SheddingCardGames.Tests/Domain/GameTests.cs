@@ -2,6 +2,7 @@ using System.Linq;
 using FluentAssertions;
 using Moq;
 using SheddingCardGames.Domain;
+using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
 
@@ -20,6 +21,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.GameState.CurrentTurn.Should().BeNull();
                 sut.GameState.CurrentGamePhase.Should().Be(GamePhase.New);
+                sut.Events.Should().BeEmpty();
             }
         }
 
@@ -33,7 +35,18 @@ namespace SheddingCardGames.Tests.Domain
                 var rules = new Rules(7);
                 sut = new Game(rules, new DummyShuffler(), new Dealer(rules), new CardCollectionBuilder().Build(), new [] { sampleData.Player1, sampleData.Player2 });
             }
-            
+
+            [Fact]
+            public void CreateInitialisedEvent()
+            {
+                var gameState = new GameState(GamePhase.New);
+
+                sut.Initialise(gameState);
+
+                sut.Events.Last().Number.Should().Be(1);
+                sut.Events.Last().Should().BeOfType(typeof(Initialised));
+            }
+
             [Fact]
             public void SetGameStateWhenGamePhaseIsNew()
             {
@@ -120,6 +133,17 @@ namespace SheddingCardGames.Tests.Domain
                 var rules = new Rules(7);
                 var deck = new DeckBuilder().Build();
                 sut = new Game(rules, shuffler, new Dealer(rules), deck, new[] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
+            }
+
+            [Fact]
+            public void CreateStartingPlayerChosenEvent()
+            {
+                sut.ChooseStartingPlayer(2);
+
+                sut.Events.Last().Number.Should().Be(1);
+                sut.Events.Last().Should().BeOfType(typeof(StartingPlayerChosen));
+                var startingPlayerChosenEvent = sut.Events.Last() as StartingPlayerChosen;
+                startingPlayerChosenEvent.PlayerNumber.Should().Be(2);
             }
 
             [Theory]
@@ -289,6 +313,19 @@ namespace SheddingCardGames.Tests.Domain
                     .WithStartingPlayer(withStartingPlayer)
                     .WithShuffler(withShuffler)
                     .Build();
+            }
+
+            [Fact]
+            public void CreateDealCompletedEvent()
+            {
+                var discardCard = new Card(2, Suit.Hearts);
+                var startingPlayer = 1;
+                var sut = CreateSut(startingPlayer, discardCard);
+
+                sut.Deal();
+
+                sut.Events.Last().Number.Should().Be(2);
+                sut.Events.Last().Should().BeOfType(typeof(DealCompleted));
             }
 
             [Fact]
@@ -708,6 +745,29 @@ namespace SheddingCardGames.Tests.Domain
                 sut.GameState.CurrentBoard.Players[2].Hand.Cards.Should().NotContain(playedCard3);
                 sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(playedCard3);
             }
+
+            [Fact]
+            public void CreatePlayedEvent()
+            {
+                var discardCard = deck.Get(10, Suit.Clubs);
+                var playedCard = deck.Get(1, Suit.Clubs);
+                player1Hand.AddAtStart(playedCard);
+                sut = new AtStartGameBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithPlayer3Hand(player3Hand)
+                    .WithDiscardCard(discardCard)
+                    .Build();
+
+                sut.Play(1, playedCard);
+
+                sut.Events.Last().Number.Should().Be(3);
+                sut.Events.Last().Should().BeOfType(typeof(Played));
+                var played = sut.Events.Last() as Played;
+                if (played == null) Assert.NotNull(played);
+                played.PlayerNumber.Should().Be(1);
+                played.Card.Should().Be(playedCard);
+            }
         }
 
         public class PlayWhenPlayingEightShould
@@ -982,191 +1042,104 @@ namespace SheddingCardGames.Tests.Domain
             }
         }
 
-        public class PlayWhenWonShould
+        public class SelectSuitShould
         {
-            private readonly Card discardCard;
-            private CardCollection player1Hand;
-            private CardCollection player2Hand;
-            private CardCollection player3Hand;
-            private Game sut;
+            private readonly Game sut;
 
-            public PlayWhenWonShould()
+            public SelectSuitShould()
             {
-                var sampleData = new SampleData();
-                discardCard = new Card(13, Suit.Diamonds);
-                var rules = new Rules(7);
-                sut = new Game(rules, new DummyShuffler(), new Dealer(rules), new CardCollectionBuilder().Build(), new[] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
-            }
+                var deck = new CardCollectionBuilder().Build();
 
-            [Fact]
-            public void ReturnTrueWhenPlayer1WonAtSetup()
-            {
-                player1Hand = new CardCollection();
-                player2Hand = new CardCollection(
-                    new Card(2, Suit.Clubs), 
-                    new Card(4, Suit.Clubs),
-                    new Card(6, Suit.Clubs)
+                var player1Hand = new CardCollection(
+                    deck.Get(1, Suit.Clubs),
+                    deck.Get(8, Suit.Clubs)
                 );
-                sut = new AtStartGameBuilder()
-                    .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
-                    .WithDiscardCard(discardCard)
-                    .Build();
-
-                var actual = sut.GameState.CurrentTurn;
-                
-                actual.HasWinner.Should().BeTrue();
-                actual.Winner.Number.Should().Be(1);
-                actual.TurnNumber.Should().Be(1);
-                actual.ValidPlays.Should().BeEmpty();
-                actual.NextAction.Should().Be(Action.Won);
-            }
-
-            [Fact]
-            public void ReturnTrueWhenPlayer1WonAfterPlay()
-            {
-                player1Hand = new CardCollection(new Card(13, Suit.Clubs));
-                player2Hand = new CardCollection(
-                    new Card(2, Suit.Clubs),
-                    new Card(4, Suit.Clubs),
-                    new Card(6, Suit.Clubs)
-                    );
-                    sut = new AtStartGameBuilder()
-                    .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
-                    .WithDiscardCard(discardCard)
-                    .Build();
-                sut.Play(1, player1Hand.Cards.First());
-
-                var actual = sut.GameState.CurrentTurn;
-                
-                actual.HasWinner.Should().BeTrue();
-                actual.Winner.Number.Should().Be(1);
-                actual.TurnNumber.Should().Be(1);
-                actual.ValidPlays.Should().BeEmpty();
-                actual.NextAction.Should().Be(Action.Won);
-            }
-
-            [Fact]
-            public void ReturnTrueWhenWonOnTurn2()
-            {
-                player1Hand = new CardCollection(
-                    new Card(1, Suit.Clubs)
-                    );
-                player2Hand = new CardCollection(
-                    new Card(1, Suit.Diamonds)
-                    );
-                sut = new AtStartGameBuilder()
-                    .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
-                    .WithDiscardCard(discardCard)
-                    .WithStockPile(new CardCollection
-                    (
-                        new Card(2, Suit.Clubs)
-                    ))
-                    .Build();
-                sut.Take(1);
-                sut.Play(2, player2Hand.Cards.First());
-
-                var actual = sut.GameState.CurrentTurn;
-                
-                actual.HasWinner.Should().BeTrue();
-                actual.Winner.Number.Should().Be(2);
-                actual.TurnNumber.Should().Be(2);
-                actual.ValidPlays.Should().BeEmpty();
-                actual.NextAction.Should().Be(Action.Won);
-            }
-
-            [Fact]
-            public void ReturnTrueWhenWonOnTurn3()
-            {
-                player1Hand = new CardCollection(
-                    new Card(13, Suit.Clubs),
-                    new Card(1, Suit.Clubs)
-                    );
-                player2Hand = new CardCollection(
-                    new Card(2, Suit.Clubs),
-                    new Card(3, Suit.Clubs)
-                    );
-                sut = new AtStartGameBuilder()
-                    .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
-                    .WithDiscardCard(discardCard)
-                    .WithStockPile(new CardCollection
-                    (
-                        new Card(1, Suit.Hearts)
-                    ))
-                    .Build();
-                sut.Play(1, new Card(13, Suit.Clubs));
-                sut.Play(2, new Card(2, Suit.Clubs));
-                sut.Play(1, new Card(1, Suit.Clubs));
-
-                var actual = sut.GameState.CurrentTurn;
-                
-                actual.HasWinner.Should().BeTrue();
-                actual.Winner.Number.Should().Be(1);
-                actual.TurnNumber.Should().Be(3);
-                actual.ValidPlays.Should().BeEmpty();
-                actual.NextAction.Should().Be(Action.Won);
-            }
-
-            [Fact]
-            public void ReturnTrueWhenPlayer2WonAfterPlay()
-            {
-                player1Hand = new CardCollection(
-                    new Card(2, Suit.Clubs)
+                var player2Hand = new CardCollection(
+                    deck.Get(10, Suit.Diamonds),
+                    deck.Get(11, Suit.Diamonds)
                 );
-                player2Hand = new CardCollection(new Card(13, Suit.Clubs));
+
                 sut = new AtStartGameBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
-                    .WithDiscardCard(discardCard)
-                    .WithStartingPlayer(2)
+                    .WithDiscardCard(deck.Get(1, Suit.Spades))
                     .Build();
-                sut.Play(2, player2Hand.Cards.First());
-
-                var actual = sut.GameState.CurrentTurn;
-                
-                actual.HasWinner.Should().BeTrue();
-                actual.Winner.Number.Should().Be(2);
-                actual.TurnNumber.Should().Be(1);
-                actual.ValidPlays.Should().BeEmpty();
-                actual.NextAction.Should().Be(Action.Won);
+                sut.Play(1, deck.Get(8, Suit.Clubs));
             }
-            
+
             [Fact]
-            public void ReturnTrueWhenPlayer3WonAfterPlay()
+            public void AddSelectedSuitToTurn()
             {
-                player1Hand = new CardCollection(
-                    new Card(1, Suit.Clubs)
-                );
-                player2Hand = new CardCollection(new Card(1, Suit.Diamonds));
-                player3Hand = new CardCollection(new Card(13, Suit.Spades));
-                sut = new AtStartGameBuilder()
-                    .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
-                    .WithPlayer3Hand(player3Hand)
-                    .WithDiscardCard(discardCard)
-                    .WithStartingPlayer(3)
-                    .Build();
-                sut.Play(3, player3Hand.Cards.First());
+                sut.SelectSuit(1, Suit.Diamonds);
 
-                var actual = sut.GameState.CurrentTurn;
-                
-                actual.HasWinner.Should().BeTrue();
-                actual.Winner.Number.Should().Be(3);
-                actual.TurnNumber.Should().Be(1);
-                actual.ValidPlays.Should().BeEmpty();
-                actual.NextAction.Should().Be(Action.Won);
+                var actualCurrentTurn = sut.GameState.CurrentTurn;
+                actualCurrentTurn.TurnNumber.Should().Be(2);
+                actualCurrentTurn.PlayerToPlay.Number.Should().Be(2);
+                actualCurrentTurn.ValidPlays.Should().Equal(new Card(10, Suit.Diamonds), new Card(11, Suit.Diamonds));
+                actualCurrentTurn.NextAction.Should().Be(Action.Play);
+                actualCurrentTurn.SelectedSuit.Should().Be(Suit.Diamonds);
             }
+
+            [Fact]
+            public void KeepSelectedSuitOnTurnAfterTake()
+            {
+                sut.SelectSuit(1, Suit.Diamonds);
+
+                sut.Take(0);
+
+                sut.GameState.CurrentTurn.SelectedSuit.Should().Be(Suit.Diamonds);
+            }
+
+            [Fact]
+            public void ReturnTrueWhenTakeIsValid()
+            {
+                var actual = sut.SelectSuit(1, Suit.Diamonds);
+
+                actual.IsSuccess.Should().BeTrue();
+                actual.MessageKey.Should().Be(ActionResultMessageKey.Success);
+            }
+
+            [Theory]
+            [InlineData(0)]
+            [InlineData(3)]
+            public void ReturnFalseWhenPlayerNumberInvalid(int playerNumber)
+            {
+                var actual = sut.SelectSuit(playerNumber, Suit.Diamonds);
+
+                actual.IsSuccess.Should().BeFalse();
+                actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
+            }
+
+            [Fact]
+            public void ReturnFalseWhenNotPlayersTurn()
+            {
+                var actual = sut.SelectSuit(2, Suit.Diamonds);
+
+                actual.IsSuccess.Should().BeFalse();
+                actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
+            }
+
+            [Fact]
+            public void CreateSuitSelectedEvent()
+            {
+                sut.SelectSuit(1, Suit.Diamonds);
+
+                sut.Events.Last().Number.Should().Be(4);
+                sut.Events.Last().Should().BeOfType(typeof(SuitSelected));
+                var domainEvent = sut.Events.Last() as SuitSelected;
+                if (domainEvent == null) Assert.NotNull(domainEvent);
+                domainEvent.PlayerNumber.Should().Be(1);
+                domainEvent.Suit.Should().Be(Suit.Diamonds);
+            }
+
         }
 
         public class PlayWhenSelectedSuitShould
         {
             private readonly Card discardCard;
-            private CardCollection player1Hand;
-            private CardCollection player2Hand;
-            private CardCollection player3Hand;
+            private readonly CardCollection player1Hand;
+            private readonly CardCollection player2Hand;
+            private readonly CardCollection player3Hand;
             private Game sut;
 
             public PlayWhenSelectedSuitShould()
@@ -1242,84 +1215,8 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Play(1, new Card(1, Suit.Clubs));
                 actual.IsSuccess.Should().BeTrue();
             }
-        }
 
-        public class SelectSuitShould
-        {
-            private readonly Game sut;
 
-            public SelectSuitShould()
-            {
-                var deck = new CardCollectionBuilder().Build();
-
-                var player1Hand = new CardCollection(
-                    deck.Get(1, Suit.Clubs),
-                    deck.Get(8, Suit.Clubs)
-                );
-                var player2Hand = new CardCollection(
-                    deck.Get(10, Suit.Diamonds),
-                    deck.Get(11, Suit.Diamonds)
-                );
-
-                sut = new AtStartGameBuilder()
-                    .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
-                    .WithDiscardCard(deck.Get(1, Suit.Spades))
-                    .Build();
-                sut.Play(1, deck.Get(8, Suit.Clubs));
-            }
-
-            [Fact]
-            public void AddSelectedSuitToTurn()
-            {
-                sut.SelectSuit(1, Suit.Diamonds);
-
-                var actualCurrentTurn = sut.GameState.CurrentTurn;
-                actualCurrentTurn.TurnNumber.Should().Be(2);
-                actualCurrentTurn.PlayerToPlay.Number.Should().Be(2);
-                actualCurrentTurn.ValidPlays.Should().Equal(new Card(10, Suit.Diamonds), new Card(11, Suit.Diamonds));
-                actualCurrentTurn.NextAction.Should().Be(Action.Play);
-                actualCurrentTurn.SelectedSuit.Should().Be(Suit.Diamonds);
-            }
-
-            [Fact]
-            public void KeepSelectedSuitOnTurnAfterTake()
-            {
-                sut.SelectSuit(1, Suit.Diamonds);
-
-                sut.Take(0);
-
-                sut.GameState.CurrentTurn.SelectedSuit.Should().Be(Suit.Diamonds);
-            }
-            
-            [Fact]
-            public void ReturnTrueWhenTakeIsValid()
-            {
-                var actual = sut.SelectSuit(1, Suit.Diamonds);
-
-                actual.IsSuccess.Should().BeTrue();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.Success);
-            }
-            
-            [Theory]
-            [InlineData(0)]
-            [InlineData(3)]
-            public void ReturnFalseWhenPlayerNumberInvalid(int playerNumber)
-            {
-                var actual = sut.SelectSuit(playerNumber, Suit.Diamonds);
-
-                actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
-            }
-            
-            [Fact]
-            public void ReturnFalseWhenNotPlayersTurn()
-            {
-                var actual = sut.SelectSuit(2, Suit.Diamonds);
-
-                actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
-            }
         }
 
         public class TakeShould
@@ -1632,6 +1529,234 @@ namespace SheddingCardGames.Tests.Domain
                 actual.MessageKey.Should().Be(ActionResultMessageKey.InvalidTake);
                 actual.Card.Should().Be(null);
             }
+
+            [Fact]
+            public void CreateTakenEvent()
+            {
+                var discardCard = deck.Get(10, Suit.Hearts);
+                var stockPile = new CardCollection(
+                    deck.Get(9, Suit.Hearts)
+                );
+                var sut = new AtStartGameBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithPlayer3Hand(player3Hand)
+                    .WithDiscardCard(discardCard)
+                    .WithStockPile(stockPile)
+                    .Build();
+
+                sut.Take(1);
+
+                sut.Events.Last().Number.Should().Be(3);
+                sut.Events.Last().Should().BeOfType(typeof(Taken));
+                var domainEvent = sut.Events.Last() as Taken;
+                if (domainEvent == null) Assert.NotNull(domainEvent);
+                domainEvent.PlayerNumber.Should().Be(1);
+                domainEvent.Card.Should().Be(stockPile.First());
+            }
         }
+
+        public class PlayWhenWonShould
+        {
+            private readonly Card discardCard;
+            private CardCollection player1Hand;
+            private CardCollection player2Hand;
+            private CardCollection player3Hand;
+            private Game sut;
+
+            public PlayWhenWonShould()
+            {
+                var sampleData = new SampleData();
+                discardCard = new Card(13, Suit.Diamonds);
+                var rules = new Rules(7);
+                sut = new Game(rules, new DummyShuffler(), new Dealer(rules), new CardCollectionBuilder().Build(), new[] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
+            }
+
+            [Fact]
+            public void ReturnTrueWhenPlayer1WonAtSetup()
+            {
+                player1Hand = new CardCollection();
+                player2Hand = new CardCollection(
+                    new Card(2, Suit.Clubs),
+                    new Card(4, Suit.Clubs),
+                    new Card(6, Suit.Clubs)
+                );
+                sut = new AtStartGameBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithDiscardCard(discardCard)
+                    .Build();
+
+                var actual = sut.GameState.CurrentTurn;
+
+                actual.HasWinner.Should().BeTrue();
+                actual.Winner.Number.Should().Be(1);
+                actual.TurnNumber.Should().Be(1);
+                actual.ValidPlays.Should().BeEmpty();
+                actual.NextAction.Should().Be(Action.Won);
+            }
+
+            [Fact]
+            public void ReturnTrueWhenPlayer1WonAfterPlay()
+            {
+                player1Hand = new CardCollection(new Card(13, Suit.Clubs));
+                player2Hand = new CardCollection(
+                    new Card(2, Suit.Clubs),
+                    new Card(4, Suit.Clubs),
+                    new Card(6, Suit.Clubs)
+                    );
+                sut = new AtStartGameBuilder()
+                .WithPlayer1Hand(player1Hand)
+                .WithPlayer2Hand(player2Hand)
+                .WithDiscardCard(discardCard)
+                .Build();
+                sut.Play(1, player1Hand.Cards.First());
+
+                var actual = sut.GameState.CurrentTurn;
+
+                actual.HasWinner.Should().BeTrue();
+                actual.Winner.Number.Should().Be(1);
+                actual.TurnNumber.Should().Be(1);
+                actual.ValidPlays.Should().BeEmpty();
+                actual.NextAction.Should().Be(Action.Won);
+            }
+
+            [Fact]
+            public void ReturnTrueWhenWonOnTurn2()
+            {
+                player1Hand = new CardCollection(
+                    new Card(1, Suit.Clubs)
+                    );
+                player2Hand = new CardCollection(
+                    new Card(1, Suit.Diamonds)
+                    );
+                sut = new AtStartGameBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithDiscardCard(discardCard)
+                    .WithStockPile(new CardCollection
+                    (
+                        new Card(2, Suit.Clubs)
+                    ))
+                    .Build();
+                sut.Take(1);
+                sut.Play(2, player2Hand.Cards.First());
+
+                var actual = sut.GameState.CurrentTurn;
+
+                actual.HasWinner.Should().BeTrue();
+                actual.Winner.Number.Should().Be(2);
+                actual.TurnNumber.Should().Be(2);
+                actual.ValidPlays.Should().BeEmpty();
+                actual.NextAction.Should().Be(Action.Won);
+            }
+
+            [Fact]
+            public void ReturnTrueWhenWonOnTurn3()
+            {
+                player1Hand = new CardCollection(
+                    new Card(13, Suit.Clubs),
+                    new Card(1, Suit.Clubs)
+                    );
+                player2Hand = new CardCollection(
+                    new Card(2, Suit.Clubs),
+                    new Card(3, Suit.Clubs)
+                    );
+                sut = new AtStartGameBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithDiscardCard(discardCard)
+                    .WithStockPile(new CardCollection
+                    (
+                        new Card(1, Suit.Hearts)
+                    ))
+                    .Build();
+                sut.Play(1, new Card(13, Suit.Clubs));
+                sut.Play(2, new Card(2, Suit.Clubs));
+                sut.Play(1, new Card(1, Suit.Clubs));
+
+                var actual = sut.GameState.CurrentTurn;
+
+                actual.HasWinner.Should().BeTrue();
+                actual.Winner.Number.Should().Be(1);
+                actual.TurnNumber.Should().Be(3);
+                actual.ValidPlays.Should().BeEmpty();
+                actual.NextAction.Should().Be(Action.Won);
+            }
+
+            [Fact]
+            public void ReturnTrueWhenPlayer2WonAfterPlay()
+            {
+                player1Hand = new CardCollection(
+                    new Card(2, Suit.Clubs)
+                );
+                player2Hand = new CardCollection(new Card(13, Suit.Clubs));
+                sut = new AtStartGameBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithDiscardCard(discardCard)
+                    .WithStartingPlayer(2)
+                    .Build();
+                sut.Play(2, player2Hand.Cards.First());
+
+                var actual = sut.GameState.CurrentTurn;
+
+                actual.HasWinner.Should().BeTrue();
+                actual.Winner.Number.Should().Be(2);
+                actual.TurnNumber.Should().Be(1);
+                actual.ValidPlays.Should().BeEmpty();
+                actual.NextAction.Should().Be(Action.Won);
+            }
+
+            [Fact]
+            public void ReturnTrueWhenPlayer3WonAfterPlay()
+            {
+                player1Hand = new CardCollection(
+                    new Card(1, Suit.Clubs)
+                );
+                player2Hand = new CardCollection(new Card(1, Suit.Diamonds));
+                player3Hand = new CardCollection(new Card(13, Suit.Spades));
+                sut = new AtStartGameBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithPlayer3Hand(player3Hand)
+                    .WithDiscardCard(discardCard)
+                    .WithStartingPlayer(3)
+                    .Build();
+                sut.Play(3, player3Hand.Cards.First());
+
+                var actual = sut.GameState.CurrentTurn;
+
+                actual.HasWinner.Should().BeTrue();
+                actual.Winner.Number.Should().Be(3);
+                actual.TurnNumber.Should().Be(1);
+                actual.ValidPlays.Should().BeEmpty();
+                actual.NextAction.Should().Be(Action.Won);
+            }
+
+            [Fact]
+            public void CreateTakenEvent()
+            {
+                player1Hand = new CardCollection(new Card(13, Suit.Clubs));
+                player2Hand = new CardCollection(
+                    new Card(2, Suit.Clubs),
+                    new Card(4, Suit.Clubs),
+                    new Card(6, Suit.Clubs)
+                );
+                sut = new AtStartGameBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithDiscardCard(discardCard)
+                    .Build();
+                sut.Play(1, player1Hand.Cards.First());
+
+                sut.Events.Last().Number.Should().Be(4);
+                sut.Events.Last().Should().BeOfType(typeof(RoundWon));
+                var domainEvent = sut.Events.Last() as RoundWon;
+                if (domainEvent == null) Assert.NotNull(domainEvent);
+                domainEvent.PlayerNumber.Should().Be(1);
+            }
+        }
+
     }
 }
