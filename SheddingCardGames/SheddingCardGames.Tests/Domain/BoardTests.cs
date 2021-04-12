@@ -180,12 +180,13 @@ namespace SheddingCardGames.Tests.Domain
                 ));
                 var sampleData = new SampleData();
                 sut = BoardCreator.Create(originalStockPile, new DiscardPile(), sampleData.Player1, sampleData.Player2);
-                sut.TurnUpDiscardCard();
             }
             
             [Fact]
             public void RemoveCardFromStockPile()
             {
+                sut.TurnUpDiscardCard();
+
                 sut.StockPile.Cards.Should().Equal(
                     new Card(1, Suit.Hearts)
                 );
@@ -194,19 +195,19 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void TurnUpCard()
             {
+                sut.TurnUpDiscardCard();
+
                 sut.DiscardPile.CardToMatch.Should().Be(
                     new Card(13, Suit.Diamonds)
                 );
             }
 
             [Fact]
-            public void AddToCardMoveEvent()
+            public void ReturnTurnedUpCard()
             {
-                sut.CardMoves.Should().NotBeEmpty();
-                var actual = sut.CardMoves.Last();
-                actual.Card.Should().Be(new Card(13, Suit.Diamonds));
-                actual.FromSource.Should().Be(CardMoveSources.StockPile);
-                actual.ToSource.Should().Be(CardMoveSources.DiscardPile);
+                var actual= sut.TurnUpDiscardCard();
+
+                actual.Should().Be(new Card(13, Suit.Diamonds));
             }
         }
 
@@ -246,26 +247,6 @@ namespace SheddingCardGames.Tests.Domain
                 sut.DiscardPile.RestOfCards.Cards.Should().Equal(new Card(5, Suit.Diamonds));
             }
 
-            [Theory]
-            [InlineData(1, "PlayerHand_1")]
-            [InlineData(2, "PlayerHand_2")]
-            [InlineData(3, "PlayerHand_3")]
-            public void AddToCardMoveEvent(int playerNumber, string expectedSource)
-            {
-                var sampleData = new SampleData();
-                var player = sampleData.GetPlayer(playerNumber);
-                player.Hand = new CardCollection(
-                    new Card(1, Suit.Clubs),
-                    new Card(10, Suit.Hearts)
-                );
-                sut.MoveCardToDiscardPile(player, new Card(10, Suit.Hearts));
-
-                sut.CardMoves.Should().NotBeEmpty();
-                var actual = sut.CardMoves.Last();
-                actual.Card.Should().Be(new Card(10, Suit.Hearts));
-                actual.FromSource.Should().Be(expectedSource);
-                actual.ToSource.Should().Be(CardMoveSources.DiscardPile);
-            }
         }
 
         public class TakeCardFromStockPileShould
@@ -313,33 +294,13 @@ namespace SheddingCardGames.Tests.Domain
                     new Card(10, Suit.Hearts)
                 );
             }
-            
-            [Theory]
-            [InlineData(1, "PlayerHand_1")]
-            [InlineData(2, "PlayerHand_2")]
-            [InlineData(3, "PlayerHand_3")]
-            public void AddToCardMoveEvent(int playerNumber, string expectedSource)
-            {
-                var sampleData = new SampleData();
-                var player = sampleData.GetPlayer(playerNumber);
-                player.    Hand = new CardCollection(
-                        new Card(1, Suit.Clubs),
-                        new Card(10, Suit.Hearts));
-                sut.TakeCardFromStockPile(player);
-
-                sut.CardMoves.Should().NotBeEmpty();
-                var actual = sut.CardMoves.Last();
-                actual.Card.Should().Be(new Card(5, Suit.Diamonds));
-                actual.FromSource.Should().Be(CardMoveSources.StockPile);
-                actual.ToSource.Should().Be(expectedSource);
-            }
         }
 
-        public class MoveDiscardPileToStockPileShould
+        public class MoveCardFromDiscardPileToStockPile
         {
             private readonly Board sut;
 
-            public MoveDiscardPileToStockPileShould()
+            public MoveCardFromDiscardPileToStockPile()
             {
                 var sampleData = new SampleData();
                 var player1 = sampleData.Player1;
@@ -356,34 +317,75 @@ namespace SheddingCardGames.Tests.Domain
                 var discardPile = new DiscardPile(originalDiscardPile.Cards);
                 discardPile.TurnUpTopCard();
                 sut = BoardCreator.Create(new StockPile(new CardCollection()), discardPile, player1, player2);
-                sut.MoveDiscardPileToStockPile();
             }
 
             [Fact]
-            public void RemoveCardsFromDiscardPile()
+            public void RemoveCardFromDiscardPile()
             {
+                sut.MoveCardFromDiscardPileToStockPile();
+
                 sut.DiscardPile.CardToMatch.Should().Be(new Card(1, Suit.Diamonds));
-                sut.DiscardPile.RestOfCards.Cards.Should().BeEmpty();
+                sut.DiscardPile.RestOfCards.Cards.Should().Equal(new Card(3, Suit.Diamonds));
             }
-            
+
             [Fact]
             public void AddCardsToStockPile()
             {
+                sut.MoveCardFromDiscardPileToStockPile();
+
                 sut.StockPile.Cards.Should().Equal(
-                    new Card(2, Suit.Diamonds),
-                    new Card(3, Suit.Diamonds)
+                    new Card(2, Suit.Diamonds)
                 );
             }
 
             [Fact]
-            public void AddToCardMoveEvents()
+            public void ReturnMovedCard()
             {
-                sut.CardMoves.Should().NotBeEmpty();
-                sut.CardMoves.Should().Equal(
-                    new CardMoveEvent(new Card(2, Suit.Diamonds), CardMoveSources.DiscardPile, CardMoveSources.StockPile),
-                    new CardMoveEvent(new Card(3, Suit.Diamonds), CardMoveSources.DiscardPile, CardMoveSources.StockPile)
-                );
+                var actual = sut.MoveCardFromDiscardPileToStockPile();
+
+                actual.Should().Be(new Card(2, Suit.Diamonds));
             }
         }
+
+        //public class MoveDiscardPileToStockPileShould
+        //{
+        //    private readonly Board sut;
+
+        //    public MoveDiscardPileToStockPileShould()
+        //    {
+        //        var sampleData = new SampleData();
+        //        var player1 = sampleData.Player1;
+        //        player1.Hand = new CardCollection(
+        //                new Card(1, Suit.Clubs),
+        //                new Card(10, Suit.Hearts)
+        //            );
+        //        var player2 = sampleData.Player2;
+        //        var originalDiscardPile = new CardCollection(
+        //            new Card(1, Suit.Diamonds),
+        //            new Card(2, Suit.Diamonds),
+        //            new Card(3, Suit.Diamonds)
+        //        );
+        //        var discardPile = new DiscardPile(originalDiscardPile.Cards);
+        //        discardPile.TurnUpTopCard();
+        //        sut = BoardCreator.Create(new StockPile(new CardCollection()), discardPile, player1, player2);
+        //        sut.MoveDiscardPileToStockPile(new List<DomainEvent>());
+        //    }
+
+        //    [Fact]
+        //    public void RemoveCardsFromDiscardPile()
+        //    {
+        //        sut.DiscardPile.CardToMatch.Should().Be(new Card(1, Suit.Diamonds));
+        //        sut.DiscardPile.RestOfCards.Cards.Should().BeEmpty();
+        //    }
+            
+        //    [Fact]
+        //    public void AddCardsToStockPile()
+        //    {
+        //        sut.StockPile.Cards.Should().Equal(
+        //            new Card(2, Suit.Diamonds),
+        //            new Card(3, Suit.Diamonds)
+        //        );
+        //    }
+        //}
     }
 }

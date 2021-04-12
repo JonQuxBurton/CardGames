@@ -36,8 +36,6 @@ namespace SheddingCardGames.Domain
         private readonly List<DomainEvent> events = new List<DomainEvent>();
 
         public GameState GameState { get; private set; }
-        public IEnumerable<CardMoveEvent> CardMoves => GameState.CurrentBoard.CardMoves;
-
 
         public Player CurrentPlayer
         {
@@ -86,13 +84,13 @@ namespace SheddingCardGames.Domain
 
         private int GetNextEventNumber()
         {
-            return events.Select(x => x.Number).Max() + 1;
+            return events.Select(x => x.Number).DefaultIfEmpty().Max() + 1;
         }
 
         public void Deal()
         {
             var shuffled = shuffler.Shuffle(deck);
-            var board = dealer.Deal(players.Values, shuffled);
+            var board = dealer.Deal(players.Values, shuffled, events);
             GameState = GameState
                 .WithGamePhase(GamePhase.InGame)
                 .WithBoard(board);
@@ -120,8 +118,7 @@ namespace SheddingCardGames.Domain
                 return new ActionResult(false, ActionResultMessageKey.InvalidPlay);
 
             GameState.CurrentBoard.MoveCardToDiscardPile(CurrentPlayer, playedCard);
-
-            events.Add(new Played(GetNextEventNumber(), playerNumber, playedCard));
+            events.Add(new Played(GetNextEventNumber(), CurrentPlayer.Number, playedCard));
 
             if (IsWinner())
             {
@@ -163,11 +160,10 @@ namespace SheddingCardGames.Domain
                 return new ActionResultWithCard(false, ActionResultMessageKey.NotPlayersTurn);
 
             var takenCard = GameState.CurrentBoard.TakeCardFromStockPile(CurrentPlayer);
+            events.Add(new Taken(GetNextEventNumber(), playerNumber, takenCard));
 
             if (GameState.CurrentBoard.StockPile.IsEmpty())
                 MoveDiscardPileToStockPile();
-
-            events.Add(new Taken(GetNextEventNumber(), playerNumber, takenCard));
 
             AddNextTurn(NextPlayer, GameState.CurrentTurn.SelectedSuit);
 
@@ -176,18 +172,24 @@ namespace SheddingCardGames.Domain
 
         private void MoveDiscardPileToStockPile()
         {
-            ShuffleDiscardPile();
-            GameState.CurrentBoard.MoveDiscardPileToStockPile();
+            var cardsToRemove = GameState.CurrentBoard.DiscardPile.RestOfCards.Cards.ToArray();
+
+            foreach (var card in cardsToRemove)
+            {
+                GameState.CurrentBoard.MoveCardFromDiscardPileToStockPile();
+                events.Add(new CardMoved(GetNextEventNumber(), card, CardMoveSources.DiscardPile,
+                    CardMoveSources.StockPile));
+            }
+
+            ShuffleStockPile();
         }
 
-        private void ShuffleDiscardPile()
+        private void ShuffleStockPile()
         {
-            var restOfCards = GameState.CurrentBoard.DiscardPile.TakeRestOfCards();
-            var turnedUpCard = GameState.CurrentBoard.DiscardPile.CardToMatch;
-            var shuffled = shuffler.Shuffle(restOfCards);
-            shuffled.AddAtStart(turnedUpCard);
-            GameState.CurrentBoard.DiscardPile = new DiscardPile(shuffled.Cards);
-            GameState.CurrentBoard.DiscardPile.TurnUpTopCard();
+            var startCards = GameState.CurrentBoard.StockPile.Cards.ToArray();
+            var shuffled = shuffler.Shuffle(new CardCollection(startCards));
+            GameState.CurrentBoard.StockPile = new StockPile(shuffled);
+            events.Add(new Shuffled(GetNextEventNumber(), CardMoveSources.StockPile, new CardCollection(startCards), shuffled));
         }
 
         private bool IsValidPlay(Card playedCard)

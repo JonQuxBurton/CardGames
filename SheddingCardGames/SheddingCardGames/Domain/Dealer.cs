@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using SheddingCardGames.Domain.Events;
 
 namespace SheddingCardGames.Domain
 {
@@ -11,8 +12,8 @@ namespace SheddingCardGames.Domain
         {
             this.rules = rules;
         }
-        
-        public Board Deal(IEnumerable<Player> players, CardCollection cardsToDeal)
+
+        public Board Deal(IEnumerable<Player> players, CardCollection cardsToDeal, List<DomainEvent> events)
         {
             var playersArray = players as Player[] ?? players.ToArray();
             var board = new Board(new StockPile(cardsToDeal), new DiscardPile(), playersArray.ToArray());
@@ -21,14 +22,25 @@ namespace SheddingCardGames.Domain
             {
                 if (board.StockPile.IsEmpty()) break;
 
-                for (var j=0; j< playersArray.Count(); j++)
-                    board.TakeCardFromStockPile(board.Players[j]);
-                
+                for (var j = 0; j < playersArray.Count(); j++)
+                {
+                    var player = board.Players[j];
+                    var takenCard = board.TakeCardFromStockPile(player);
+                    events.Add(new CardMoved(events.Select(x => x.Number).DefaultIfEmpty().Max() + 1, takenCard,
+                        CardMoveSources.StockPile, GetPlayerSource(player)));
+                }
             }
 
-            board.TurnUpDiscardCard();
+            var cardTurnedUp = board.TurnUpDiscardCard();
+            events.Add(new CardMoved(events.Select(x => x.Number).DefaultIfEmpty().Max() + 1, cardTurnedUp,
+                CardMoveSources.StockPile, CardMoveSources.DiscardPile));
 
             return board;
+        }
+
+        private static string GetPlayerSource(Player player)
+        {
+            return CardMoveSources.PlayerHand(player.Number);
         }
     }
 }

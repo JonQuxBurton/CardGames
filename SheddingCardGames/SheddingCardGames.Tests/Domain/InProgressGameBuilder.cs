@@ -7,11 +7,18 @@ namespace SheddingCardGames.Tests.Domain
 {
     public class InProgressGameBuilder
     {
+        private IShuffler shuffler = new DummyShuffler();
         private readonly List<Player> players = new List<Player>();
         private CurrentTurn currentTurn;
         private DiscardPile discardPile = new DiscardPile();
         private int startingPlayer = 1;
         private StockPile stockPile = new StockPile(new CardCollection());
+
+        public InProgressGameBuilder WithShuffler(IShuffler withShuffler)
+        {
+            shuffler = withShuffler;
+            return this;
+        }
 
         public InProgressGameBuilder WithStartingPlayer(int playerNumber)
         {
@@ -55,7 +62,7 @@ namespace SheddingCardGames.Tests.Domain
             var deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards),
                 players.Select(x => x.Hand).ToArray()).Build();
             var rules = new Rules(7);
-            var sut = new Game(rules, new DummyShuffler(), new Dealer(rules), deck, new[]
+            var sut = new Game(rules, shuffler, new Dealer(rules), deck, new[]
             {
                 players.ElementAt(0),
                 players.ElementAt(1)

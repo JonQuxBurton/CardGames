@@ -316,6 +316,51 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
+            public void CreateCardMovedEvents()
+            {
+                var discardCard = new Card(2, Suit.Hearts);
+                var startingPlayer = 1;
+                var sut = CreateSut(startingPlayer, discardCard);
+
+                sut.Deal();
+
+                CardMoved domainEvent;
+
+                for (int i = 0; i < 7; i++)
+                {
+                    var eventIndex = i * 3;
+
+                    sut.Events.ElementAt(eventIndex + 1).Should().BeOfType(typeof(CardMoved));
+                    domainEvent = sut.Events.ElementAt(eventIndex + 1) as CardMoved;
+                    if (domainEvent == null) Assert.NotNull(domainEvent);
+                    domainEvent.Card.Should().Be(player1Hand.Cards.ElementAt(i));
+                    domainEvent.FromSource.Should().Be(CardMoveSources.StockPile);
+                    domainEvent.ToSource.Should().Be(CardMoveSources.PlayerHand(1));
+                    
+                    sut.Events.ElementAt(eventIndex + 2).Should().BeOfType(typeof(CardMoved));
+                    domainEvent = sut.Events.ElementAt(eventIndex + 2) as CardMoved;
+                    if (domainEvent == null) Assert.NotNull(domainEvent);
+                    domainEvent.Card.Should().Be(player2Hand.Cards.ElementAt(i));
+                    domainEvent.FromSource.Should().Be(CardMoveSources.StockPile);
+                    domainEvent.ToSource.Should().Be(CardMoveSources.PlayerHand(2));
+
+                    sut.Events.ElementAt(eventIndex + 3).Should().BeOfType(typeof(CardMoved));
+                    domainEvent = sut.Events.ElementAt(eventIndex + 3) as CardMoved;
+                    if (domainEvent == null) Assert.NotNull(domainEvent);
+                    domainEvent.Card.Should().Be(player3Hand.Cards.ElementAt(i));
+                    domainEvent.FromSource.Should().Be(CardMoveSources.StockPile);
+                    domainEvent.ToSource.Should().Be(CardMoveSources.PlayerHand(3));
+                }
+
+                sut.Events.ElementAt(22).Should().BeOfType(typeof(CardMoved));
+                domainEvent = sut.Events.ElementAt(22) as CardMoved;
+                if (domainEvent == null) Assert.NotNull(domainEvent);
+                domainEvent.Card.Should().Be(discardCard);
+                domainEvent.FromSource.Should().Be(CardMoveSources.StockPile);
+                domainEvent.ToSource.Should().Be(CardMoveSources.DiscardPile);
+            }
+            
+            [Fact]
             public void CreateDealCompletedEvent()
             {
                 var discardCard = new Card(2, Suit.Hearts);
@@ -324,7 +369,6 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Deal();
 
-                sut.Events.Last().Number.Should().Be(2);
                 sut.Events.Last().Should().BeOfType(typeof(DealCompleted));
             }
 
@@ -761,7 +805,6 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Play(1, playedCard);
 
-                sut.Events.Last().Number.Should().Be(3);
                 sut.Events.Last().Should().BeOfType(typeof(Played));
                 var played = sut.Events.Last() as Played;
                 if (played == null) Assert.NotNull(played);
@@ -1124,7 +1167,6 @@ namespace SheddingCardGames.Tests.Domain
             {
                 sut.SelectSuit(1, Suit.Diamonds);
 
-                sut.Events.Last().Number.Should().Be(4);
                 sut.Events.Last().Should().BeOfType(typeof(SuitSelected));
                 var domainEvent = sut.Events.Last() as SuitSelected;
                 if (domainEvent == null) Assert.NotNull(domainEvent);
@@ -1407,12 +1449,90 @@ namespace SheddingCardGames.Tests.Domain
                     deck.Get(3, Suit.Hearts),
                     deck.Get(1, Suit.Hearts)
                 );
-                sut.CardMoves.Should().Equal(
-                    new CardMoveEvent(deck.Get(1, Suit.Clubs), CardMoveSources.StockPile, CardMoveSources.PlayerHand(1)),
-                    new CardMoveEvent(deck.Get(2, Suit.Hearts), CardMoveSources.DiscardPile, CardMoveSources.StockPile),
-                    new CardMoveEvent(deck.Get(3, Suit.Hearts), CardMoveSources.DiscardPile, CardMoveSources.StockPile),
-                    new CardMoveEvent(deck.Get(1, Suit.Hearts), CardMoveSources.DiscardPile, CardMoveSources.StockPile)
+
+                var actualCard = sut.Events.ElementAt(2);
+                actualCard.Should().BeOfType(typeof(CardMoved));
+                var domainEvent = actualCard as CardMoved;
+                domainEvent.Card.Should().Be(deck.Get(2, Suit.Hearts));
+                domainEvent.FromSource.Should().Be(CardMoveSources.DiscardPile);
+                domainEvent.ToSource.Should().Be(CardMoveSources.StockPile);
+                
+                actualCard = sut.Events.ElementAt(3);
+                actualCard.Should().BeOfType(typeof(CardMoved));
+                domainEvent = actualCard as CardMoved;
+                domainEvent.Card.Should().Be(deck.Get(3, Suit.Hearts));
+                domainEvent.FromSource.Should().Be(CardMoveSources.DiscardPile);
+                domainEvent.ToSource.Should().Be(CardMoveSources.StockPile);
+                
+                actualCard = sut.Events.ElementAt(4);
+                actualCard.Should().BeOfType(typeof(CardMoved));
+                domainEvent = actualCard as CardMoved;
+                domainEvent.Card.Should().Be(deck.Get(1, Suit.Hearts));
+                domainEvent.FromSource.Should().Be(CardMoveSources.DiscardPile);
+                domainEvent.ToSource.Should().Be(CardMoveSources.StockPile);
+            }
+            
+            [Fact]
+            public void ShuffleStockPileWhenMovingDiscardCardsToStockPile()
+            {
+                var expectedDiscardPileRestOfCards = new[]
+                {
+                    deck.Get(2, Suit.Hearts),
+                    deck.Get(3, Suit.Hearts),
+                    deck.Get(1, Suit.Hearts)
+                };
+                var discardPile = new DiscardPile(new CardCollection(
+                    expectedDiscardPileRestOfCards
+                ));
+                discardPile.AddCard(deck.Get(1, Suit.Spades));
+                var expectedShuffledStockPile = new[]
+                {
+                    deck.Get(12, Suit.Spades),
+                    deck.Get(13, Suit.Clubs),
+                    deck.Get(11, Suit.Diamonds)
+                };
+
+                var shufflerMock = new Mock<IShuffler>();
+                shufflerMock.Setup(x => x.Shuffle(It.Is<CardCollection>(y => y.Cards.ToArray().SequenceEqual(expectedDiscardPileRestOfCards))))
+                    .Returns(new CardCollection(expectedShuffledStockPile
+                ));
+                var stockPile = new StockPile(new CardCollection(
+                    deck.Get(1, Suit.Clubs)
+                ));
+
+                var sampleData = new SampleData();
+                var player1 = sampleData.Player1;
+                player1.Hand = player1Hand;
+                var player2 = sampleData.Player2;
+                player2.Hand = player2Hand;
+                var player3 = sampleData.Player3;
+                player3.Hand = player3Hand;
+
+                var currentTurn = new CurrentTurn(1, player1, new Card[0], false, null, Action.Take, null);
+                
+                var sut = new InProgressGameBuilder()
+                    .WithShuffler(shufflerMock.Object)
+                    .WithStartingPlayer(1)
+                    .WithPlayer(player1)
+                    .WithPlayer(player2)
+                    .WithPlayer(player3)
+                    .WithDiscardPile(discardPile)
+                    .WithStockPile(stockPile)
+                    .WithCurrentTurn(currentTurn)
+                    .Build();
+                
+                sut.Take(1);
+
+                shufflerMock.Verify(x => x.Shuffle(It.Is<CardCollection>(y => y.Cards.ToArray().SequenceEqual(expectedDiscardPileRestOfCards))));
+                sut.GameState.CurrentBoard.StockPile.Cards.Should().Equal(
+                    expectedShuffledStockPile
                 );
+                sut.Events.Last().Should().BeOfType<Shuffled>();
+                var domainEvent = sut.Events.Last() as Shuffled;
+                if (domainEvent == null) Assert.NotNull(domainEvent);
+                domainEvent.Target.Should().Be(CardMoveSources.StockPile);
+                domainEvent.StartCards.Cards.Should().Equal(expectedDiscardPileRestOfCards);
+                domainEvent.EndCards.Cards.Should().Equal(expectedShuffledStockPile);
             }
 
             [Theory]
@@ -1547,9 +1667,9 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Take(1);
 
-                sut.Events.Last().Number.Should().Be(3);
-                sut.Events.Last().Should().BeOfType(typeof(Taken));
-                var domainEvent = sut.Events.Last() as Taken;
+                var actualEvent = sut.Events.ElementAt(12);
+                actualEvent.Should().BeOfType(typeof(Taken));
+                var domainEvent = actualEvent as Taken;
                 if (domainEvent == null) Assert.NotNull(domainEvent);
                 domainEvent.PlayerNumber.Should().Be(1);
                 domainEvent.Card.Should().Be(stockPile.First());
@@ -1750,7 +1870,6 @@ namespace SheddingCardGames.Tests.Domain
                     .Build();
                 sut.Play(1, player1Hand.Cards.First());
 
-                sut.Events.Last().Number.Should().Be(4);
                 sut.Events.Last().Should().BeOfType(typeof(RoundWon));
                 var domainEvent = sut.Events.Last() as RoundWon;
                 if (domainEvent == null) Assert.NotNull(domainEvent);

@@ -1,6 +1,8 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using SheddingCardGames.Domain;
+using SheddingCardGames.Domain.Events;
 using Xunit;
 
 namespace SheddingCardGames.Tests.Domain
@@ -32,7 +34,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void DealCardsToPlayer1()
             {
-                var actual = sut.Deal(new[] {player1, player2, player3 }, deck);
+                var actual = sut.Deal(new[] {player1, player2, player3 }, deck, new List<DomainEvent>());
 
                 actual.Players[0].Hand.Cards.Should().Equal(
                     new Card(1, Suit.Clubs),
@@ -48,7 +50,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void DealCardsToPlayer2()
             {
-                var actual = sut.Deal(new[] {player1, player2, player3 }, deck);
+                var actual = sut.Deal(new[] {player1, player2, player3 }, deck, new List<DomainEvent>());
 
                 actual.Players[1].Hand.Cards.Should().Equal(
                     new Card(2, Suit.Clubs),
@@ -64,7 +66,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void DealCardsToPlayer3()
             {
-                var actual = sut.Deal(new[] {player1, player2, player3}, deck);
+                var actual = sut.Deal(new[] {player1, player2, player3}, deck, new List<DomainEvent>());
 
                 actual.Players[2].Hand.Cards.Should().Equal(
                     new Card(3, Suit.Clubs),
@@ -80,10 +82,47 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void MoveCardToDiscardPile()
             {
-                var actual = sut.Deal(new[] {player1, player2}, deck);
+                var actual = sut.Deal(new[] {player1, player2}, deck, new List<DomainEvent>());
 
                 actual.StockPile.Cards.Count().Should().Be(deckCount - rules.GetHandSize() * 2 - 1);
                 actual.DiscardPile.CardToMatch.Should().Be(new Card(2, Suit.Diamonds));
+            }
+            
+            [Fact]
+            public void AddEventForTurnUpDiscardCardEvent()
+            {
+                var actualEvents = new List<DomainEvent>();
+                sut.Deal(new[] {player1, player2}, deck, actualEvents);
+
+                actualEvents.Last().Should().BeOfType<CardMoved>();
+                var domainEvent = actualEvents.Last() as CardMoved;
+                domainEvent.Card.Should().Be(new Card(2, Suit.Diamonds));
+                domainEvent.FromSource.Should().Be(CardMoveSources.StockPile);
+                domainEvent.ToSource.Should().Be(CardMoveSources.DiscardPile);
+            }
+            
+            [Fact]
+            public void AddEventsForDeal()
+            {
+                var actualEvents = new List<DomainEvent>();
+                sut.Deal(new[] {player1, player2}, deck, actualEvents);
+
+                for (int i = 0; i < 7; i++)
+                {
+                    var counter1 = i * 2;
+                    actualEvents.ElementAt(counter1).Should().BeOfType<CardMoved>();
+                    var domainEvent = actualEvents.ElementAt(counter1) as CardMoved;
+                    domainEvent.Card.Should().Be(player1.Hand.Cards.ElementAt(i));
+                    domainEvent.FromSource.Should().Be(CardMoveSources.StockPile);
+                    domainEvent.ToSource.Should().Be(CardMoveSources.PlayerHand(1));
+
+                    var counter2 = (i * 2) + 1;
+                    actualEvents.ElementAt(counter2).Should().BeOfType<CardMoved>();
+                    domainEvent = actualEvents.ElementAt(counter2) as CardMoved;
+                    domainEvent.Card.Should().Be(player2.Hand.Cards.ElementAt(i));
+                    domainEvent.FromSource.Should().Be(CardMoveSources.StockPile);
+                    domainEvent.ToSource.Should().Be(CardMoveSources.PlayerHand(2));
+                }
             }
         }
     }
