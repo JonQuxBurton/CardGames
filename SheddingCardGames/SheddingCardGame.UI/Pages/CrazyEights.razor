@@ -98,10 +98,10 @@
         if (gameController.UiState.CurrentGamePhase == GamePhase.New)
             return;
 
-        var currentBoard = gameController.UiState.CurrentBoard;
+        var currentTable = gameController.UiState.CurrentTable;
 
         // Update Cards
-        var stockPileCard = currentBoard.StockPile.Cards.First();
+        var stockPileCard = currentTable.StockPile.Cards.First();
         var stockPileGameObject = uiState.CardGameObjects[stockPileCard];
         stockPileGameObject.OnClick = () => gameController.Take();
         stockPileGameObject.IsTurnedUp = false;
@@ -109,16 +109,16 @@
         stockPileGameObject.SetY(config.StockPileSection.Y);
         stockPileGameObject.IsVisible = true;
 
-        var discardCard = gameController.UiState.CurrentBoard.DiscardPile.CardToMatch;
+        var discardCard = gameController.UiState.CurrentTable.DiscardPile.CardToMatch;
         var discardCardGameObject = uiState.CardGameObjects[discardCard];
         discardCardGameObject.IsTurnedUp = true;
         discardCardGameObject.SetX(config.DiscardPileSection.X);
         discardCardGameObject.SetY(config.DiscardPileSection.Y);
         discardCardGameObject.IsVisible = true;
 
-        for (int i = 0; i < currentBoard.Players[1].Hand.Cards.Count(); i++)
+        for (int i = 0; i < currentTable.Players[1].Hand.Cards.Count(); i++)
         {
-            var card = currentBoard.Players[1].Hand.Cards.ElementAt(i);
+            var card = currentTable.Players[1].Hand.Cards.ElementAt(i);
             var x = (i * config.CardWidth) + config.TopPlayerHandSection.X;
             var cardObject = uiState.CardGameObjects[card];
             cardObject.IsTurnedUp = true;
@@ -127,9 +127,9 @@
             cardObject.IsVisible = true;
         }
 
-        for (int i = 0; i < currentBoard.Players[0].Hand.Cards.Count(); i++)
+        for (int i = 0; i < currentTable.Players[0].Hand.Cards.Count(); i++)
         {
-            var card = currentBoard.Players[0].Hand.Cards.ElementAt(i);
+            var card = currentTable.Players[0].Hand.Cards.ElementAt(i);
             var x = (i * config.CardWidth) + config.BottomPlayerHandSection.X;
             var cardObject = uiState.CardGameObjects[card];
             cardObject.IsTurnedUp = true;

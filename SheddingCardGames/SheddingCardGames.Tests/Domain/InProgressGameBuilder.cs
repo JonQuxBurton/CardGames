@@ -67,8 +67,8 @@ namespace SheddingCardGames.Tests.Domain
                 players.ElementAt(0),
                 players.ElementAt(1)
             });
-            var expectedBoard = new Table(stockPile, discardPile, players.ToArray());
-            var gameState = new GameState(GamePhase.InGame, startingPlayer, expectedBoard, currentTurn);
+            var expectedTable = new Table(stockPile, discardPile, players.ToArray());
+            var gameState = new GameState(GamePhase.InGame, startingPlayer, expectedTable, currentTurn);
 
             sut.Initialise(gameState);
 

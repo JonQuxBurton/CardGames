@@ -13,29 +13,29 @@ namespace SheddingCardGames.Domain
             this.rules = rules;
         }
 
-        public Board Deal(IEnumerable<Player> players, CardCollection cardsToDeal, List<DomainEvent> events)
+        public Table Deal(IEnumerable<Player> players, CardCollection cardsToDeal, List<DomainEvent> events)
         {
             var playersArray = players as Player[] ?? players.ToArray();
-            var board = new Board(new StockPile(cardsToDeal), new DiscardPile(), playersArray.ToArray());
+            var table = new Table(new StockPile(cardsToDeal), new DiscardPile(), playersArray.ToArray());
 
             for (var i = 0; i < rules.GetHandSize(); i++)
             {
-                if (board.StockPile.IsEmpty()) break;
+                if (table.StockPile.IsEmpty()) break;
 
                 for (var j = 0; j < playersArray.Count(); j++)
                 {
-                    var player = board.Players[j];
-                    var takenCard = board.MoveCardFromStockPileToPlayer(player);
+                    var player = table.Players[j];
+                    var takenCard = table.MoveCardFromStockPileToPlayer(player);
                     events.Add(new CardMoved(events.Select(x => x.Number).DefaultIfEmpty().Max() + 1, takenCard,
                         CardMoveSources.StockPile, GetPlayerSource(player)));
                 }
             }
 
-            var cardTurnedUp = board.MoveCardFromStockPileToDiscardPile();
+            var cardTurnedUp = table.MoveCardFromStockPileToDiscardPile();
             events.Add(new CardMoved(events.Select(x => x.Number).DefaultIfEmpty().Max() + 1, cardTurnedUp,
                 CardMoveSources.StockPile, CardMoveSources.DiscardPile));
 
-            return board;
+            return table;
         }
 
         private static string GetPlayerSource(Player player)

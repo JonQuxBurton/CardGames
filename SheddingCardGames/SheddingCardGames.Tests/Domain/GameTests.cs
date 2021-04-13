@@ -55,7 +55,7 @@ namespace SheddingCardGames.Tests.Domain
                 sut.Initialise(gameState);
 
                 sut.GameState.CurrentGamePhase.Should().Be(GamePhase.New);
-                sut.GameState.CurrentBoard.Should().BeNull();
+                sut.GameState.CurrentTable.Should().BeNull();
                 sut.GameState.StartingPlayer.Should().BeNull();
                 sut.GameState.CurrentTurn.Should().BeNull();
             }
@@ -71,7 +71,7 @@ namespace SheddingCardGames.Tests.Domain
                 sut.Initialise(gameState);
 
                 sut.GameState.CurrentGamePhase.Should().Be(GamePhase.ReadyToDeal);
-                sut.GameState.CurrentBoard.Should().BeNull();
+                sut.GameState.CurrentTable.Should().BeNull();
                 sut.GameState.StartingPlayer.Should().Be(expectedStartingPlayer);
                 sut.GameState.CurrentTurn.Should().BeNull();
             }
@@ -113,11 +113,11 @@ namespace SheddingCardGames.Tests.Domain
                 
                 sut.GameState.CurrentGamePhase.Should().Be(GamePhase.InGame);
                 sut.GameState.StartingPlayer.Should().Be(expectedStartingPlayer.Number);
-                sut.GameState.CurrentBoard.Players[0].Hand.Should().Be(player1Hand);
-                sut.GameState.CurrentBoard.Players[1].Hand.Should().Be(player2Hand);
-                sut.GameState.CurrentBoard.Players[2].Hand.Should().Be(player3Hand);
-                sut.GameState.CurrentBoard.StockPile.Should().Be(stockPile);
-                sut.GameState.CurrentBoard.DiscardPile.Should().Be(discardPile);
+                sut.GameState.CurrentTable.Players[0].Hand.Should().Be(player1Hand);
+                sut.GameState.CurrentTable.Players[1].Hand.Should().Be(player2Hand);
+                sut.GameState.CurrentTable.Players[2].Hand.Should().Be(player3Hand);
+                sut.GameState.CurrentTable.StockPile.Should().Be(stockPile);
+                sut.GameState.CurrentTable.DiscardPile.Should().Be(discardPile);
                 sut.GameState.CurrentTurn.Should().Be(expectedTurn);
             }
         }
@@ -423,7 +423,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Deal();
 
-                sut.GameState.CurrentBoard.Players[0].Hand.Cards.Should().Equal(player1Hand.Cards);
+                sut.GameState.CurrentTable.Players[0].Hand.Cards.Should().Equal(player1Hand.Cards);
             }
 
             [Fact]
@@ -435,7 +435,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Deal();
 
-                var actual = sut.GameState.CurrentBoard;
+                var actual = sut.GameState.CurrentTable;
                 actual.Players[1].Hand.Cards.Should().Equal(player2Hand.Cards);
             }
             
@@ -448,7 +448,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Deal();
 
-                var actual = sut.GameState.CurrentBoard;
+                var actual = sut.GameState.CurrentTable;
                 actual.Players[2].Hand.Cards.Should().Equal(player3Hand.Cards);
             }
 
@@ -461,7 +461,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Deal();
 
-                sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(expectedDiscardCard);
+                sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(expectedDiscardCard);
             }
 
             [Fact]
@@ -473,7 +473,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Deal();
 
-                sut.GameState.CurrentBoard.StockPile.Cards.Should().Equal(stockPile.Cards);
+                sut.GameState.CurrentTable.StockPile.Cards.Should().Equal(stockPile.Cards);
             }
 
             [Fact]
@@ -650,7 +650,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Play(1, playedCard);
 
-                sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(playedCard);
+                sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(playedCard);
             }
 
             [Fact]
@@ -668,7 +668,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Play(1, playedCard);
 
-                sut.GameState.CurrentBoard.Players[0].Hand.Cards.Should().NotContain(playedCard);
+                sut.GameState.CurrentTable.Players[0].Hand.Cards.Should().NotContain(playedCard);
             }
 
             [Fact]
@@ -695,8 +695,8 @@ namespace SheddingCardGames.Tests.Domain
                 actual.Winner.Should().BeNull();
                 actual.NextAction.Should().Be(Action.Play);
 
-                sut.GameState.CurrentBoard.Players[0].Hand.Cards.Should().NotContain(playedCard);
-                sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(playedCard);
+                sut.GameState.CurrentTable.Players[0].Hand.Cards.Should().NotContain(playedCard);
+                sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(playedCard);
             }
 
             [Fact]
@@ -754,8 +754,8 @@ namespace SheddingCardGames.Tests.Domain
                 actual.Winner.Should().BeNull();
                 actual.NextAction.Should().Be(Action.Play);
 
-                sut.GameState.CurrentBoard.Players[1].Hand.Cards.Should().NotContain(playedCard2);
-                sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(playedCard2);
+                sut.GameState.CurrentTable.Players[1].Hand.Cards.Should().NotContain(playedCard2);
+                sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(playedCard2);
             }
             
             [Fact]
@@ -786,8 +786,8 @@ namespace SheddingCardGames.Tests.Domain
                 actual.Winner.Should().BeNull();
                 actual.NextAction.Should().Be(Action.Play);
 
-                sut.GameState.CurrentBoard.Players[2].Hand.Cards.Should().NotContain(playedCard3);
-                sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(playedCard3);
+                sut.GameState.CurrentTable.Players[2].Hand.Cards.Should().NotContain(playedCard3);
+                sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(playedCard3);
             }
 
             [Fact]
@@ -864,7 +864,7 @@ namespace SheddingCardGames.Tests.Domain
                 actual.PlayerToPlay.Number.Should().Be(1);
                 actual.NextAction.Should().Be(Action.SelectSuit);
                 
-                sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(cardToPlay);
+                sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(cardToPlay);
             }
             
             [Fact]
@@ -899,7 +899,7 @@ namespace SheddingCardGames.Tests.Domain
                 actual.PlayerToPlay.Number.Should().Be(2);
                 actual.NextAction.Should().Be(Action.SelectSuit);
                 
-                sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(deck.Get(8, Suit.Diamonds));
+                sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(deck.Get(8, Suit.Diamonds));
             }            
             
             [Fact]
@@ -935,7 +935,7 @@ namespace SheddingCardGames.Tests.Domain
                 actual.PlayerToPlay.Number.Should().Be(3);
                 actual.NextAction.Should().Be(Action.SelectSuit);
                 
-                sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(deck.Get(8, Suit.Spades));
+                sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(deck.Get(8, Suit.Spades));
             }
         }
 
@@ -1063,7 +1063,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 sut.Play(1, playedCard);
 
-                sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(originalDiscardCard);
+                sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(originalDiscardCard);
             }
 
             [Fact]
@@ -1071,7 +1071,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 sut.Play(1, playedCard);
 
-                sut.GameState.CurrentBoard.Players[0].Hand.Cards.Should().Contain(playedCard);
+                sut.GameState.CurrentTable.Players[0].Hand.Cards.Should().Contain(playedCard);
             }
 
             [Fact]
@@ -1311,7 +1311,7 @@ namespace SheddingCardGames.Tests.Domain
                 actual.ValidPlays.Should().BeEquivalentTo(new Card(10, Suit.Diamonds));
                 actual.NextAction.Should().Be(Action.Play);
                 
-                sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(discardCard);
+                sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(discardCard);
             }
 
             [Fact]
@@ -1353,9 +1353,9 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Take(1);
 
-                var actual = sut.GameState.CurrentBoard;
+                var actual = sut.GameState.CurrentTable;
                 actual.Players[0].Hand.Cards.Should().Contain(new Card(1, Suit.Hearts));
-                sut.GameState.CurrentBoard.StockPile.Cards.Should().BeEmpty();
+                sut.GameState.CurrentTable.StockPile.Cards.Should().BeEmpty();
             }
 
             [Fact]
@@ -1377,7 +1377,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Take(2);
 
-                var actual = sut.GameState.CurrentBoard;
+                var actual = sut.GameState.CurrentTable;
                 actual.Players[1].Hand.Cards.Should().Contain(new Card(1, Suit.Hearts));
                 actual.StockPile.Cards.Should().Equal(deck.Get(2, Suit.Hearts));
             }
@@ -1402,7 +1402,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Take(3);
 
-                var actual = sut.GameState.CurrentBoard;
+                var actual = sut.GameState.CurrentTable;
                 actual.Players[2].Hand.Cards.Should().Contain(new Card(3, Suit.Hearts));
                 actual.StockPile.Cards.Should().Equal(deck.Get(4, Suit.Hearts));
             }
@@ -1443,8 +1443,8 @@ namespace SheddingCardGames.Tests.Domain
                 
                 sut.Take(1);
 
-                sut.GameState.CurrentBoard.DiscardPile.CardToMatch.Should().Be(deck.Get(1, Suit.Spades));
-                sut.GameState.CurrentBoard.StockPile.Cards.Should().Equal(
+                sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(deck.Get(1, Suit.Spades));
+                sut.GameState.CurrentTable.StockPile.Cards.Should().Equal(
                     deck.Get(2, Suit.Hearts),
                     deck.Get(3, Suit.Hearts),
                     deck.Get(1, Suit.Hearts)
@@ -1524,7 +1524,7 @@ namespace SheddingCardGames.Tests.Domain
                 sut.Take(1);
 
                 shufflerMock.Verify(x => x.Shuffle(It.Is<CardCollection>(y => y.Cards.ToArray().SequenceEqual(expectedDiscardPileRestOfCards))));
-                sut.GameState.CurrentBoard.StockPile.Cards.Should().Equal(
+                sut.GameState.CurrentTable.StockPile.Cards.Should().Equal(
                     expectedShuffledStockPile
                 );
                 sut.Events.Last().Should().BeOfType<Shuffled>();

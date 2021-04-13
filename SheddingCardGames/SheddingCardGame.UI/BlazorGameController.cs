@@ -11,7 +11,7 @@ namespace SheddingCardGame.UI
         private readonly Game game;
         private readonly ActionResultMessageMapper actionResultMessageMapper;
         public CurrentTurn CurrentTurn => game.GameState.CurrentTurn;
-        public CardCollection AllCards => game.GameState.CurrentBoard.AllCards;
+        public CardCollection AllCards => game.GameState.CurrentTable.AllCards;
         
         public UiState UiState { get; set; }
         public readonly Dictionary<LabelNames, LabelComponent> Labels = new Dictionary<LabelNames, LabelComponent>();

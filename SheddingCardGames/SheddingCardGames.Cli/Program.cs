@@ -87,17 +87,17 @@ namespace SheddingCardGame.Cli
 
         private static void RenderTurn(CurrentTurn turn, GameState gameState)
         {
-            var currentBoard = gameState.CurrentBoard;
+            var currentTable = gameState.CurrentTable;
 
             Console.WriteLine("--------------------------------------------------");
             Console.WriteLine($"Turn {turn.TurnNumber}");
             Console.WriteLine($"PlayerToPlay: {turn.PlayerToPlay.Name}");
             Console.WriteLine($"NextAction: {turn.NextAction}");
             Console.WriteLine($"SelectedSuit: {turn.SelectedSuit}");
-            Console.WriteLine($"Stock pile: {currentBoard.StockPile.Cards.Count()} cards");
-            Console.WriteLine($"Discard pile: {currentBoard.DiscardPile.CardToMatch} ({currentBoard.DiscardPile.RestOfCards.Cards.Count()} other cards)");
+            Console.WriteLine($"Stock pile: {currentTable.StockPile.Cards.Count()} cards");
+            Console.WriteLine($"Discard pile: {currentTable.DiscardPile.CardToMatch} ({currentTable.DiscardPile.RestOfCards.Cards.Count()} other cards)");
             
-            foreach (var player in currentBoard.Players)
+            foreach (var player in currentTable.Players)
             {
                 var playerHand = string.Join(", ", player.Hand.Cards.Select(x => x.ToString()));
                 Console.WriteLine($"Player {player.Number} ({player.Name}) hand: {playerHand} ");
