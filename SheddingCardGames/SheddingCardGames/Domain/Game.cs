@@ -117,7 +117,7 @@ namespace SheddingCardGames.Domain
             if (!IsValidPlay(playedCard))
                 return new ActionResult(false, ActionResultMessageKey.InvalidPlay);
 
-            GameState.CurrentBoard.MoveCardToDiscardPile(CurrentPlayer, playedCard);
+            GameState.CurrentBoard.MoveCardFromPlayerToDiscardPile(CurrentPlayer, playedCard);
             events.Add(new Played(GetNextEventNumber(), CurrentPlayer.Number, playedCard));
 
             if (IsWinner())
@@ -159,7 +159,7 @@ namespace SheddingCardGames.Domain
             if (CurrentPlayer.Number != playerNumber)
                 return new ActionResultWithCard(false, ActionResultMessageKey.NotPlayersTurn);
 
-            var takenCard = GameState.CurrentBoard.TakeCardFromStockPile(CurrentPlayer);
+            var takenCard = GameState.CurrentBoard.MoveCardFromStockPileToPlayer(CurrentPlayer);
             events.Add(new Taken(GetNextEventNumber(), playerNumber, takenCard));
 
             if (GameState.CurrentBoard.StockPile.IsEmpty())

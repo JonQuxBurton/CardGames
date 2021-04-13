@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace SheddingCardGames.Domain
 {
-    public class Board
+    public class Table
     {
-        public Board(StockPile stockPile, DiscardPile discardPile, params Player[] players)
+        public Table(StockPile stockPile, DiscardPile discardPile, params Player[] players)
         {
             Players = new ReadOnlyCollection<Player>(players);
             StockPile = stockPile;
@@ -32,20 +32,20 @@ namespace SheddingCardGames.Domain
             }
         }
 
-        public Card TurnUpDiscardCard()
+        public Card MoveCardFromStockPileToDiscardPile()
         {
             var cardToTurnUp = StockPile.Take();
             DiscardPile.AddCard(cardToTurnUp);
             return cardToTurnUp;
         }
 
-        public void MoveCardToDiscardPile(Player player, Card card)
+        public void MoveCardFromPlayerToDiscardPile(Player player, Card card)
         {
             player.Hand.Remove(card);
             DiscardPile.AddCard(card);
         }
 
-        public Card TakeCardFromStockPile(Player player)
+        public Card MoveCardFromStockPileToPlayer(Player player)
         {
             var takenCard = StockPile.Take();
             player.Hand.AddAtEnd(takenCard);

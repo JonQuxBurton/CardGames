@@ -25,13 +25,13 @@ namespace SheddingCardGames.Domain
                 for (var j = 0; j < playersArray.Count(); j++)
                 {
                     var player = board.Players[j];
-                    var takenCard = board.TakeCardFromStockPile(player);
+                    var takenCard = board.MoveCardFromStockPileToPlayer(player);
                     events.Add(new CardMoved(events.Select(x => x.Number).DefaultIfEmpty().Max() + 1, takenCard,
                         CardMoveSources.StockPile, GetPlayerSource(player)));
                 }
             }
 
-            var cardTurnedUp = board.TurnUpDiscardCard();
+            var cardTurnedUp = board.MoveCardFromStockPileToDiscardPile();
             events.Add(new CardMoved(events.Select(x => x.Number).DefaultIfEmpty().Max() + 1, cardTurnedUp,
                 CardMoveSources.StockPile, CardMoveSources.DiscardPile));
 

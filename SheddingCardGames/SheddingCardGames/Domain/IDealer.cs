@@ -5,6 +5,6 @@ namespace SheddingCardGames.Domain
 {
     public interface IDealer
     {
-        Board Deal(IEnumerable<Player> players, CardCollection cardsToDeal, List<DomainEvent> events);
+        Table Deal(IEnumerable<Player> players, CardCollection cardsToDeal, List<DomainEvent> events);
     }
 }
