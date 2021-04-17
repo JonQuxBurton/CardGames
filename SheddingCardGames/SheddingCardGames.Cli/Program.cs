@@ -10,7 +10,7 @@ namespace SheddingCardGame.Cli
     {
         static void Main(string[] args)
         {
-            var numberOfPlayers = 3;
+            var numberOfPlayers = 2;
             IDeckBuilder deckBuilder;
             deckBuilder = new MinimalDeckBuilder(numberOfPlayers);
             //deckBuilder = new DeckBuilder();

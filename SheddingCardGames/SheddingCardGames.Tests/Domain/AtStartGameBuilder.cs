@@ -46,9 +46,9 @@ namespace SheddingCardGames.Tests.Domain
             return this;
         }
 
-        public AtStartGameBuilder WithStartingPlayer(int playerNumber)
+        public AtStartGameBuilder WithStartingPlayer(int withPlayerNumber)
         {
-            startingPlayerNumber = playerNumber;
+            startingPlayerNumber = withPlayerNumber;
             return this;
         }
 
@@ -74,8 +74,8 @@ namespace SheddingCardGames.Tests.Domain
                 deck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand).Build();
                 game = new Game(rules, shuffler, new Dealer(rules), deck, new[] { player1, player2 });
             }
-
-            game.ChooseStartingPlayer(startingPlayerNumber);
+            
+            game.ChooseStartingPlayer(sampleData.GetPlayer(startingPlayerNumber));
             game.Deal();
 
             return game;

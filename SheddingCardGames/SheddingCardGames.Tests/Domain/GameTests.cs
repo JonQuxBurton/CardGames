@@ -21,129 +21,135 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.GameState.CurrentTurn.Should().BeNull();
                 sut.GameState.CurrentGamePhase.Should().Be(GamePhase.New);
-                sut.Events.Should().BeEmpty();
+                sut.GameState.Events.Should().BeEmpty();
             }
         }
 
-        public class InitialiseShould
-        {
-            private Game sut;
+        //public class InitialiseShould
+        //{
+        //    private Game sut;
 
-            public InitialiseShould()
-            {
-                var sampleData = new SampleData();
-                var rules = new Rules(7);
-                sut = new Game(rules, new DummyShuffler(), new Dealer(rules), new CardCollectionBuilder().Build(), new [] { sampleData.Player1, sampleData.Player2 });
-            }
+        //    public InitialiseShould()
+        //    {
+        //        var sampleData = new SampleData();
+        //        var rules = new Rules(7);
+        //        sut = new Game(rules, new DummyShuffler(), new Dealer(rules), new CardCollectionBuilder().Build(), new [] { sampleData.Player1, sampleData.Player2 });
+        //    }
 
-            [Fact]
-            public void CreateInitialisedEvent()
-            {
-                var gameState = new GameState(GamePhase.New);
+        //    [Fact]
+        //    public void CreateInitialisedEvent()
+        //    {
+        //        var gameState = new GameState(GamePhase.New);
 
-                sut.Initialise(gameState);
+        //        sut.Initialise(gameState);
 
-                sut.Events.Last().Number.Should().Be(1);
-                sut.Events.Last().Should().BeOfType(typeof(Initialised));
-            }
+        //        sut.Events.Last().Number.Should().Be(1);
+        //        sut.Events.Last().Should().BeOfType(typeof(Initialised));
+        //    }
 
-            [Fact]
-            public void SetGameStateWhenGamePhaseIsNew()
-            {
-                var gameState = new GameState(GamePhase.New);
+        //    [Fact]
+        //    public void SetGameStateWhenGamePhaseIsNew()
+        //    {
+        //        var gameState = new GameState(GamePhase.New);
                 
-                sut.Initialise(gameState);
+        //        sut.Initialise(gameState);
 
-                sut.GameState.CurrentGamePhase.Should().Be(GamePhase.New);
-                sut.GameState.CurrentTable.Should().BeNull();
-                sut.GameState.StartingPlayer.Should().BeNull();
-                sut.GameState.CurrentTurn.Should().BeNull();
-            }
+        //        sut.GameState.CurrentGamePhase.Should().Be(GamePhase.New);
+        //        sut.GameState.CurrentTable.Should().BeNull();
+        //        sut.GameState.StartingPlayer.Should().BeNull();
+        //        sut.GameState.CurrentTurn.Should().BeNull();
+        //    }
             
-            [Theory]
-            [InlineData(1)]
-            [InlineData(2)]
-            [InlineData(3)]
-            public void SetGameStateWhenGamePhaseIsReadyToDeal(int expectedStartingPlayer)
-            {
-                var gameState = new GameState(GamePhase.ReadyToDeal, expectedStartingPlayer);
+        //    [Theory]
+        //    [InlineData(1)]
+        //    [InlineData(2)]
+        //    [InlineData(3)]
+        //    public void SetGameStateWhenGamePhaseIsReadyToDeal(int expectedStartingPlayer)
+        //    {
+        //        var gameState = new GameState(GamePhase.ReadyToDeal, expectedStartingPlayer);
                 
-                sut.Initialise(gameState);
+        //        sut.Initialise(gameState);
 
-                sut.GameState.CurrentGamePhase.Should().Be(GamePhase.ReadyToDeal);
-                sut.GameState.CurrentTable.Should().BeNull();
-                sut.GameState.StartingPlayer.Should().Be(expectedStartingPlayer);
-                sut.GameState.CurrentTurn.Should().BeNull();
-            }
+        //        sut.GameState.CurrentGamePhase.Should().Be(GamePhase.ReadyToDeal);
+        //        sut.GameState.CurrentTable.Should().BeNull();
+        //        sut.GameState.StartingPlayer.Should().Be(expectedStartingPlayer);
+        //        sut.GameState.CurrentTurn.Should().BeNull();
+        //    }
 
-            [Theory]
-            [InlineData(1)]
-            [InlineData(2)]
-            [InlineData(3)]
-            public void SetGameStateWhenGamePhaseIsInGame(int expectedStartingPlayerNumber)
-            {
-                var player1Hand = new CardCollection(new Card(1, Suit.Clubs));
-                var player2Hand = new CardCollection(new Card(1, Suit.Diamonds));
-                var player3Hand = new CardCollection(new Card(10, Suit.Spades));
-                var stockPile = new StockPile(new CardCollection(new Card(1, Suit.Hearts), new Card(2, Suit.Hearts)));
-                var discardPile = new DiscardPile(new[]
-                {
-                    new Card(1, Suit.Spades),
-                    new Card(2, Suit.Spades)
-                });
-                var sampleData = new SampleData();
-                var player1 = sampleData.Player1;
-                player1.Hand = player1Hand;
-                var player2 = sampleData.Player2;
-                player2.Hand = player2Hand;
-                var player3 = sampleData.Player3;
-                player3.Hand = player3Hand;
-                var expectedStartingPlayer = sampleData.GetPlayer(expectedStartingPlayerNumber);
-                var expectedTurn = new CurrentTurn(1, expectedStartingPlayer, new Card[0],
-                    false, null, Action.Play, null);
-                sut = new InProgressGameBuilder()
-                    .WithStartingPlayer(expectedStartingPlayer.Number)
-                    .WithPlayer(player1)
-                    .WithPlayer(player2)
-                    .WithPlayer(player3)
-                    .WithStockPile(stockPile)
-                    .WithDiscardPile(discardPile)
-                    .WithCurrentTurn(expectedTurn)
-                    .Build();
+        //    [Theory]
+        //    [InlineData(1)]
+        //    [InlineData(2)]
+        //    [InlineData(3)]
+        //    public void SetGameStateWhenGamePhaseIsInGame(int expectedStartingPlayerNumber)
+        //    {
+        //        var player1Hand = new CardCollection(new Card(1, Suit.Clubs));
+        //        var player2Hand = new CardCollection(new Card(1, Suit.Diamonds));
+        //        var player3Hand = new CardCollection(new Card(10, Suit.Spades));
+        //        var stockPile = new StockPile(new CardCollection(new Card(1, Suit.Hearts), new Card(2, Suit.Hearts)));
+        //        var discardPile = new DiscardPile(new[]
+        //        {
+        //            new Card(1, Suit.Spades),
+        //            new Card(2, Suit.Spades)
+        //        });
+        //        var sampleData = new SampleData();
+        //        var player1 = sampleData.Player1;
+        //        player1.Hand = player1Hand;
+        //        var player2 = sampleData.Player2;
+        //        player2.Hand = player2Hand;
+        //        var player3 = sampleData.Player3;
+        //        player3.Hand = player3Hand;
+        //        var expectedStartingPlayer = sampleData.GetPlayer(expectedStartingPlayerNumber);
+        //        var expectedTurn = new CurrentTurn(1, expectedStartingPlayer, new Card[0],
+        //            false, null, Action.Play, null);
+        //        sut = new InProgressGameBuilder()
+        //            .WithStartingPlayer(expectedStartingPlayer.Number)
+        //            .WithPlayer(player1)
+        //            .WithPlayer(player2)
+        //            .WithPlayer(player3)
+        //            .WithStockPile(stockPile)
+        //            .WithDiscardPile(discardPile)
+        //            .WithCurrentTurn(expectedTurn)
+        //            .Build();
                 
-                sut.GameState.CurrentGamePhase.Should().Be(GamePhase.InGame);
-                sut.GameState.StartingPlayer.Should().Be(expectedStartingPlayer.Number);
-                sut.GameState.CurrentTable.Players[0].Hand.Should().Be(player1Hand);
-                sut.GameState.CurrentTable.Players[1].Hand.Should().Be(player2Hand);
-                sut.GameState.CurrentTable.Players[2].Hand.Should().Be(player3Hand);
-                sut.GameState.CurrentTable.StockPile.Should().Be(stockPile);
-                sut.GameState.CurrentTable.DiscardPile.Should().Be(discardPile);
-                sut.GameState.CurrentTurn.Should().Be(expectedTurn);
-            }
-        }
+        //        sut.GameState.CurrentGamePhase.Should().Be(GamePhase.InGame);
+        //        sut.GameState.StartingPlayer.Should().Be(expectedStartingPlayer.Number);
+        //        sut.GameState.CurrentTable.Players[0].Hand.Should().Be(player1Hand);
+        //        sut.GameState.CurrentTable.Players[1].Hand.Should().Be(player2Hand);
+        //        sut.GameState.CurrentTable.Players[2].Hand.Should().Be(player3Hand);
+        //        sut.GameState.CurrentTable.StockPile.Should().Be(stockPile);
+        //        sut.GameState.CurrentTable.DiscardPile.Should().Be(discardPile);
+        //        sut.GameState.CurrentTurn.Should().Be(expectedTurn);
+        //    }
+        //}
 
         public class ChooseStartingPlayerShould
         {
             private readonly Game sut;
+            private readonly Player player1;
+            private readonly Player player2;
+            private readonly Player player3;
 
             public ChooseStartingPlayerShould()
             {
                 var sampleData = new SampleData();
+                player1 = sampleData.Player1;
+                player2 = sampleData.Player2;
+                player3 = sampleData.Player3;
                 var shuffler = new DummyShuffler();
                 var rules = new Rules(7);
                 var deck = new DeckBuilder().Build();
-                sut = new Game(rules, shuffler, new Dealer(rules), deck, new[] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
+                sut = new Game(rules, shuffler, new Dealer(rules), deck, new[] { player1, player2, player3 });
             }
 
             [Fact]
             public void CreateStartingPlayerChosenEvent()
             {
-                sut.ChooseStartingPlayer(2);
+                sut.ChooseStartingPlayer(player2);
 
-                sut.Events.Last().Number.Should().Be(1);
-                sut.Events.Last().Should().BeOfType(typeof(StartingPlayerChosen));
-                var startingPlayerChosenEvent = sut.Events.Last() as StartingPlayerChosen;
-                startingPlayerChosenEvent.PlayerNumber.Should().Be(2);
+                sut.GameState.Events.Last().Number.Should().Be(1);
+                sut.GameState.Events.Last().Should().BeOfType(typeof(StartingPlayerChosen));
+                var startingPlayerChosenEvent = sut.GameState.Events.Last() as StartingPlayerChosen;
+                startingPlayerChosenEvent.Player.Number.Should().Be(2);
             }
 
             [Theory]
@@ -152,15 +158,16 @@ namespace SheddingCardGames.Tests.Domain
             [InlineData(3)]
             public void SetStartingPlayer(int startingPlayer)
             {
-                sut.ChooseStartingPlayer(startingPlayer);
+                var sampleData = new SampleData();
+                sut.ChooseStartingPlayer(sampleData.GetPlayer(startingPlayer));
                 
-                sut.GameState.StartingPlayer.Should().Be(startingPlayer);
+                sut.GameState.CurrentPlayer.Number.Should().Be(startingPlayer);
             }
 
             [Fact]
             public void SetGamePhaseToReadyToDeal1()
             {
-                sut.ChooseStartingPlayer(1);
+                sut.ChooseStartingPlayer(player1);
                 
                 sut.GameState.CurrentGamePhase.Should().Be(GamePhase.ReadyToDeal);
             }
@@ -330,30 +337,30 @@ namespace SheddingCardGames.Tests.Domain
                 {
                     var eventIndex = i * 3;
 
-                    sut.Events.ElementAt(eventIndex + 1).Should().BeOfType(typeof(CardMoved));
-                    domainEvent = sut.Events.ElementAt(eventIndex + 1) as CardMoved;
+                    sut.GameState.Events.ElementAt(eventIndex + 1).Should().BeOfType(typeof(CardMoved));
+                    domainEvent = sut.GameState.Events.ElementAt(eventIndex + 1) as CardMoved;
                     if (domainEvent == null) Assert.NotNull(domainEvent);
                     domainEvent.Card.Should().Be(player1Hand.Cards.ElementAt(i));
                     domainEvent.FromSource.Should().Be(CardMoveSources.StockPile);
                     domainEvent.ToSource.Should().Be(CardMoveSources.PlayerHand(1));
                     
-                    sut.Events.ElementAt(eventIndex + 2).Should().BeOfType(typeof(CardMoved));
-                    domainEvent = sut.Events.ElementAt(eventIndex + 2) as CardMoved;
+                    sut.GameState.Events.ElementAt(eventIndex + 2).Should().BeOfType(typeof(CardMoved));
+                    domainEvent = sut.GameState.Events.ElementAt(eventIndex + 2) as CardMoved;
                     if (domainEvent == null) Assert.NotNull(domainEvent);
                     domainEvent.Card.Should().Be(player2Hand.Cards.ElementAt(i));
                     domainEvent.FromSource.Should().Be(CardMoveSources.StockPile);
                     domainEvent.ToSource.Should().Be(CardMoveSources.PlayerHand(2));
 
-                    sut.Events.ElementAt(eventIndex + 3).Should().BeOfType(typeof(CardMoved));
-                    domainEvent = sut.Events.ElementAt(eventIndex + 3) as CardMoved;
+                    sut.GameState.Events.ElementAt(eventIndex + 3).Should().BeOfType(typeof(CardMoved));
+                    domainEvent = sut.GameState.Events.ElementAt(eventIndex + 3) as CardMoved;
                     if (domainEvent == null) Assert.NotNull(domainEvent);
                     domainEvent.Card.Should().Be(player3Hand.Cards.ElementAt(i));
                     domainEvent.FromSource.Should().Be(CardMoveSources.StockPile);
                     domainEvent.ToSource.Should().Be(CardMoveSources.PlayerHand(3));
                 }
 
-                sut.Events.ElementAt(22).Should().BeOfType(typeof(CardMoved));
-                domainEvent = sut.Events.ElementAt(22) as CardMoved;
+                sut.GameState.Events.ElementAt(22).Should().BeOfType(typeof(CardMoved));
+                domainEvent = sut.GameState.Events.ElementAt(22) as CardMoved;
                 if (domainEvent == null) Assert.NotNull(domainEvent);
                 domainEvent.Card.Should().Be(discardCard);
                 domainEvent.FromSource.Should().Be(CardMoveSources.StockPile);
@@ -369,7 +376,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Deal();
 
-                sut.Events.Last().Should().BeOfType(typeof(DealCompleted));
+                sut.GameState.Events.Last().Should().BeOfType(typeof(DealCompleted));
             }
 
             [Fact]
@@ -411,7 +418,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Deal();
 
-                sut.GameState.StartingPlayer.Should().Be(expectedStartingPlayer);
+                sut.GameState.CurrentPlayer.Number.Should().Be(expectedStartingPlayer);
             }
             
             [Fact]
@@ -486,6 +493,13 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Deal();
 
+                //var actual = sut.GameState.CurrentTurn;
+                //actual.TurnNumber.Should().Be(1);
+                //actual.HasWinner.Should().BeFalse();
+                //actual.Winner.Should().BeNull();
+                //actual.ValidPlays.Should().Equal(expectedValidPlaysForPlayer1.Cards);
+                //actual.NextAction.Should().Be(Action.Play);
+
                 var actual = sut.GameState.CurrentTurn;
                 actual.TurnNumber.Should().Be(1);
                 actual.HasWinner.Should().BeFalse();
@@ -504,6 +518,12 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Deal();
 
+                //var actual = sut.GameState.CurrentTurn;
+                //actual.TurnNumber.Should().Be(1);
+                //actual.HasWinner.Should().BeFalse();
+                //actual.ValidPlays.Should().Equal(expectedValidPlaysForPlayer2.Cards);
+                //actual.NextAction.Should().Be(Action.Play);
+
                 var actual = sut.GameState.CurrentTurn;
                 actual.TurnNumber.Should().Be(1);
                 actual.HasWinner.Should().BeFalse();
@@ -520,6 +540,12 @@ namespace SheddingCardGames.Tests.Domain
                 var sut = CreateSut(startingPlayer, discardCard);
 
                 sut.Deal();
+
+                //var actual = sut.GameState.CurrentTurn;
+                //actual.TurnNumber.Should().Be(1);
+                //actual.HasWinner.Should().BeFalse();
+                //actual.ValidPlays.Should().Equal(expectedValidPlaysForPlayer3.Cards);
+                //actual.NextAction.Should().Be(Action.Play);
 
                 var actual = sut.GameState.CurrentTurn;
                 actual.TurnNumber.Should().Be(1);
@@ -542,6 +568,11 @@ namespace SheddingCardGames.Tests.Domain
                     .Build();
 
                 sut.Deal();
+
+                //var actual = sut.GameState.CurrentTurn;
+                //actual.TurnNumber.Should().Be(1);
+                //actual.ValidPlays.Should().BeEmpty();
+                //actual.NextAction.Should().Be(Action.Take);
 
                 var actual = sut.GameState.CurrentTurn;
                 actual.TurnNumber.Should().Be(1);
@@ -687,7 +718,6 @@ namespace SheddingCardGames.Tests.Domain
                 sut.Play(1, playedCard);
 
                 var actual = sut.GameState.CurrentTurn;
-
                 actual.TurnNumber.Should().Be(2);
                 actual.PlayerToPlay.Number.Should().Be(2);
                 actual.ValidPlays.Should().BeEquivalentTo(new Card(1, Suit.Diamonds));
@@ -746,7 +776,6 @@ namespace SheddingCardGames.Tests.Domain
                 sut.Play(2, playedCard2);
 
                 var actual = sut.GameState.CurrentTurn;
-                
                 actual.TurnNumber.Should().Be(3);
                 actual.PlayerToPlay.Number.Should().Be(3);
                 actual.ValidPlays.Should().BeEquivalentTo(new Card(1, Suit.Spades));
@@ -778,7 +807,6 @@ namespace SheddingCardGames.Tests.Domain
                 sut.Play(3, playedCard3);
 
                 var actual = sut.GameState.CurrentTurn;
-                
                 actual.TurnNumber.Should().Be(4);
                 actual.PlayerToPlay.Number.Should().Be(1);
                 actual.ValidPlays.Should().BeEquivalentTo(new Card(4, Suit.Spades));
@@ -805,8 +833,8 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Play(1, playedCard);
 
-                sut.Events.Last().Should().BeOfType(typeof(Played));
-                var played = sut.Events.Last() as Played;
+                sut.GameState.Events.Last().Should().BeOfType(typeof(Played));
+                var played = sut.GameState.Events.Last() as Played;
                 if (played == null) Assert.NotNull(played);
                 played.PlayerNumber.Should().Be(1);
                 played.Card.Should().Be(playedCard);
@@ -858,8 +886,11 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Play(1, cardToPlay);
 
+                //var actual = sut.GameState.CurrentTurn;
+                //actual.TurnNumber.Should().Be(1);
+                //actual.PlayerToPlay.Number.Should().Be(1);
+                //actual.NextAction.Should().Be(Action.SelectSuit);
                 var actual = sut.GameState.CurrentTurn;
-                
                 actual.TurnNumber.Should().Be(1);
                 actual.PlayerToPlay.Number.Should().Be(1);
                 actual.NextAction.Should().Be(Action.SelectSuit);
@@ -893,8 +924,12 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Play(2, deck.Get(8, Suit.Diamonds));
                 
+                //var actual = sut.GameState.CurrentTurn;
+                //actual.TurnNumber.Should().Be(2);
+                //actual.PlayerToPlay.Number.Should().Be(2);
+                //actual.NextAction.Should().Be(Action.SelectSuit);
+
                 var actual = sut.GameState.CurrentTurn;
-                
                 actual.TurnNumber.Should().Be(2);
                 actual.PlayerToPlay.Number.Should().Be(2);
                 actual.NextAction.Should().Be(Action.SelectSuit);
@@ -929,8 +964,12 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Play(3, deck.Get(8, Suit.Spades));
                 
+                //var actual = sut.GameState.CurrentTurn;
+                //actual.TurnNumber.Should().Be(3);
+                //actual.PlayerToPlay.Number.Should().Be(3);
+                //actual.NextAction.Should().Be(Action.SelectSuit);
+
                 var actual = sut.GameState.CurrentTurn;
-                
                 actual.TurnNumber.Should().Be(3);
                 actual.PlayerToPlay.Number.Should().Be(3);
                 actual.NextAction.Should().Be(Action.SelectSuit);
@@ -1008,17 +1047,6 @@ namespace SheddingCardGames.Tests.Domain
 
                 actual.IsSuccess.Should().BeFalse();
                 actual.MessageKey.Should().Be(ActionResultMessageKey.CardIsNotInPlayersHand);
-            }
-
-            [Theory]
-            [InlineData(0)]
-            [InlineData(3)]
-            public void ReturnFalseWhenPlayerNumberIsInvalid(int playerNumber)
-            {
-                var actual = sut.Play(playerNumber, deck.Get(7, Suit.Hearts));
-
-                actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
             }
 
             [Fact]
@@ -1128,7 +1156,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 sut.SelectSuit(1, Suit.Diamonds);
 
-                sut.Take(0);
+                sut.Take(2);
 
                 sut.GameState.CurrentTurn.SelectedSuit.Should().Be(Suit.Diamonds);
             }
@@ -1140,17 +1168,6 @@ namespace SheddingCardGames.Tests.Domain
 
                 actual.IsSuccess.Should().BeTrue();
                 actual.MessageKey.Should().Be(ActionResultMessageKey.Success);
-            }
-
-            [Theory]
-            [InlineData(0)]
-            [InlineData(3)]
-            public void ReturnFalseWhenPlayerNumberInvalid(int playerNumber)
-            {
-                var actual = sut.SelectSuit(playerNumber, Suit.Diamonds);
-
-                actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
             }
 
             [Fact]
@@ -1167,8 +1184,8 @@ namespace SheddingCardGames.Tests.Domain
             {
                 sut.SelectSuit(1, Suit.Diamonds);
 
-                sut.Events.Last().Should().BeOfType(typeof(SuitSelected));
-                var domainEvent = sut.Events.Last() as SuitSelected;
+                sut.GameState.Events.Last().Should().BeOfType(typeof(SuitSelected));
+                var domainEvent = sut.GameState.Events.Last() as SuitSelected;
                 if (domainEvent == null) Assert.NotNull(domainEvent);
                 domainEvent.PlayerNumber.Should().Be(1);
                 domainEvent.Suit.Should().Be(Suit.Diamonds);
@@ -1264,8 +1281,8 @@ namespace SheddingCardGames.Tests.Domain
         public class TakeShould
         {
             private readonly CardCollection deck;
-            private readonly CardCollection player1Hand;
-            private readonly CardCollection player2Hand;
+            private CardCollection player1Hand;
+            private CardCollection player2Hand;
             private readonly CardCollection player3Hand;
 
             public TakeShould()
@@ -1337,6 +1354,41 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
+            public void ReturnCardTakenWhenCardToMatchIsEightAndNotFirstTurn()
+            {
+                player1Hand = new CardCollection(
+                    deck.Get(8, Suit.Clubs),
+                    deck.Get(2, Suit.Clubs),
+                    deck.Get(3, Suit.Clubs)
+                );
+                player2Hand = new CardCollection(
+                    deck.Get(1, Suit.Diamonds),
+                    deck.Get(2, Suit.Diamonds),
+                    deck.Get(3, Suit.Diamonds)
+                );
+
+                var discardCard = deck.Get(10, Suit.Hearts);
+                var stockPile = new CardCollection(
+                    deck.Get(1, Suit.Hearts)
+                );
+                var sut = new AtStartGameBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithPlayer3Hand(player3Hand)
+                    .WithDiscardCard(discardCard)
+                    .WithStockPile(stockPile)
+                    .Build();
+                sut.Play(1, new Card(8, Suit.Clubs));
+                sut.SelectSuit(1, Suit.Hearts);
+
+                var actual = sut.Take(2);
+
+                actual.IsSuccess.Should().BeTrue();
+                actual.MessageKey.Should().Be(ActionResultMessageKey.Success);
+                actual.Card.Should().Be(new Card(1, Suit.Hearts));
+            }
+
+            [Fact]
             public void MoveCardFromStockPileToPlayersHandWhenPlayer1()
             {
                 var discardCard = deck.Get(10, Suit.Hearts);
@@ -1355,7 +1407,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.GameState.CurrentTable;
                 actual.Players[0].Hand.Cards.Should().Contain(new Card(1, Suit.Hearts));
-                sut.GameState.CurrentTable.StockPile.Cards.Should().BeEmpty();
+                actual.StockPile.Cards.Should().BeEmpty();
             }
 
             [Fact]
@@ -1411,7 +1463,7 @@ namespace SheddingCardGames.Tests.Domain
             public void MoveDiscardCardsToStockPileWhenStockPileExhausted()
             {
                 var discardPile = new DiscardPile( new CardCollection(
-                    deck.Get(1, Suit.Spades),
+                    deck.Get(13, Suit.Spades),
                     deck.Get(2, Suit.Hearts),
                     deck.Get(3, Suit.Hearts),
                     deck.Get(1, Suit.Hearts)
@@ -1432,7 +1484,7 @@ namespace SheddingCardGames.Tests.Domain
                 var currentTurn = new CurrentTurn(1, player1, new Card[0], false, null, Action.Take, null);
                 
                 var sut = new InProgressGameBuilder()
-                    .WithStartingPlayer(1)
+                    .WithCurrentPlayer(player1)
                     .WithPlayer(player1)
                     .WithPlayer(player2)
                     .WithPlayer(player3)
@@ -1443,28 +1495,28 @@ namespace SheddingCardGames.Tests.Domain
                 
                 sut.Take(1);
 
-                sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(deck.Get(1, Suit.Spades));
+                sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(deck.Get(13, Suit.Spades));
                 sut.GameState.CurrentTable.StockPile.Cards.Should().Equal(
                     deck.Get(2, Suit.Hearts),
                     deck.Get(3, Suit.Hearts),
                     deck.Get(1, Suit.Hearts)
                 );
 
-                var actualCard = sut.Events.ElementAt(2);
+                var actualCard = sut.GameState.Events.ElementAt(1);
                 actualCard.Should().BeOfType(typeof(CardMoved));
                 var domainEvent = actualCard as CardMoved;
                 domainEvent.Card.Should().Be(deck.Get(2, Suit.Hearts));
                 domainEvent.FromSource.Should().Be(CardMoveSources.DiscardPile);
                 domainEvent.ToSource.Should().Be(CardMoveSources.StockPile);
                 
-                actualCard = sut.Events.ElementAt(3);
+                actualCard = sut.GameState.Events.ElementAt(2);
                 actualCard.Should().BeOfType(typeof(CardMoved));
                 domainEvent = actualCard as CardMoved;
                 domainEvent.Card.Should().Be(deck.Get(3, Suit.Hearts));
                 domainEvent.FromSource.Should().Be(CardMoveSources.DiscardPile);
                 domainEvent.ToSource.Should().Be(CardMoveSources.StockPile);
                 
-                actualCard = sut.Events.ElementAt(4);
+                actualCard = sut.GameState.Events.ElementAt(3);
                 actualCard.Should().BeOfType(typeof(CardMoved));
                 domainEvent = actualCard as CardMoved;
                 domainEvent.Card.Should().Be(deck.Get(1, Suit.Hearts));
@@ -1477,14 +1529,14 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var expectedDiscardPileRestOfCards = new[]
                 {
-                    deck.Get(2, Suit.Hearts),
-                    deck.Get(3, Suit.Hearts),
-                    deck.Get(1, Suit.Hearts)
+                    deck.Get(5, Suit.Hearts),
+                    deck.Get(6, Suit.Hearts),
+                    deck.Get(4, Suit.Hearts)
                 };
                 var discardPile = new DiscardPile(new CardCollection(
                     expectedDiscardPileRestOfCards
                 ));
-                discardPile.AddCard(deck.Get(1, Suit.Spades));
+                discardPile.AddCard(deck.Get(7, Suit.Spades));
                 var expectedShuffledStockPile = new[]
                 {
                     deck.Get(12, Suit.Spades),
@@ -1512,7 +1564,7 @@ namespace SheddingCardGames.Tests.Domain
                 
                 var sut = new InProgressGameBuilder()
                     .WithShuffler(shufflerMock.Object)
-                    .WithStartingPlayer(1)
+                    .WithCurrentPlayer(player1)
                     .WithPlayer(player1)
                     .WithPlayer(player2)
                     .WithPlayer(player3)
@@ -1527,37 +1579,37 @@ namespace SheddingCardGames.Tests.Domain
                 sut.GameState.CurrentTable.StockPile.Cards.Should().Equal(
                     expectedShuffledStockPile
                 );
-                sut.Events.Last().Should().BeOfType<Shuffled>();
-                var domainEvent = sut.Events.Last() as Shuffled;
+                sut.GameState.Events.Last().Should().BeOfType<Shuffled>();
+                var domainEvent = sut.GameState.Events.Last() as Shuffled;
                 if (domainEvent == null) Assert.NotNull(domainEvent);
                 domainEvent.Target.Should().Be(CardMoveSources.StockPile);
                 domainEvent.StartCards.Cards.Should().Equal(expectedDiscardPileRestOfCards);
                 domainEvent.EndCards.Cards.Should().Equal(expectedShuffledStockPile);
             }
 
-            [Theory]
-            [InlineData(0)]
-            [InlineData(3)]
-            public void ReturnNotPlayersTurnWhenInvalidPlayerNumber(int playerNumber)
-            {
-                var discardCard = deck.Get(10, Suit.Hearts);
-                var stockPile = new CardCollection(
-                    deck.Get(1, Suit.Hearts)
-                );
-                var sut = new AtStartGameBuilder()
-                    .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
-                    .WithPlayer3Hand(player3Hand)
-                    .WithDiscardCard(discardCard)
-                    .WithStockPile(stockPile)
-                    .Build();
+            //[Theory]
+            //[InlineData(0)]
+            //[InlineData(3)]
+            //public void ReturnNotPlayersTurnWhenInvalidPlayerNumber(int playerNumber)
+            //{
+            //    var discardCard = deck.Get(10, Suit.Hearts);
+            //    var stockPile = new CardCollection(
+            //        deck.Get(1, Suit.Hearts)
+            //    );
+            //    var sut = new AtStartGameBuilder()
+            //        .WithPlayer1Hand(player1Hand)
+            //        .WithPlayer2Hand(player2Hand)
+            //        .WithPlayer3Hand(player3Hand)
+            //        .WithDiscardCard(discardCard)
+            //        .WithStockPile(stockPile)
+            //        .Build();
 
-                var actual = sut.Take(playerNumber);
+            //    var actual = sut.Take(playerNumber);
 
-                actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
-                actual.Card.Should().Be(null);
-            }
+            //    actual.IsSuccess.Should().BeFalse();
+            //    actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
+            //    actual.Card.Should().Be(null);
+            //}
 
             [Fact]
             public void ReturnNotPlayersTurnWhenPlayer1()
@@ -1651,6 +1703,28 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
+            public void ReturnInvalidTakeWhenFirstTurnAndCardToMatchIsEight()
+            {
+                var discardCard = deck.Get(8, Suit.Clubs);
+                var stockPile = new CardCollection(
+                    deck.Get(1, Suit.Hearts)
+                );
+                var sut = new AtStartGameBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithPlayer3Hand(player3Hand)
+                    .WithDiscardCard(discardCard)
+                    .WithStockPile(stockPile)
+                    .Build();
+
+                var actual = sut.Take(1);
+
+                actual.IsSuccess.Should().BeFalse();
+                actual.MessageKey.Should().Be(ActionResultMessageKey.InvalidTake);
+                actual.Card.Should().Be(null);
+            }
+
+            [Fact]
             public void CreateTakenEvent()
             {
                 var discardCard = deck.Get(10, Suit.Hearts);
@@ -1667,7 +1741,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Take(1);
 
-                var actualEvent = sut.Events.ElementAt(12);
+                var actualEvent = sut.GameState.Events.ElementAt(12);
                 actualEvent.Should().BeOfType(typeof(Taken));
                 var domainEvent = actualEvent as Taken;
                 if (domainEvent == null) Assert.NotNull(domainEvent);
@@ -1693,30 +1767,6 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnTrueWhenPlayer1WonAtSetup()
-            {
-                player1Hand = new CardCollection();
-                player2Hand = new CardCollection(
-                    new Card(2, Suit.Clubs),
-                    new Card(4, Suit.Clubs),
-                    new Card(6, Suit.Clubs)
-                );
-                sut = new AtStartGameBuilder()
-                    .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
-                    .WithDiscardCard(discardCard)
-                    .Build();
-
-                var actual = sut.GameState.CurrentTurn;
-
-                actual.HasWinner.Should().BeTrue();
-                actual.Winner.Number.Should().Be(1);
-                actual.TurnNumber.Should().Be(1);
-                actual.ValidPlays.Should().BeEmpty();
-                actual.NextAction.Should().Be(Action.Won);
-            }
-
-            [Fact]
             public void ReturnTrueWhenPlayer1WonAfterPlay()
             {
                 player1Hand = new CardCollection(new Card(13, Suit.Clubs));
@@ -1730,10 +1780,17 @@ namespace SheddingCardGames.Tests.Domain
                 .WithPlayer2Hand(player2Hand)
                 .WithDiscardCard(discardCard)
                 .Build();
+
                 sut.Play(1, player1Hand.Cards.First());
 
+                //var actual = sut.GameState.CurrentTurn;
+                //actual.HasWinner.Should().BeTrue();
+                //actual.Winner.Number.Should().Be(1);
+                //actual.TurnNumber.Should().Be(1);
+                //actual.ValidPlays.Should().BeEmpty();
+                //actual.NextAction.Should().Be(Action.Won);
+                
                 var actual = sut.GameState.CurrentTurn;
-
                 actual.HasWinner.Should().BeTrue();
                 actual.Winner.Number.Should().Be(1);
                 actual.TurnNumber.Should().Be(1);
@@ -1762,8 +1819,14 @@ namespace SheddingCardGames.Tests.Domain
                 sut.Take(1);
                 sut.Play(2, player2Hand.Cards.First());
 
+                //var actual = sut.GameState.CurrentTurn;
+                //actual.HasWinner.Should().BeTrue();
+                //actual.Winner.Number.Should().Be(2);
+                //actual.TurnNumber.Should().Be(2);
+                //actual.ValidPlays.Should().BeEmpty();
+                //actual.NextAction.Should().Be(Action.Won);
+                
                 var actual = sut.GameState.CurrentTurn;
-
                 actual.HasWinner.Should().BeTrue();
                 actual.Winner.Number.Should().Be(2);
                 actual.TurnNumber.Should().Be(2);
@@ -1795,8 +1858,14 @@ namespace SheddingCardGames.Tests.Domain
                 sut.Play(2, new Card(2, Suit.Clubs));
                 sut.Play(1, new Card(1, Suit.Clubs));
 
+                //var actual = sut.GameState.CurrentTurn;
+                //actual.HasWinner.Should().BeTrue();
+                //actual.Winner.Number.Should().Be(1);
+                //actual.TurnNumber.Should().Be(3);
+                //actual.ValidPlays.Should().BeEmpty();
+                //actual.NextAction.Should().Be(Action.Won);
+                
                 var actual = sut.GameState.CurrentTurn;
-
                 actual.HasWinner.Should().BeTrue();
                 actual.Winner.Number.Should().Be(1);
                 actual.TurnNumber.Should().Be(3);
@@ -1819,8 +1888,14 @@ namespace SheddingCardGames.Tests.Domain
                     .Build();
                 sut.Play(2, player2Hand.Cards.First());
 
+                //var actual = sut.GameState.CurrentTurn;
+                //actual.HasWinner.Should().BeTrue();
+                //actual.Winner.Number.Should().Be(2);
+                //actual.TurnNumber.Should().Be(1);
+                //actual.ValidPlays.Should().BeEmpty();
+                //actual.NextAction.Should().Be(Action.Won);
+                
                 var actual = sut.GameState.CurrentTurn;
-
                 actual.HasWinner.Should().BeTrue();
                 actual.Winner.Number.Should().Be(2);
                 actual.TurnNumber.Should().Be(1);
@@ -1845,8 +1920,14 @@ namespace SheddingCardGames.Tests.Domain
                     .Build();
                 sut.Play(3, player3Hand.Cards.First());
 
+                //var actual = sut.GameState.CurrentTurn;
+                //actual.HasWinner.Should().BeTrue();
+                //actual.Winner.Number.Should().Be(3);
+                //actual.TurnNumber.Should().Be(1);
+                //actual.ValidPlays.Should().BeEmpty();
+                //actual.NextAction.Should().Be(Action.Won);
+                
                 var actual = sut.GameState.CurrentTurn;
-
                 actual.HasWinner.Should().BeTrue();
                 actual.Winner.Number.Should().Be(3);
                 actual.TurnNumber.Should().Be(1);
@@ -1870,8 +1951,8 @@ namespace SheddingCardGames.Tests.Domain
                     .Build();
                 sut.Play(1, player1Hand.Cards.First());
 
-                sut.Events.Last().Should().BeOfType(typeof(RoundWon));
-                var domainEvent = sut.Events.Last() as RoundWon;
+                sut.GameState.Events.Last().Should().BeOfType(typeof(RoundWon));
+                var domainEvent = sut.GameState.Events.Last() as RoundWon;
                 if (domainEvent == null) Assert.NotNull(domainEvent);
                 domainEvent.PlayerNumber.Should().Be(1);
             }

@@ -7,14 +7,6 @@ namespace SheddingCardGames.Tests.Domain
 {
     namespace TableTests
     {
-        public class TableCreator
-        {
-            public static Table Create(StockPile stockPile, DiscardPile discardPile, params Player[] players)
-            {
-                return new Table(stockPile, discardPile, players);
-            }
-        }
-
         public class ConstructorShould
         {
             private readonly CardCollection expectedDiscardPile;

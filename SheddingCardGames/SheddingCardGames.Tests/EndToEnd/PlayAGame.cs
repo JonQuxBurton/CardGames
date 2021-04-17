@@ -35,10 +35,13 @@ namespace SheddingCardGames.Tests.EndToEnd
                 new Card(8, Suit.Clubs),
                 new Card(8, Suit.Spades)
             );
-
-            sut = CreateSut(player1Hand, player2Hand, discardCard, stockPile);
-
-            sut.ChooseStartingPlayer(1);
+            var sampleData = new SampleData();
+            var player1 = sampleData.Player1;
+            var player2 = sampleData.Player2;
+            
+            sut = CreateSut(player1, player1Hand, player2, player2Hand, discardCard, stockPile);
+            
+            sut.ChooseStartingPlayer(player1);
             sut.Deal();
 
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(1);
@@ -238,10 +241,13 @@ namespace SheddingCardGames.Tests.EndToEnd
                 new Card(8, Suit.Clubs),
                 new Card(8, Suit.Spades)
             );
+            var sampleData = new SampleData();
+            var player1 = sampleData.Player1;
+            var player2 = sampleData.Player2;
 
-            sut = CreateSut(player1Hand, player2Hand, discardCard, stockPile);
+            sut = CreateSut(player1, player1Hand, player2, player2Hand, discardCard, stockPile);
             
-            sut.ChooseStartingPlayer(2);
+            sut.ChooseStartingPlayer(player2);
             sut.Deal();
 
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(1);
@@ -401,7 +407,7 @@ namespace SheddingCardGames.Tests.EndToEnd
 
             sut = new Game(rules, shuffler, dealer, deck, players);
             
-            sut.ChooseStartingPlayer(3);
+            sut.ChooseStartingPlayer(player3);
             sut.Deal();
 
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(1);
@@ -505,13 +511,13 @@ namespace SheddingCardGames.Tests.EndToEnd
             VerifyPlayerWon(3, result, 13, Card(9, Suit.Spades));
         }
 
-        private Game CreateSut(CardCollection player1Hand, CardCollection player2Hand, Card discardCard,
+        private Game CreateSut(Player player1, CardCollection player1Hand, Player player2, CardCollection player2Hand, Card discardCard,
             CardCollection stockPile)
         {
             IDeckBuilder deckBuilder = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand);
             var deck = deckBuilder.Build();
 
-            var players = new[] {new Player(1, "Alice"), new Player(2, "Bob")};
+            var players = new[] {player1, player2};
             var rules = new Rules(7);
             var shuffler = new DummyShuffler();
             var dealer = new Dealer(rules);

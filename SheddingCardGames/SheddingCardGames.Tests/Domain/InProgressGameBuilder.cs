@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SheddingCardGames.Domain;
+using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGames.Tests.Domain
@@ -11,7 +12,7 @@ namespace SheddingCardGames.Tests.Domain
         private readonly List<Player> players = new List<Player>();
         private CurrentTurn currentTurn;
         private DiscardPile discardPile = new DiscardPile();
-        private int startingPlayer = 1;
+        private Player currentPlayer;
         private StockPile stockPile = new StockPile(new CardCollection());
 
         public InProgressGameBuilder WithShuffler(IShuffler withShuffler)
@@ -20,9 +21,9 @@ namespace SheddingCardGames.Tests.Domain
             return this;
         }
 
-        public InProgressGameBuilder WithStartingPlayer(int playerNumber)
+        public InProgressGameBuilder WithCurrentPlayer(Player withCurrentPlayer)
         {
-            startingPlayer = playerNumber;
+            currentPlayer = withCurrentPlayer;
             return this;
         }
 
@@ -68,9 +69,18 @@ namespace SheddingCardGames.Tests.Domain
                 players.ElementAt(1)
             });
             var expectedTable = new Table(stockPile, discardPile, players.ToArray());
-            var gameState = new GameState(GamePhase.InGame, startingPlayer, expectedTable, currentTurn);
+            //var gameState = new GameState(GamePhase.InGame, startingPlayer, expectedTable, currentTurn);
 
-            sut.Initialise(gameState);
+            //sut.Initialise(gameState);
+
+            var gameState2 = new GameState()
+            {
+                CurrentTable = expectedTable,
+                Events = new List<DomainEvent>(),
+                CurrentPlayer = currentPlayer,
+                CurrentTurn =  currentTurn
+            };
+            sut.Initialise2(gameState2);
 
             return sut;
         }
