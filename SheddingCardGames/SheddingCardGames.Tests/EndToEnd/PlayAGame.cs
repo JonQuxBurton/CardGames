@@ -403,9 +403,8 @@ namespace SheddingCardGames.Tests.EndToEnd
             var players = new[] { player1, player2, player3 };
             var rules = new Rules(5);
             var shuffler = new DummyShuffler();
-            var dealer = new Dealer(rules);
 
-            sut = new Game(rules, shuffler, dealer, deck, players);
+            sut = new Game(rules, shuffler, deck, players);
             
             sut.ChooseStartingPlayer(player3);
             sut.Deal();
@@ -520,9 +519,8 @@ namespace SheddingCardGames.Tests.EndToEnd
             var players = new[] {player1, player2};
             var rules = new Rules(7);
             var shuffler = new DummyShuffler();
-            var dealer = new Dealer(rules);
 
-            return new Game(rules, shuffler, dealer, deck, players);
+            return new Game(rules, shuffler, deck, players);
         }
 
         private Card Card(int rank, Suit suit)

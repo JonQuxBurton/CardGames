@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using SheddingCardGames.UiLogic;
@@ -8,19 +7,17 @@ namespace SheddingCardGames.Domain
     public class Game
     {
         private readonly Dictionary<string, Card> cards = new Dictionary<string, Card>();
-        private readonly IDealer dealer;
         private readonly CardCollection deck;
 
         public readonly Dictionary<int, Player> Players = new Dictionary<int, Player>();
         private readonly IRules rules;
         private readonly IShuffler shuffler;
 
-        public Game(IRules rules, IShuffler shuffler, IDealer dealer, CardCollection deck,
+        public Game(IRules rules, IShuffler shuffler, CardCollection deck,
             Player[] withPlayers)
         {
             this.rules = rules;
             this.shuffler = shuffler;
-            this.dealer = dealer;
             this.deck = deck;
 
             foreach (var card in deck.Cards)
@@ -36,18 +33,6 @@ namespace SheddingCardGames.Domain
         public GameState GameState { get; private set; }
 
         public Player CurrentPlayer => GameState.CurrentPlayer;
-
-        private Player NextPlayer
-        {
-            get
-            {
-                var nextPlayerNumber = GameState.CurrentPlayer.Number + 1;
-                if (nextPlayerNumber > Players.Count)
-                    nextPlayerNumber = 1;
-
-                return Players[nextPlayerNumber];
-            }
-        }
 
         public Card GetCard(int rank, Suit suit)
         {
@@ -78,7 +63,7 @@ namespace SheddingCardGames.Domain
 
         public void Deal()
         {
-            GameCommand command = new DealCommand(shuffler, dealer, rules, GameState, deck, Players.Values.ToArray());
+            GameCommand command = new DealCommand(shuffler, rules, GameState, deck, Players.Values.ToArray());
 
             var updatedGameState = command.Execute();
             GameState = updatedGameState;

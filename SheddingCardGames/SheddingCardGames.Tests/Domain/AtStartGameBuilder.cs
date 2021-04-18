@@ -67,12 +67,12 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var player3 = sampleData.Player3;
                 deck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand, player3Hand).Build();
-                game = new Game(rules, shuffler, new Dealer(rules), deck, new[] { player1, player2, player3 });
+                game = new Game(rules, shuffler, deck, new[] { player1, player2, player3 });
             }
             else
             {
                 deck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand).Build();
-                game = new Game(rules, shuffler, new Dealer(rules), deck, new[] { player1, player2 });
+                game = new Game(rules, shuffler, deck, new[] { player1, player2 });
             }
             
             game.ChooseStartingPlayer(sampleData.GetPlayer(startingPlayerNumber));

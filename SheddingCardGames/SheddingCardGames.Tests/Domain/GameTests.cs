@@ -17,7 +17,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var sampleData = new SampleData();
                 var rules = new Rules(7);
-                var sut = new Game(rules, new DummyShuffler(), new Dealer(rules ), new CardCollectionBuilder().Build(), new [] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
+                var sut = new Game(rules, new DummyShuffler(), new CardCollectionBuilder().Build(), new [] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
 
                 sut.GameState.CurrentTurn.Should().BeNull();
                 sut.GameState.CurrentGamePhase.Should().Be(GamePhase.New);
@@ -138,7 +138,7 @@ namespace SheddingCardGames.Tests.Domain
                 var shuffler = new DummyShuffler();
                 var rules = new Rules(7);
                 var deck = new DeckBuilder().Build();
-                sut = new Game(rules, shuffler, new Dealer(rules), deck, new[] { player1, player2, player3 });
+                sut = new Game(rules, shuffler, deck, new[] { player1, player2, player3 });
             }
 
             [Fact]
@@ -1274,8 +1274,6 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Play(1, new Card(1, Suit.Clubs));
                 actual.IsSuccess.Should().BeTrue();
             }
-
-
         }
 
         public class TakeShould
@@ -1763,7 +1761,7 @@ namespace SheddingCardGames.Tests.Domain
                 var sampleData = new SampleData();
                 discardCard = new Card(13, Suit.Diamonds);
                 var rules = new Rules(7);
-                sut = new Game(rules, new DummyShuffler(), new Dealer(rules), new CardCollectionBuilder().Build(), new[] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
+                sut = new Game(rules, new DummyShuffler(), new CardCollectionBuilder().Build(), new[] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
             }
 
             [Fact]
