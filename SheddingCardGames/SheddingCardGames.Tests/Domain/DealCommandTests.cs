@@ -140,7 +140,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                var actualEvent = actual.Events.Last(1);
+                var actualEvent = actual.Events.LastSkip(1);
                 actualEvent.Should().BeOfType<CardMoved>();
                 var domainEvent = actualEvent as CardMoved;
                 if (domainEvent == null) Assert.NotNull(domainEvent);
@@ -250,7 +250,7 @@ namespace SheddingCardGames.Tests.Domain
 
         public static class EnumerableExtensions
         {
-            public static TSource Last<TSource>(this IEnumerable<TSource> source, int numberFromLast)
+            public static TSource LastSkip<TSource>(this IEnumerable<TSource> source, int numberFromLast)
             {
                 return source.Reverse().Skip(numberFromLast).Take(1).FirstOrDefault();
             }

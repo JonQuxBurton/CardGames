@@ -72,7 +72,6 @@ namespace SheddingCardGames.Domain
             return CardMoveSources.PlayerHand(player.Number);
         }
 
-
         private void AddFirstTurn(Player nextPlayer)
         {
             var validPlays = GetValidPlays(nextPlayer.Hand, currentGameState.CurrentTable.DiscardPile.CardToMatch, 1, null)

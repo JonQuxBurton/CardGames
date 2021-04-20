@@ -9,12 +9,12 @@ namespace SheddingCardGames.Domain
     {
         private readonly PlayCommandContext context;
         private readonly GameState currentGameState;
-        private readonly Player currentPlayer;
+        private readonly Player executingPlayer;
         private readonly IRules rules;
 
-        public PlayCommand(Player currentPlayer, IRules rules, GameState currentGameState, PlayCommandContext context)
+        public PlayCommand(Player executingPlayer, IRules rules, GameState currentGameState, PlayCommandContext context)
         {
-            this.currentPlayer = currentPlayer;
+            this.executingPlayer = executingPlayer;
             this.rules = rules;
             this.currentGameState = currentGameState;
             this.context = context;
@@ -22,10 +22,10 @@ namespace SheddingCardGames.Domain
 
         public override ActionResult IsValid()
         {
-            if (currentPlayer.Number != context.Player.Number)
+            if (executingPlayer.Number != context.Player.Number)
                 return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
 
-            if (!currentPlayer.Hand.Contains(context.PlayedCard))
+            if (!executingPlayer.Hand.Contains(context.PlayedCard))
                 return new ActionResult(false, ActionResultMessageKey.CardIsNotInPlayersHand);
 
             if (!IsValidPlay())
