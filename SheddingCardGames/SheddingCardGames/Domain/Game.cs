@@ -32,7 +32,7 @@ namespace SheddingCardGames.Domain
 
         public GameState GameState { get; private set; }
 
-        public Player CurrentPlayer => GameState.CurrentPlayer;
+        public Player CurrentPlayer => GameState.PlayerToPlay;
 
         public Card GetCard(int rank, Suit suit)
         {
@@ -73,7 +73,7 @@ namespace SheddingCardGames.Domain
         public ActionResult Play(int playerNumber, Card playedCard)
         {
             var context = new PlayCommandContext(Players[playerNumber], playedCard);
-            GameCommand command = new PlayCommand(GameState.CurrentPlayer, rules, GameState, context);
+            GameCommand command = new PlayCommand(GameState.PlayerToPlay, rules, GameState, context);
 
             var isValidResult = command.IsValid();
 
@@ -105,7 +105,7 @@ namespace SheddingCardGames.Domain
         public ActionResultWithCard Take(int playerNumber)
         {
             var context = new TakeCommandContext(Players[playerNumber]);
-            GameCommand command = new TakeCommand(rules, shuffler, CurrentPlayer, GameState, context);
+            GameCommand command = new TakeCommand(rules, shuffler, GameState, context);
 
             var isValidResult = command.IsValid();
 

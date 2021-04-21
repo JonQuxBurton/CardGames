@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using SheddingCardGames.Domain.Events;
@@ -12,29 +11,24 @@ namespace SheddingCardGames.Domain
         private readonly GameState currentGameState;
         private readonly IRules rules;
         private readonly IShuffler shuffler;
-        private readonly Player currentPlayer;
 
-        public TakeCommand(IRules rules, IShuffler shuffler, Player currentPlayer, GameState currentGameState, TakeCommandContext context)
+        public TakeCommand(IRules rules, IShuffler shuffler, GameState currentGameState, TakeCommandContext context)
         {
             this.rules = rules;
             this.shuffler = shuffler;
-            this.currentPlayer = currentPlayer;
             this.currentGameState = currentGameState;
             this.context = context;
         }
 
         public override ActionResult IsValid()
         {
-            var validPlays = GetValidPlays(currentPlayer.Hand, currentGameState.CurrentTable.DiscardPile.CardToMatch, currentGameState.CurrentTurn.TurnNumber, null)
+            var validPlays = GetValidPlays(context.ExecutingPlayer.Hand, currentGameState.CurrentTable.DiscardPile.CardToMatch, currentGameState.CurrentTurn.TurnNumber, null)
                 .ToArray();
 
             if (validPlays.Any())
                 return new ActionResult(false, ActionResultMessageKey.InvalidTake);
 
-            //if (GameState.CurrentTurn.NextAction != Action.Take)
-            //    return new ActionResultWithCard(false, ActionResultMessageKey.InvalidTake);
-
-            if (currentPlayer.Number != context.Player.Number)
+            if (currentGameState.PlayerToPlay.Number != context.ExecutingPlayer.Number)
                 return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
 
             return new ActionResult(true, ActionResultMessageKey.Success);
@@ -42,8 +36,8 @@ namespace SheddingCardGames.Domain
 
         public override GameState Execute()
         {
-            var takenCard = currentGameState.CurrentTable.MoveCardFromStockPileToPlayer(currentPlayer);
-            currentGameState.Events.Add(new Taken(GetNextEventNumber(currentGameState.Events), currentPlayer.Number, takenCard));
+            var takenCard = currentGameState.CurrentTable.MoveCardFromStockPileToPlayer(currentGameState.PlayerToPlay);
+            currentGameState.Events.Add(new Taken(GetNextEventNumber(currentGameState.Events), currentGameState.PlayerToPlay.Number, takenCard));
 
             if (currentGameState.CurrentTable.StockPile.IsEmpty())
                 MoveDiscardPileToStockPile();
@@ -59,7 +53,7 @@ namespace SheddingCardGames.Domain
         {
             get
             {
-                var nextPlayerNumber = currentGameState.CurrentPlayer.Number + 1;
+                var nextPlayerNumber = currentGameState.PlayerToPlay.Number + 1;
                 if (nextPlayerNumber > currentGameState.CurrentTable.Players.Count)
                     nextPlayerNumber = 1;
 
@@ -110,7 +104,7 @@ namespace SheddingCardGames.Domain
                     GetNextAction(validPlays),
                     selectedSuit);
             currentGameState.TurnNumber = nextTurnNumber;
-            currentGameState.CurrentPlayer = nextPlayer;
+            currentGameState.PlayerToPlay = nextPlayer;
             currentGameState.CurrentTurn = newTurn;
         }
 

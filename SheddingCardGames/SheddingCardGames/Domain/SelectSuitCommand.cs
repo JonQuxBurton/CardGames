@@ -43,7 +43,7 @@ namespace SheddingCardGames.Domain
         {
             get
             {
-                var nextPlayerNumber = currentGameState.CurrentPlayer.Number + 1;
+                var nextPlayerNumber = currentGameState.PlayerToPlay.Number + 1;
                 if (nextPlayerNumber > currentGameState.CurrentTable.Players.Count)
                     nextPlayerNumber = 1;
                 
@@ -67,7 +67,7 @@ namespace SheddingCardGames.Domain
                     GetNextAction(validPlays),
                     selectedSuit);
             currentGameState.TurnNumber = nextTurnNumber;
-            currentGameState.CurrentPlayer = nextPlayer;
+            currentGameState.PlayerToPlay = nextPlayer;
             currentGameState.CurrentTurn = newTurn;
         }
 

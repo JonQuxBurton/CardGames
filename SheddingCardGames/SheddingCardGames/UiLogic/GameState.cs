@@ -11,7 +11,7 @@ namespace SheddingCardGames.UiLogic
         public Suit? SelectedSuit { get; set; }
         public int TurnNumber { get; set; }
         public Card TakenCard { get; set; }
-        public Player CurrentPlayer { get; set; }
+        public Player PlayerToPlay { get; set; }
         public CurrentTurn CurrentTurn { get; set; }
         public GamePhase CurrentGamePhase { get; set; }
 

@@ -161,7 +161,7 @@ namespace SheddingCardGames.Tests.Domain
                 var sampleData = new SampleData();
                 sut.ChooseStartingPlayer(sampleData.GetPlayer(startingPlayer));
                 
-                sut.GameState.CurrentPlayer.Number.Should().Be(startingPlayer);
+                sut.GameState.PlayerToPlay.Number.Should().Be(startingPlayer);
             }
 
             [Fact]
@@ -418,7 +418,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Deal();
 
-                sut.GameState.CurrentPlayer.Number.Should().Be(expectedStartingPlayer);
+                sut.GameState.PlayerToPlay.Number.Should().Be(expectedStartingPlayer);
             }
             
             [Fact]
@@ -1658,7 +1658,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnNotPlayersTurnWhenPlayer3()
             {
-                var discardCard = deck.Get(13, Suit.Spades);
+                var discardCard = deck.Get(13, Suit.Hearts);
                 var stockPile = new CardCollection(
                     deck.Get(1, Suit.Hearts)
                 );

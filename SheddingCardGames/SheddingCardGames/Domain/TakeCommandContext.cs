@@ -2,11 +2,11 @@ namespace SheddingCardGames.Domain
 {
     public class TakeCommandContext
     {
-        public TakeCommandContext(Player player)
+        public TakeCommandContext(Player executingPlayer)
         {
-            Player = player;
+            ExecutingPlayer = executingPlayer;
         }
 
-        public Player Player { get; }
+        public Player ExecutingPlayer { get; }
     }
 }

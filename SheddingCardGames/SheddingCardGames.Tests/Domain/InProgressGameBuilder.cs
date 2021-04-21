@@ -77,7 +77,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 CurrentTable = expectedTable,
                 Events = new List<DomainEvent>(),
-                CurrentPlayer = currentPlayer,
+                PlayerToPlay = currentPlayer,
                 CurrentTurn =  currentTurn
             };
             sut.Initialise2(gameState2);

@@ -62,7 +62,7 @@ namespace SheddingCardGames.Tests.Domain
                     CurrentTable = table,
                     Events = new List<DomainEvent>(),
                     TurnNumber = turnNumber,
-                    CurrentPlayer = player1,
+                    PlayerToPlay = player1,
                     CurrentTurn = new CurrentTurn(turnNumber, currentPlayer, new Card[0], false, null, Action.Play,
                         null)
                 };
