@@ -10,20 +10,21 @@ namespace SheddingCardGames.Domain
         private readonly SelectSuitCommandContext context;
         private readonly GameState currentGameState;
         private readonly IRules rules;
-        private readonly Player currentPlayer;
 
-        public SelectSuitCommand(IRules rules, Player currentPlayer, GameState currentGameState, SelectSuitCommandContext context)
+        public SelectSuitCommand(IRules rules, GameState currentGameState, SelectSuitCommandContext context)
         {
             this.rules = rules;
-            this.currentPlayer = currentPlayer;
             this.currentGameState = currentGameState;
             this.context = context;
         }
 
         public override ActionResult IsValid()
         {
-            if (currentPlayer.Number != context.Player.Number)
+            if (currentGameState.PlayerToPlay.Number != context.ExecutingPlayer.Number)
                 return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
+
+            if (currentGameState.CurrentTable.DiscardPile.CardToMatch.Rank != 8)
+                return new ActionResult(false, ActionResultMessageKey.InvalidPlay);
 
             return new ActionResult(true, ActionResultMessageKey.Success);
         }
@@ -32,7 +33,7 @@ namespace SheddingCardGames.Domain
         {
             currentGameState.SelectedSuit = context.SelectedSuit;
             currentGameState.Events.Add(new SuitSelected(GetNextEventNumber(currentGameState.Events),
-                context.Player.Number, context.SelectedSuit));
+                context.ExecutingPlayer.Number, context.SelectedSuit));
 
             AddNextTurn(NextPlayer, currentGameState.SelectedSuit);
 

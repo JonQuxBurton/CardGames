@@ -89,7 +89,7 @@ namespace SheddingCardGames.Domain
         public ActionResult SelectSuit(int playerNumber, Suit selectedSuit)
         {
             var context = new SelectSuitCommandContext(selectedSuit, Players[playerNumber]);
-            GameCommand command = new SelectSuitCommand(rules, CurrentPlayer, GameState, context);
+            GameCommand command = new SelectSuitCommand(rules, GameState, context);
 
             var isValidResult = command.IsValid();
 

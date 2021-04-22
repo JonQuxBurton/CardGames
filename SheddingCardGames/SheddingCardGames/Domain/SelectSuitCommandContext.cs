@@ -2,13 +2,13 @@ namespace SheddingCardGames.Domain
 {
     public class SelectSuitCommandContext
     {
-        public SelectSuitCommandContext(Suit selectedSuit, Player player)
+        public SelectSuitCommandContext(Suit selectedSuit, Player executingPlayer)
         {
             SelectedSuit = selectedSuit;
-            Player = player;
+            ExecutingPlayer = executingPlayer;
         }
 
         public Suit SelectedSuit { get; }
-        public Player Player { get; }
+        public Player ExecutingPlayer { get; }
     }
 }
