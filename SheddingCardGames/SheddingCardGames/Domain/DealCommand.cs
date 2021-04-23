@@ -8,11 +8,11 @@ namespace SheddingCardGames.Domain
     public class DealCommand : GameCommand
     {
         private readonly GameState currentGameState;
-        private readonly IRules rules;
         private readonly CardCollection deck;
         private readonly Player[] players;
-
+        private readonly IRules rules;
         private readonly IShuffler shuffler;
+        private readonly TurnBuilder turnBuilder;
 
         public DealCommand(IShuffler shuffler, IRules rules, GameState currentGameState, CardCollection deck,
             Player[] players)
@@ -22,6 +22,8 @@ namespace SheddingCardGames.Domain
             this.currentGameState = currentGameState;
             this.deck = deck;
             this.players = players;
+
+            turnBuilder = new TurnBuilder(rules);
         }
 
         public override ActionResult IsValid()
@@ -37,14 +39,14 @@ namespace SheddingCardGames.Domain
             currentGameState.CurrentTable = table;
             currentGameState.Events.Add(new DealCompleted(GetNextEventNumber(currentGameState.Events)));
 
-            AddFirstTurn(currentGameState.PlayerToStart);
+            currentGameState.CurrentTurn = turnBuilder.BuildFirstTurn(currentGameState, currentGameState.PlayerToStart);
 
             return currentGameState;
         }
 
         private Table Deal(CardCollection cardsToDeal, List<DomainEvent> events)
         {
-            var playersArray = players as Player[] ?? players.ToArray();
+            var playersArray = players ?? players.ToArray();
             var table = new Table(new StockPile(cardsToDeal), new DiscardPile(), playersArray.ToArray());
 
             for (var i = 0; i < rules.GetHandSize(); i++)
@@ -56,7 +58,7 @@ namespace SheddingCardGames.Domain
                     var player = table.Players[j];
                     var takenCard = table.MoveCardFromStockPileToPlayer(player);
                     events.Add(new CardMoved(events.Select(x => x.Number).DefaultIfEmpty().Max() + 1, takenCard,
-                        CardMoveSources.StockPile, GetPlayerSource(player)));
+                        CardMoveSources.StockPile, CardMoveSources.PlayerHand(player.Number)));
                 }
             }
 
@@ -65,33 +67,6 @@ namespace SheddingCardGames.Domain
                 CardMoveSources.StockPile, CardMoveSources.DiscardPile));
 
             return table;
-        }
-
-        private static string GetPlayerSource(Player player)
-        {
-            return CardMoveSources.PlayerHand(player.Number);
-        }
-
-        private void AddFirstTurn(Player nextPlayer)
-        {
-            var validPlays = GetValidPlays(nextPlayer.Hand, currentGameState.CurrentTable.DiscardPile.CardToMatch, 1, null)
-                .ToArray();
-
-            var newTurn = new CurrentTurn(1,
-                nextPlayer,
-                validPlays,
-                GetNextAction(validPlays));
-            currentGameState.CurrentTurn = newTurn;
-        }
-
-        private IEnumerable<Card> GetValidPlays(CardCollection hand, Card discard, int turnNumber, Suit? selectedSuit)
-        {
-            return rules.GetValidPlays(discard, hand, turnNumber, selectedSuit);
-        }
-
-        private Action GetNextAction(IEnumerable<Card> validPlays)
-        {
-            return !validPlays.Any() ? Action.Take : Action.Play;
         }
     }
 }

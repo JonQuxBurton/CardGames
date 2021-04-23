@@ -41,46 +41,28 @@ namespace SheddingCardGames.Domain
             currentGameState.Events.Add(new Played(GetNextEventNumber(currentGameState.Events), context.Player.Number,
                 context.PlayedCard));
 
+            // TODO
+            // GetPlayType - Won | CrazyEight | Standard
+            // ProcessPlay(PlayTypes['Winner'])
+
             if (IsWinner())
             {
                 currentGameState.Events.Add(new RoundWon(GetNextEventNumber(currentGameState.Events), context.Player.Number));
                 currentGameState.PreviousTurnResult = new PreviousTurnResult(true, context.Player);
-                AddWinningTurn();
+                currentGameState.CurrentTurn = turnBuilder.BuildWinningTurn(currentGameState);
             }
             else if (context.PlayedCard.Rank == 8)
             {
                 currentGameState.PreviousTurnResult = new PreviousTurnResult(false);
-                AddCrazyEightTurn();
+                currentGameState.CurrentTurn = turnBuilder.BuildCrazyEightTurn(currentGameState);
             }
             else
             {
                 currentGameState.PreviousTurnResult = new PreviousTurnResult(false);
-                currentGameState.CurrentTurn = turnBuilder.Build(currentGameState, NextPlayer);
+                currentGameState.CurrentTurn = turnBuilder.BuildNextTurn(currentGameState, currentGameState.NextPlayer);
             }
 
             return currentGameState;
-        }
-
-        private void AddCrazyEightTurn()
-        {
-            var newTurn =
-                new CurrentTurn(currentGameState.CurrentTurn.TurnNumber,
-                    currentGameState.CurrentTurn.PlayerToPlay,
-                    new Card[0],
-                    Action.SelectSuit);
-            currentGameState.CurrentTurn = newTurn;
-        }
-
-        private void AddWinningTurn()
-        {
-            var currentTurn = currentGameState.CurrentTurn;
-
-            var newTurn =
-                new CurrentTurn(currentTurn.TurnNumber,
-                    currentTurn.PlayerToPlay,
-                    new Card[0],
-                    Action.Won);
-            currentGameState.CurrentTurn = newTurn;
         }
 
         private bool IsValidPlay()
@@ -94,18 +76,6 @@ namespace SheddingCardGames.Domain
         private bool IsWinner()
         {
             return context.Player.Hand.IsEmpty();
-        }
-
-        private Player NextPlayer
-        {
-            get
-            {
-                var nextPlayerNumber = currentGameState.CurrentTurn.PlayerToPlay.Number + 1;
-                if (nextPlayerNumber > currentGameState.CurrentTable.Players.Count)
-                    nextPlayerNumber = 1;
-
-                return currentGameState.CurrentTable.Players[nextPlayerNumber - 1];
-            }
         }
     }
 }

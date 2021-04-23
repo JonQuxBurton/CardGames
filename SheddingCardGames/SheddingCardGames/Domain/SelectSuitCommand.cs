@@ -19,18 +19,6 @@ namespace SheddingCardGames.Domain
             turnBuilder = new TurnBuilder(rules);
         }
 
-        private Player NextPlayer
-        {
-            get
-            {
-                var nextPlayerNumber = currentGameState.CurrentTurn.PlayerToPlay.Number + 1;
-                if (nextPlayerNumber > currentGameState.CurrentTable.Players.Count)
-                    nextPlayerNumber = 1;
-
-                return currentGameState.CurrentTable.Players[nextPlayerNumber - 1];
-            }
-        }
-
         public override ActionResult IsValid()
         {
             if (currentGameState.CurrentTurn.PlayerToPlay.Number != context.ExecutingPlayer.Number)
@@ -48,7 +36,7 @@ namespace SheddingCardGames.Domain
                 context.ExecutingPlayer.Number, context.SelectedSuit));
 
             currentGameState.PreviousTurnResult = new PreviousTurnResult(false, null, context.SelectedSuit);
-            currentGameState.CurrentTurn = turnBuilder.Build(currentGameState, NextPlayer, context.SelectedSuit);
+            currentGameState.CurrentTurn = turnBuilder.BuildNextTurn(currentGameState, currentGameState.NextPlayer, context.SelectedSuit);
 
             return currentGameState;
         }

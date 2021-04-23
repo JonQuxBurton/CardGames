@@ -13,5 +13,17 @@ namespace SheddingCardGames.UiLogic
         public CurrentTurn CurrentTurn { get; set; }
         public PreviousTurnResult PreviousTurnResult { get; set; }
         public Player PlayerToStart { get; set; }
+
+        public Player NextPlayer
+        {
+            get
+            {
+                var nextPlayerNumber = CurrentTurn.PlayerToPlay.Number + 1;
+                if (nextPlayerNumber > CurrentTable.Players.Count)
+                    nextPlayerNumber = 1;
+
+                return CurrentTable.Players[nextPlayerNumber - 1];
+            }
+        }
     }
 }
