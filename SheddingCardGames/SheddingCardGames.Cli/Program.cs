@@ -20,10 +20,12 @@ namespace SheddingCardGame.Cli
             game.Deal();
             
             CurrentTurn currentTurn = null;
+            PreviousTurnResult previousTurnResult = null;
 
-            while (currentTurn == null || !currentTurn.HasWinner)
+            while (previousTurnResult == null || !previousTurnResult.HasWinner)
             {
                 currentTurn = game.GameState.CurrentTurn;
+                previousTurnResult = game.GameState.PreviousTurnResult;
                 RenderTurn(currentTurn, game.GameState);
                 //Console.WriteLine($"Moves: {string.Join(",", game.CardMoves)}");
                 if (currentTurn.NextAction == Action.SelectSuit)
@@ -33,7 +35,7 @@ namespace SheddingCardGame.Cli
                 currentTurn = game.GameState.CurrentTurn;
             }
 
-            Console.WriteLine($"{currentTurn.Winner.Name} has won!");
+            Console.WriteLine($"{previousTurnResult.Winner.Name} has won!");
         }
 
         private static void SelectSuit(Game game, CurrentTurn currentTurn)
@@ -93,7 +95,7 @@ namespace SheddingCardGame.Cli
             Console.WriteLine($"Turn {turn.TurnNumber}");
             Console.WriteLine($"PlayerToPlay: {turn.PlayerToPlay.Name}");
             Console.WriteLine($"NextAction: {turn.NextAction}");
-            Console.WriteLine($"SelectedSuit: {turn.SelectedSuit}");
+            Console.WriteLine($"SelectedSuit: {gameState.PreviousTurnResult.SelectedSuit}");
             Console.WriteLine($"Stock pile: {currentTable.StockPile.Cards.Count()} cards");
             Console.WriteLine($"Discard pile: {currentTable.DiscardPile.CardToMatch} ({currentTable.DiscardPile.RestOfCards.Cards.Count()} other cards)");
             

@@ -23,7 +23,7 @@ namespace SheddingCardGames.Domain
             var currentGameState = new GameState
             {
                 Events = new List<DomainEvent>(),
-                PlayerToPlay = chosenPlayer
+                PlayerToStart = chosenPlayer
             };
             currentGameState.Events.Add(new StartingPlayerChosen(1, chosenPlayer));
 

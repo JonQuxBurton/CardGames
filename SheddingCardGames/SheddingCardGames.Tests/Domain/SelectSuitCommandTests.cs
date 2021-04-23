@@ -68,10 +68,8 @@ namespace SheddingCardGames.Tests.Domain
                 {
                     CurrentTable = table,
                     Events = new List<DomainEvent>(),
-                    TurnNumber = turnNumber,
-                    PlayerToPlay = playerToPlay,
-                    CurrentTurn = new CurrentTurn(turnNumber, playerToPlay, new Card[0], false, null, Action.Play,
-                        null)
+                    PlayerToStart = player1,
+                    CurrentTurn = new CurrentTurn(turnNumber, playerToPlay, new Card[0], Action.Play)
                 };
 
                 return new SelectSuitCommand(new Rules(), gameState, context);
@@ -150,13 +148,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 actual = sut.Execute();
             }
-
-            [Fact]
-            public void ReturnGameStateWithSelectedSuit()
-            {
-                actual.SelectedSuit.Should().Be(selectedSuit);
-            }
-
+            
             [Fact]
             public void AddSuitSelectedEvent()
             {
@@ -175,9 +167,13 @@ namespace SheddingCardGames.Tests.Domain
                 actualTurn.TurnNumber.Should().Be(2);
                 actualTurn.PlayerToPlay.Number.Should().Be(2);
                 actualTurn.ValidPlays.Should().BeEquivalentTo(new Card(1, Suit.Hearts));
-                actualTurn.HasWinner.Should().BeFalse();
-                actualTurn.Winner.Should().BeNull();
                 actualTurn.NextAction.Should().Be(Action.Play);
+
+                var actualPreviousTurnResult = actual.PreviousTurnResult;
+                actualPreviousTurnResult.HasWinner.Should().BeFalse();
+                actualPreviousTurnResult.Winner.Should().BeNull();
+                actualPreviousTurnResult.SelectedSuit.Should().Be(selectedSuit);
+                actualPreviousTurnResult.TakenCard.Should().BeNull();
             }
         }
     }

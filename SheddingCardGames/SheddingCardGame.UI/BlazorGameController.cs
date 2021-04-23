@@ -11,6 +11,7 @@ namespace SheddingCardGame.UI
         private readonly Game game;
         private readonly ActionResultMessageMapper actionResultMessageMapper;
         public CurrentTurn CurrentTurn => game.GameState.CurrentTurn;
+        public PreviousTurnResult PreviousTurnResult => game.GameState.PreviousTurnResult;
         public CardCollection AllCards => game.GameState.CurrentTable.AllCards;
         
         public UiState UiState { get; set; }

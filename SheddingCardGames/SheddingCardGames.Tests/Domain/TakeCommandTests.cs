@@ -79,10 +79,8 @@ namespace SheddingCardGames.Tests.Domain
                 {
                     CurrentTable = table,
                     Events = new List<DomainEvent>(),
-                    TurnNumber = turnNumber,
-                    PlayerToPlay = playerToPlay,
-                    CurrentTurn = new CurrentTurn(turnNumber, playerToPlay, new Card[0], false, null, Action.Play,
-                        null)
+                    PlayerToStart = player1,
+                    CurrentTurn = new CurrentTurn(turnNumber, playerToPlay, new Card[0], Action.Play)
                 };
 
                 return new TakeCommand(new Rules(), new DummyShuffler(), gameState, context);
@@ -182,12 +180,6 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnGameStateWithTakenCard()
-            {
-                actual.TakenCard.Should().Be(takenCard);
-            }
-
-            [Fact]
             public void AddTakenEvent()
             {
                 actual.Events.First().Should().BeOfType<Taken>();
@@ -205,9 +197,13 @@ namespace SheddingCardGames.Tests.Domain
                 actualTurn.TurnNumber.Should().Be(2);
                 actualTurn.PlayerToPlay.Number.Should().Be(2);
                 actualTurn.ValidPlays.Should().BeEquivalentTo(new Card(2, Suit.Clubs));
-                actualTurn.HasWinner.Should().BeFalse();
-                actualTurn.Winner.Should().BeNull();
                 actualTurn.NextAction.Should().Be(Action.Play);
+
+                var actualPreviousTurnResult = actual.PreviousTurnResult;
+                actualPreviousTurnResult.HasWinner.Should().BeFalse();
+                actualPreviousTurnResult.Winner.Should().BeNull();
+                actualPreviousTurnResult.SelectedSuit.Should().BeNull();
+                actualPreviousTurnResult.TakenCard.Should().Be(takenCard);
             }
         }
 

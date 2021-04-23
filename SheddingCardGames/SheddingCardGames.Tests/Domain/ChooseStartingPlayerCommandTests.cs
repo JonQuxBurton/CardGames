@@ -39,9 +39,21 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnGameStateWithPlayerToPlay()
+            public void ReturnGameStateWithPlayerToStart()
             {
-                actual.PlayerToPlay.Should().Be(expectedPlayer);
+                actual.PlayerToStart.Should().Be(expectedPlayer);
+            }
+
+            [Fact]
+            public void ReturnGameStatePreviousTurnResultNull()
+            {
+                actual.PreviousTurnResult.Should().BeNull();
+            }
+            
+            [Fact]
+            public void ReturnGameStateWithCurrentTurnNull()
+            {
+                actual.CurrentTurn.Should().BeNull();
             }
 
             [Fact]

@@ -37,7 +37,7 @@ namespace SheddingCardGames.Domain
             currentGameState.CurrentTable = table;
             currentGameState.Events.Add(new DealCompleted(GetNextEventNumber(currentGameState.Events)));
 
-            AddFirstTurn(currentGameState.PlayerToPlay);
+            AddFirstTurn(currentGameState.PlayerToStart);
 
             return currentGameState;
         }
@@ -80,10 +80,7 @@ namespace SheddingCardGames.Domain
             var newTurn = new CurrentTurn(1,
                 nextPlayer,
                 validPlays,
-                false,
-                null,
-                GetNextAction(validPlays), null);
-            currentGameState.TurnNumber = 1;
+                GetNextAction(validPlays));
             currentGameState.CurrentTurn = newTurn;
         }
 

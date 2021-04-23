@@ -156,12 +156,12 @@ namespace SheddingCardGames.Tests.Domain
             [InlineData(1)]
             [InlineData(2)]
             [InlineData(3)]
-            public void SetStartingPlayer(int startingPlayer)
+            public void SetPlayerToStart(int startingPlayer)
             {
                 var sampleData = new SampleData();
                 sut.ChooseStartingPlayer(sampleData.GetPlayer(startingPlayer));
                 
-                sut.GameState.PlayerToPlay.Number.Should().Be(startingPlayer);
+                sut.GameState.PlayerToStart.Number.Should().Be(startingPlayer);
             }
 
             [Fact]
@@ -418,7 +418,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Deal();
 
-                sut.GameState.PlayerToPlay.Number.Should().Be(expectedStartingPlayer);
+                sut.GameState.CurrentTurn.PlayerToPlay.Number.Should().Be(expectedStartingPlayer);
             }
             
             [Fact]
@@ -493,19 +493,12 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Deal();
 
-                //var actual = sut.GameState.CurrentTurn;
-                //actual.TurnNumber.Should().Be(1);
-                //actual.HasWinner.Should().BeFalse();
-                //actual.Winner.Should().BeNull();
-                //actual.ValidPlays.Should().Equal(expectedValidPlaysForPlayer1.Cards);
-                //actual.NextAction.Should().Be(Action.Play);
-
                 var actual = sut.GameState.CurrentTurn;
                 actual.TurnNumber.Should().Be(1);
-                actual.HasWinner.Should().BeFalse();
-                actual.Winner.Should().BeNull();
                 actual.ValidPlays.Should().Equal(expectedValidPlaysForPlayer1.Cards);
                 actual.NextAction.Should().Be(Action.Play);
+
+                sut.GameState.PreviousTurnResult.Should().BeNull();
             }
 
             [Fact]
@@ -517,18 +510,13 @@ namespace SheddingCardGames.Tests.Domain
                 var sut = CreateSut(startingPlayer, discardCard);
 
                 sut.Deal();
-
-                //var actual = sut.GameState.CurrentTurn;
-                //actual.TurnNumber.Should().Be(1);
-                //actual.HasWinner.Should().BeFalse();
-                //actual.ValidPlays.Should().Equal(expectedValidPlaysForPlayer2.Cards);
-                //actual.NextAction.Should().Be(Action.Play);
-
+                
                 var actual = sut.GameState.CurrentTurn;
                 actual.TurnNumber.Should().Be(1);
-                actual.HasWinner.Should().BeFalse();
                 actual.ValidPlays.Should().Equal(expectedValidPlaysForPlayer2.Cards);
                 actual.NextAction.Should().Be(Action.Play);
+
+                sut.GameState.PreviousTurnResult.Should().BeNull();
             }
 
             [Fact]
@@ -541,17 +529,12 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Deal();
 
-                //var actual = sut.GameState.CurrentTurn;
-                //actual.TurnNumber.Should().Be(1);
-                //actual.HasWinner.Should().BeFalse();
-                //actual.ValidPlays.Should().Equal(expectedValidPlaysForPlayer3.Cards);
-                //actual.NextAction.Should().Be(Action.Play);
-
                 var actual = sut.GameState.CurrentTurn;
                 actual.TurnNumber.Should().Be(1);
-                actual.HasWinner.Should().BeFalse();
                 actual.ValidPlays.Should().Equal(expectedValidPlaysForPlayer3.Cards);
                 actual.NextAction.Should().Be(Action.Play);
+
+                sut.GameState.PreviousTurnResult.Should().BeNull();
             }
 
             [Fact]
@@ -568,11 +551,6 @@ namespace SheddingCardGames.Tests.Domain
                     .Build();
 
                 sut.Deal();
-
-                //var actual = sut.GameState.CurrentTurn;
-                //actual.TurnNumber.Should().Be(1);
-                //actual.ValidPlays.Should().BeEmpty();
-                //actual.NextAction.Should().Be(Action.Take);
 
                 var actual = sut.GameState.CurrentTurn;
                 actual.TurnNumber.Should().Be(1);
@@ -721,9 +699,11 @@ namespace SheddingCardGames.Tests.Domain
                 actual.TurnNumber.Should().Be(2);
                 actual.PlayerToPlay.Number.Should().Be(2);
                 actual.ValidPlays.Should().BeEquivalentTo(new Card(1, Suit.Diamonds));
-                actual.HasWinner.Should().BeFalse();
-                actual.Winner.Should().BeNull();
                 actual.NextAction.Should().Be(Action.Play);
+
+                var actualPreviousTurnResult = sut.GameState.PreviousTurnResult;
+                actualPreviousTurnResult.HasWinner.Should().BeFalse();
+                actualPreviousTurnResult.Winner.Should().BeNull();
 
                 sut.GameState.CurrentTable.Players[0].Hand.Cards.Should().NotContain(playedCard);
                 sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(playedCard);
@@ -779,9 +759,11 @@ namespace SheddingCardGames.Tests.Domain
                 actual.TurnNumber.Should().Be(3);
                 actual.PlayerToPlay.Number.Should().Be(3);
                 actual.ValidPlays.Should().BeEquivalentTo(new Card(1, Suit.Spades));
-                actual.HasWinner.Should().BeFalse();
-                actual.Winner.Should().BeNull();
                 actual.NextAction.Should().Be(Action.Play);
+
+                var actualPreviousTurnResult = sut.GameState.PreviousTurnResult;
+                actualPreviousTurnResult.HasWinner.Should().BeFalse();
+                actualPreviousTurnResult.Winner.Should().BeNull();
 
                 sut.GameState.CurrentTable.Players[1].Hand.Cards.Should().NotContain(playedCard2);
                 sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(playedCard2);
@@ -810,9 +792,11 @@ namespace SheddingCardGames.Tests.Domain
                 actual.TurnNumber.Should().Be(4);
                 actual.PlayerToPlay.Number.Should().Be(1);
                 actual.ValidPlays.Should().BeEquivalentTo(new Card(4, Suit.Spades));
-                actual.HasWinner.Should().BeFalse();
-                actual.Winner.Should().BeNull();
                 actual.NextAction.Should().Be(Action.Play);
+
+                var actualPreviousTurnResult = sut.GameState.PreviousTurnResult;
+                actualPreviousTurnResult.HasWinner.Should().BeFalse();
+                actualPreviousTurnResult.Winner.Should().BeNull();
 
                 sut.GameState.CurrentTable.Players[2].Hand.Cards.Should().NotContain(playedCard3);
                 sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(playedCard3);
@@ -886,10 +870,6 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Play(1, cardToPlay);
 
-                //var actual = sut.GameState.CurrentTurn;
-                //actual.TurnNumber.Should().Be(1);
-                //actual.PlayerToPlay.Number.Should().Be(1);
-                //actual.NextAction.Should().Be(Action.SelectSuit);
                 var actual = sut.GameState.CurrentTurn;
                 actual.TurnNumber.Should().Be(1);
                 actual.PlayerToPlay.Number.Should().Be(1);
@@ -919,16 +899,10 @@ namespace SheddingCardGames.Tests.Domain
                     .WithPlayer3Hand(player3Hand)
                     .WithDiscardCard(deck.Get(1, Suit.Spades))
                     .Build();
-
                 sut.Play(1, deck.Get(1, Suit.Clubs));
 
                 sut.Play(2, deck.Get(8, Suit.Diamonds));
                 
-                //var actual = sut.GameState.CurrentTurn;
-                //actual.TurnNumber.Should().Be(2);
-                //actual.PlayerToPlay.Number.Should().Be(2);
-                //actual.NextAction.Should().Be(Action.SelectSuit);
-
                 var actual = sut.GameState.CurrentTurn;
                 actual.TurnNumber.Should().Be(2);
                 actual.PlayerToPlay.Number.Should().Be(2);
@@ -964,11 +938,6 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Play(3, deck.Get(8, Suit.Spades));
                 
-                //var actual = sut.GameState.CurrentTurn;
-                //actual.TurnNumber.Should().Be(3);
-                //actual.PlayerToPlay.Number.Should().Be(3);
-                //actual.NextAction.Should().Be(Action.SelectSuit);
-
                 var actual = sut.GameState.CurrentTurn;
                 actual.TurnNumber.Should().Be(3);
                 actual.PlayerToPlay.Number.Should().Be(3);
@@ -1148,7 +1117,9 @@ namespace SheddingCardGames.Tests.Domain
                 actualCurrentTurn.PlayerToPlay.Number.Should().Be(2);
                 actualCurrentTurn.ValidPlays.Should().Equal(new Card(10, Suit.Diamonds), new Card(11, Suit.Diamonds));
                 actualCurrentTurn.NextAction.Should().Be(Action.Play);
-                actualCurrentTurn.SelectedSuit.Should().Be(Suit.Diamonds);
+
+                var actualPreviousTurnResult = sut.GameState.PreviousTurnResult;
+                actualPreviousTurnResult.SelectedSuit.Should().Be(Suit.Diamonds);
             }
 
             [Fact]
@@ -1158,7 +1129,8 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Take(2);
 
-                sut.GameState.CurrentTurn.SelectedSuit.Should().Be(Suit.Diamonds);
+                var actualPreviousTurnResult = sut.GameState.PreviousTurnResult;
+                actualPreviousTurnResult.SelectedSuit.Should().Be(Suit.Diamonds);
             }
 
             [Fact]
@@ -1479,7 +1451,7 @@ namespace SheddingCardGames.Tests.Domain
                 var player3 = sampleData.Player3;
                 player3.Hand = player3Hand;
 
-                var currentTurn = new CurrentTurn(1, player1, new Card[0], false, null, Action.Take, null);
+                var currentTurn = new CurrentTurn(1, player1, new Card[0], Action.Take);
                 
                 var sut = new InProgressGameBuilder()
                     .WithCurrentPlayer(player1)
@@ -1558,7 +1530,7 @@ namespace SheddingCardGames.Tests.Domain
                 var player3 = sampleData.Player3;
                 player3.Hand = player3Hand;
 
-                var currentTurn = new CurrentTurn(1, player1, new Card[0], false, null, Action.Take, null);
+                var currentTurn = new CurrentTurn(1, player1, new Card[0], Action.Take);
                 
                 var sut = new InProgressGameBuilder()
                     .WithShuffler(shufflerMock.Object)
@@ -1584,30 +1556,6 @@ namespace SheddingCardGames.Tests.Domain
                 domainEvent.StartCards.Cards.Should().Equal(expectedDiscardPileRestOfCards);
                 domainEvent.EndCards.Cards.Should().Equal(expectedShuffledStockPile);
             }
-
-            //[Theory]
-            //[InlineData(0)]
-            //[InlineData(3)]
-            //public void ReturnNotPlayersTurnWhenInvalidPlayerNumber(int playerNumber)
-            //{
-            //    var discardCard = deck.Get(10, Suit.Hearts);
-            //    var stockPile = new CardCollection(
-            //        deck.Get(1, Suit.Hearts)
-            //    );
-            //    var sut = new AtStartGameBuilder()
-            //        .WithPlayer1Hand(player1Hand)
-            //        .WithPlayer2Hand(player2Hand)
-            //        .WithPlayer3Hand(player3Hand)
-            //        .WithDiscardCard(discardCard)
-            //        .WithStockPile(stockPile)
-            //        .Build();
-
-            //    var actual = sut.Take(playerNumber);
-
-            //    actual.IsSuccess.Should().BeFalse();
-            //    actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
-            //    actual.Card.Should().Be(null);
-            //}
 
             [Fact]
             public void ReturnNotPlayersTurnWhenPlayer1()
@@ -1781,19 +1729,14 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Play(1, player1Hand.Cards.First());
 
-                //var actual = sut.GameState.CurrentTurn;
-                //actual.HasWinner.Should().BeTrue();
-                //actual.Winner.Number.Should().Be(1);
-                //actual.TurnNumber.Should().Be(1);
-                //actual.ValidPlays.Should().BeEmpty();
-                //actual.NextAction.Should().Be(Action.Won);
-                
                 var actual = sut.GameState.CurrentTurn;
-                actual.HasWinner.Should().BeTrue();
-                actual.Winner.Number.Should().Be(1);
                 actual.TurnNumber.Should().Be(1);
                 actual.ValidPlays.Should().BeEmpty();
                 actual.NextAction.Should().Be(Action.Won);
+
+                var actualPreviousTurnResult = sut.GameState.PreviousTurnResult;
+                actualPreviousTurnResult.HasWinner.Should().BeTrue();
+                actualPreviousTurnResult.Winner.Number.Should().Be(1);
             }
 
             [Fact]
@@ -1816,20 +1759,15 @@ namespace SheddingCardGames.Tests.Domain
                     .Build();
                 sut.Take(1);
                 sut.Play(2, player2Hand.Cards.First());
-
-                //var actual = sut.GameState.CurrentTurn;
-                //actual.HasWinner.Should().BeTrue();
-                //actual.Winner.Number.Should().Be(2);
-                //actual.TurnNumber.Should().Be(2);
-                //actual.ValidPlays.Should().BeEmpty();
-                //actual.NextAction.Should().Be(Action.Won);
                 
                 var actual = sut.GameState.CurrentTurn;
-                actual.HasWinner.Should().BeTrue();
-                actual.Winner.Number.Should().Be(2);
                 actual.TurnNumber.Should().Be(2);
                 actual.ValidPlays.Should().BeEmpty();
                 actual.NextAction.Should().Be(Action.Won);
+
+                var actualPreviousTurnResult = sut.GameState.PreviousTurnResult;
+                actualPreviousTurnResult.HasWinner.Should().BeTrue();
+                actualPreviousTurnResult.Winner.Number.Should().Be(2);
             }
 
             [Fact]
@@ -1856,19 +1794,14 @@ namespace SheddingCardGames.Tests.Domain
                 sut.Play(2, new Card(2, Suit.Clubs));
                 sut.Play(1, new Card(1, Suit.Clubs));
 
-                //var actual = sut.GameState.CurrentTurn;
-                //actual.HasWinner.Should().BeTrue();
-                //actual.Winner.Number.Should().Be(1);
-                //actual.TurnNumber.Should().Be(3);
-                //actual.ValidPlays.Should().BeEmpty();
-                //actual.NextAction.Should().Be(Action.Won);
-                
                 var actual = sut.GameState.CurrentTurn;
-                actual.HasWinner.Should().BeTrue();
-                actual.Winner.Number.Should().Be(1);
                 actual.TurnNumber.Should().Be(3);
                 actual.ValidPlays.Should().BeEmpty();
                 actual.NextAction.Should().Be(Action.Won);
+
+                var actualPreviousTurnResult = sut.GameState.PreviousTurnResult;
+                actualPreviousTurnResult.HasWinner.Should().BeTrue();
+                actualPreviousTurnResult.Winner.Number.Should().Be(1);
             }
 
             [Fact]
@@ -1886,19 +1819,14 @@ namespace SheddingCardGames.Tests.Domain
                     .Build();
                 sut.Play(2, player2Hand.Cards.First());
 
-                //var actual = sut.GameState.CurrentTurn;
-                //actual.HasWinner.Should().BeTrue();
-                //actual.Winner.Number.Should().Be(2);
-                //actual.TurnNumber.Should().Be(1);
-                //actual.ValidPlays.Should().BeEmpty();
-                //actual.NextAction.Should().Be(Action.Won);
-                
                 var actual = sut.GameState.CurrentTurn;
-                actual.HasWinner.Should().BeTrue();
-                actual.Winner.Number.Should().Be(2);
                 actual.TurnNumber.Should().Be(1);
                 actual.ValidPlays.Should().BeEmpty();
                 actual.NextAction.Should().Be(Action.Won);
+
+                var actualPreviousTurnResult = sut.GameState.PreviousTurnResult;
+                actualPreviousTurnResult.HasWinner.Should().BeTrue();
+                actualPreviousTurnResult.Winner.Number.Should().Be(2);
             }
 
             [Fact]
@@ -1918,19 +1846,14 @@ namespace SheddingCardGames.Tests.Domain
                     .Build();
                 sut.Play(3, player3Hand.Cards.First());
 
-                //var actual = sut.GameState.CurrentTurn;
-                //actual.HasWinner.Should().BeTrue();
-                //actual.Winner.Number.Should().Be(3);
-                //actual.TurnNumber.Should().Be(1);
-                //actual.ValidPlays.Should().BeEmpty();
-                //actual.NextAction.Should().Be(Action.Won);
-                
                 var actual = sut.GameState.CurrentTurn;
-                actual.HasWinner.Should().BeTrue();
-                actual.Winner.Number.Should().Be(3);
                 actual.TurnNumber.Should().Be(1);
                 actual.ValidPlays.Should().BeEmpty();
                 actual.NextAction.Should().Be(Action.Won);
+
+                var actualPreviousTurnResult = sut.GameState.PreviousTurnResult;
+                actualPreviousTurnResult.HasWinner.Should().BeTrue();
+                actualPreviousTurnResult.Winner.Number.Should().Be(3);
             }
 
             [Fact]
