@@ -7,19 +7,19 @@ namespace SheddingCardGames.Domain
 {
     public class DealCommand : GameCommand
     {
-        private readonly GameState currentGameState;
+        private readonly GameState gameState;
         private readonly CardCollection deck;
         private readonly Player[] players;
         private readonly IRules rules;
         private readonly IShuffler shuffler;
         private readonly TurnBuilder turnBuilder;
 
-        public DealCommand(IShuffler shuffler, IRules rules, GameState currentGameState, CardCollection deck,
+        public DealCommand(IShuffler shuffler, IRules rules, GameState gameState, CardCollection deck,
             Player[] players)
         {
             this.shuffler = shuffler;
             this.rules = rules;
-            this.currentGameState = currentGameState;
+            this.gameState = gameState;
             this.deck = deck;
             this.players = players;
 
@@ -34,14 +34,11 @@ namespace SheddingCardGames.Domain
         public override GameState Execute()
         {
             var shuffled = shuffler.Shuffle(deck);
+            gameState.CurrentTable = Deal(shuffled, gameState.Events);
+            gameState.Events.Add(new DealCompleted(gameState.NextEventNumber));
+            gameState.CurrentTurn = turnBuilder.BuildFirstTurn(gameState, gameState.PlayerToStart);
 
-            var table = Deal(shuffled, currentGameState.Events);
-            currentGameState.CurrentTable = table;
-            currentGameState.Events.Add(new DealCompleted(GetNextEventNumber(currentGameState.Events)));
-
-            currentGameState.CurrentTurn = turnBuilder.BuildFirstTurn(currentGameState, currentGameState.PlayerToStart);
-
-            return currentGameState;
+            return gameState;
         }
 
         private Table Deal(CardCollection cardsToDeal, List<DomainEvent> events)

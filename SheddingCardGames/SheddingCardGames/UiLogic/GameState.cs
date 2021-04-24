@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using SheddingCardGames.Domain;
 using SheddingCardGames.Domain.Events;
 
@@ -14,6 +15,12 @@ namespace SheddingCardGames.UiLogic
         public PreviousTurnResult PreviousTurnResult { get; set; }
         public Player PlayerToStart { get; set; }
 
+        public int CurrentTurnNumber => CurrentTurn.TurnNumber;
+        public Player CurrentPlayerToPlay => CurrentTurn.PlayerToPlay;
+        public int CurrentPlayerToPlayNumber => CurrentTurn.PlayerToPlay.Number;
+        public Card CurrentCardToMatch => CurrentTable.DiscardPile.CardToMatch;
+        public Suit? CurrentSelectedSuit => PreviousTurnResult?.SelectedSuit;
+
         public Player NextPlayer
         {
             get
@@ -25,5 +32,8 @@ namespace SheddingCardGames.UiLogic
                 return CurrentTable.Players[nextPlayerNumber - 1];
             }
         }
+
+        public int NextEventNumber =>  Events.Select(x => x.Number).DefaultIfEmpty().Max() + 1;
+
     }
 }

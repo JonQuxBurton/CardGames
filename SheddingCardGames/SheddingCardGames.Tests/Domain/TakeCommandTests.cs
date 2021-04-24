@@ -74,7 +74,6 @@ namespace SheddingCardGames.Tests.Domain
 
                 discardPile.TurnUpTopCard();
                 var table = TableCreator.Create(new StockPile(stockPile), discardPile, player1, player2);
-                var context = new TakeCommandContext(executingPlayer);
                 var gameState = new GameState
                 {
                     CurrentTable = table,
@@ -83,7 +82,7 @@ namespace SheddingCardGames.Tests.Domain
                     CurrentTurn = new CurrentTurn(turnNumber, playerToPlay, new Card[0], Action.Play)
                 };
 
-                return new TakeCommand(new Rules(), new DummyShuffler(), gameState, context);
+                return new TakeCommand(new Rules(), new DummyShuffler(), gameState, executingPlayer);
             }
         }
 

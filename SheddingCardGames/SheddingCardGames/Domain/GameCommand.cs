@@ -9,10 +9,5 @@ namespace SheddingCardGames.Domain
     {
         public abstract ActionResult IsValid();
         public abstract GameState Execute();
-
-        protected int GetNextEventNumber(List<DomainEvent> events)
-        {
-            return events.Select(x => x.Number).DefaultIfEmpty().Max() + 1;
-        }
     }
 }

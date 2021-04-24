@@ -5,28 +5,28 @@ namespace SheddingCardGames.Domain
 {
     public class PlayCommand : GameCommand
     {
-        private readonly PlayCommandContext context;
-        private readonly GameState currentGameState;
+        private readonly GameState gameState;
+        private readonly Card playedCard;
         private readonly Player executingPlayer;
         private readonly IRules rules;
         private readonly TurnBuilder turnBuilder;
 
-        public PlayCommand(Player executingPlayer, IRules rules, GameState currentGameState, PlayCommandContext context)
+        public PlayCommand(Player executingPlayer, IRules rules, GameState gameState, Card playedCard)
         {
             this.executingPlayer = executingPlayer;
             this.rules = rules;
-            this.currentGameState = currentGameState;
-            this.context = context;
+            this.gameState = gameState;
+            this.playedCard = playedCard;
 
             turnBuilder = new TurnBuilder(rules);
         }
 
         public override ActionResult IsValid()
         {
-            if (executingPlayer.Number != context.Player.Number)
+            if (executingPlayer.Number != gameState.CurrentPlayerToPlayNumber)
                 return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
 
-            if (!executingPlayer.Hand.Contains(context.PlayedCard))
+            if (!executingPlayer.Hand.Contains(playedCard))
                 return new ActionResult(false, ActionResultMessageKey.CardIsNotInPlayersHand);
 
             if (!IsValidPlay())
@@ -37,45 +37,41 @@ namespace SheddingCardGames.Domain
 
         public override GameState Execute()
         {
-            currentGameState.CurrentTable.MoveCardFromPlayerToDiscardPile(context.Player, context.PlayedCard);
-            currentGameState.Events.Add(new Played(GetNextEventNumber(currentGameState.Events), context.Player.Number,
-                context.PlayedCard));
+            gameState.CurrentTable.MoveCardFromPlayerToDiscardPile(executingPlayer, playedCard);
+            gameState.Events.Add(new Played(gameState.NextEventNumber, executingPlayer.Number,
+                playedCard));
 
-            // TODO
-            // GetPlayType - Won | CrazyEight | Standard
-            // ProcessPlay(PlayTypes['Winner'])
-
-            if (IsWinner())
+            if (HasWon())
             {
-                currentGameState.Events.Add(new RoundWon(GetNextEventNumber(currentGameState.Events), context.Player.Number));
-                currentGameState.PreviousTurnResult = new PreviousTurnResult(true, context.Player);
-                currentGameState.CurrentTurn = turnBuilder.BuildWinningTurn(currentGameState);
+                gameState.Events.Add(new RoundWon(gameState.NextEventNumber, executingPlayer.Number));
+                gameState.PreviousTurnResult = new PreviousTurnResult(true, executingPlayer);
+                gameState.CurrentTurn = turnBuilder.BuildWinningTurn(gameState);
             }
-            else if (context.PlayedCard.Rank == 8)
+            else if (playedCard.Rank == 8)
             {
-                currentGameState.PreviousTurnResult = new PreviousTurnResult(false);
-                currentGameState.CurrentTurn = turnBuilder.BuildCrazyEightTurn(currentGameState);
+                gameState.PreviousTurnResult = new PreviousTurnResult(false);
+                gameState.CurrentTurn = turnBuilder.BuildCrazyEightTurn(gameState);
             }
             else
             {
-                currentGameState.PreviousTurnResult = new PreviousTurnResult(false);
-                currentGameState.CurrentTurn = turnBuilder.BuildNextTurn(currentGameState, currentGameState.NextPlayer);
+                gameState.PreviousTurnResult = new PreviousTurnResult(false);
+                gameState.CurrentTurn = turnBuilder.BuildNextTurn(gameState, gameState.NextPlayer);
             }
 
-            return currentGameState;
+            return gameState;
         }
 
         private bool IsValidPlay()
         {
-            var selectedSuit = currentGameState.PreviousTurnResult?.SelectedSuit;
-            return rules.IsValidPlay(context.PlayedCard, currentGameState.CurrentTable.DiscardPile.CardToMatch,
-                currentGameState.CurrentTurn.TurnNumber,
-                selectedSuit);
+            return rules.IsValidPlay(playedCard, 
+                gameState.CurrentCardToMatch,
+                gameState.CurrentTurnNumber,
+                gameState.CurrentSelectedSuit);
         }
 
-        private bool IsWinner()
+        private bool HasWon()
         {
-            return context.Player.Hand.IsEmpty();
+            return executingPlayer.Hand.IsEmpty();
         }
     }
 }

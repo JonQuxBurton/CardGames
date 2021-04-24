@@ -70,10 +70,10 @@ namespace SheddingCardGames.Domain
             GameState.CurrentGamePhase = GamePhase.InGame;
         }
 
-        public ActionResult Play(int playerNumber, Card playedCard)
+        public ActionResult Play(int executingPlayerNumber, Card playedCard)
         {
-            var context = new PlayCommandContext(Players[playerNumber], playedCard);
-            GameCommand command = new PlayCommand(GameState.CurrentTurn.PlayerToPlay, rules, GameState, context);
+            var executingPlayer = Players[executingPlayerNumber];
+            GameCommand command = new PlayCommand(executingPlayer, rules, GameState, playedCard);
 
             var isValidResult = command.IsValid();
 
@@ -86,10 +86,10 @@ namespace SheddingCardGames.Domain
             return isValidResult;
         }
 
-        public ActionResult SelectSuit(int playerNumber, Suit selectedSuit)
+        public ActionResult SelectSuit(int executingPlayerNumber, Suit selectedSuit)
         {
-            var context = new SelectSuitCommandContext(selectedSuit, Players[playerNumber]);
-            GameCommand command = new SelectSuitCommand(rules, GameState, context);
+            var executingPlayer = Players[executingPlayerNumber];
+            GameCommand command = new SelectSuitCommand(rules, GameState, executingPlayer, selectedSuit);
 
             var isValidResult = command.IsValid();
 
@@ -104,8 +104,8 @@ namespace SheddingCardGames.Domain
 
         public ActionResultWithCard Take(int playerNumber)
         {
-            var context = new TakeCommandContext(Players[playerNumber]);
-            GameCommand command = new TakeCommand(rules, shuffler, GameState, context);
+            var executingPlayer = Players[playerNumber];
+            GameCommand command = new TakeCommand(rules, shuffler, GameState, executingPlayer);
 
             var isValidResult = command.IsValid();
 

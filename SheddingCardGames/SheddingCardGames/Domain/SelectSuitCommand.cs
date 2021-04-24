@@ -5,26 +5,26 @@ namespace SheddingCardGames.Domain
 {
     public class SelectSuitCommand : GameCommand
     {
-        private readonly SelectSuitCommandContext context;
-        private readonly GameState currentGameState;
-        private readonly IRules rules;
+        private readonly GameState gameState;
+        private readonly Player executingPlayer;
+        private readonly Suit selectedSuit;
         private readonly TurnBuilder turnBuilder;
 
-        public SelectSuitCommand(IRules rules, GameState currentGameState, SelectSuitCommandContext context)
+        public SelectSuitCommand(IRules rules, GameState gameState, Player executingPlayer, Suit selectedSuit)
         {
-            this.rules = rules;
-            this.currentGameState = currentGameState;
-            this.context = context;
+            this.gameState = gameState;
+            this.executingPlayer = executingPlayer;
+            this.selectedSuit = selectedSuit;
 
             turnBuilder = new TurnBuilder(rules);
         }
 
         public override ActionResult IsValid()
         {
-            if (currentGameState.CurrentTurn.PlayerToPlay.Number != context.ExecutingPlayer.Number)
+            if (gameState.CurrentPlayerToPlayNumber != executingPlayer.Number)
                 return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
 
-            if (currentGameState.CurrentTable.DiscardPile.CardToMatch.Rank != 8)
+            if (gameState.CurrentCardToMatch.Rank != 8)
                 return new ActionResult(false, ActionResultMessageKey.InvalidPlay);
 
             return new ActionResult(true, ActionResultMessageKey.Success);
@@ -32,13 +32,13 @@ namespace SheddingCardGames.Domain
 
         public override GameState Execute()
         {
-            currentGameState.Events.Add(new SuitSelected(GetNextEventNumber(currentGameState.Events),
-                context.ExecutingPlayer.Number, context.SelectedSuit));
+            gameState.Events.Add(new SuitSelected(gameState.NextEventNumber,
+                executingPlayer.Number, selectedSuit));
 
-            currentGameState.PreviousTurnResult = new PreviousTurnResult(false, null, context.SelectedSuit);
-            currentGameState.CurrentTurn = turnBuilder.BuildNextTurn(currentGameState, currentGameState.NextPlayer, context.SelectedSuit);
+            gameState.PreviousTurnResult = new PreviousTurnResult(false, null, selectedSuit);
+            gameState.CurrentTurn = turnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, selectedSuit);
 
-            return currentGameState;
+            return gameState;
         }
     }
 }

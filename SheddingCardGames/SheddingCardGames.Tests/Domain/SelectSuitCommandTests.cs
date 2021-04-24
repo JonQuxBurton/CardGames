@@ -62,8 +62,6 @@ namespace SheddingCardGames.Tests.Domain
 
                 discardPile.TurnUpTopCard();
                 var table = TableCreator.Create(new StockPile(stockPile), discardPile, player1, player2);
-
-                var context = new SelectSuitCommandContext(Suit.Hearts, executingPlayer);
                 var gameState = new GameState
                 {
                     CurrentTable = table,
@@ -72,7 +70,7 @@ namespace SheddingCardGames.Tests.Domain
                     CurrentTurn = new CurrentTurn(turnNumber, playerToPlay, new Card[0], Action.Play)
                 };
 
-                return new SelectSuitCommand(new Rules(), gameState, context);
+                return new SelectSuitCommand(new Rules(), gameState, executingPlayer, Suit.Hearts);
             }
         }
 
