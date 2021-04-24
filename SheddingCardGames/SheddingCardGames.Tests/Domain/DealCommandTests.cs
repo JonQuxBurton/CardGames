@@ -24,7 +24,6 @@ namespace SheddingCardGames.Tests.Domain
                 var gameState = new GameState
                 {
                     CurrentTable = table,
-                    Events = new List<DomainEvent>(),
                     PlayerToStart = player1,
                 };
 
@@ -80,7 +79,6 @@ namespace SheddingCardGames.Tests.Domain
                 var gameState = new GameState
                 {
                     CurrentTable = table,
-                    Events = new List<DomainEvent>(),
                     PlayerToStart = currentPlayer,
                     CurrentTurn = new CurrentTurn(1, currentPlayer, new Card[0], Action.Play)
                 };

@@ -32,7 +32,7 @@ namespace SheddingCardGames.Domain
 
         public override GameState Execute()
         {
-            gameState.Events.Add(new SuitSelected(gameState.NextEventNumber,
+            gameState.AddEvent(new SuitSelected(gameState.NextEventNumber,
                 executingPlayer.Number, selectedSuit));
 
             gameState.PreviousTurnResult = new PreviousTurnResult(false, null, selectedSuit);

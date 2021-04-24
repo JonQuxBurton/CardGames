@@ -38,12 +38,12 @@ namespace SheddingCardGames.Domain
         public override GameState Execute()
         {
             gameState.CurrentTable.MoveCardFromPlayerToDiscardPile(executingPlayer, playedCard);
-            gameState.Events.Add(new Played(gameState.NextEventNumber, executingPlayer.Number,
+            gameState.AddEvent(new Played(gameState.NextEventNumber, executingPlayer.Number,
                 playedCard));
 
             if (HasWon())
             {
-                gameState.Events.Add(new RoundWon(gameState.NextEventNumber, executingPlayer.Number));
+                gameState.AddEvent(new RoundWon(gameState.NextEventNumber, executingPlayer.Number));
                 gameState.PreviousTurnResult = new PreviousTurnResult(true, executingPlayer);
                 gameState.CurrentTurn = turnBuilder.BuildWinningTurn(gameState);
             }

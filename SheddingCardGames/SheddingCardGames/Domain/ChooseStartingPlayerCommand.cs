@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 
@@ -22,10 +21,9 @@ namespace SheddingCardGames.Domain
         {
             var currentGameState = new GameState
             {
-                Events = new List<DomainEvent>(),
                 PlayerToStart = chosenPlayer
             };
-            currentGameState.Events.Add(new StartingPlayerChosen(1, chosenPlayer));
+            currentGameState.AddEvent(new StartingPlayerChosen(1, chosenPlayer));
 
             return currentGameState;
         }

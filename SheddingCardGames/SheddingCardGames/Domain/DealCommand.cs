@@ -34,14 +34,14 @@ namespace SheddingCardGames.Domain
         public override GameState Execute()
         {
             var shuffled = shuffler.Shuffle(deck);
-            gameState.CurrentTable = Deal(shuffled, gameState.Events);
-            gameState.Events.Add(new DealCompleted(gameState.NextEventNumber));
+            gameState.CurrentTable = Deal(shuffled, gameState);
+            gameState.AddEvent(new DealCompleted(gameState.NextEventNumber));
             gameState.CurrentTurn = turnBuilder.BuildFirstTurn(gameState, gameState.PlayerToStart);
 
             return gameState;
         }
 
-        private Table Deal(CardCollection cardsToDeal, List<DomainEvent> events)
+        private Table Deal(CardCollection cardsToDeal, GameState gameState)
         {
             var playersArray = players ?? players.ToArray();
             var table = new Table(new StockPile(cardsToDeal), new DiscardPile(), playersArray.ToArray());
@@ -54,14 +54,18 @@ namespace SheddingCardGames.Domain
                 {
                     var player = table.Players[j];
                     var takenCard = table.MoveCardFromStockPileToPlayer(player);
-                    events.Add(new CardMoved(events.Select(x => x.Number).DefaultIfEmpty().Max() + 1, takenCard,
-                        CardMoveSources.StockPile, CardMoveSources.PlayerHand(player.Number)));
+                    gameState.AddEvent(new CardMoved(gameState.NextEventNumber, 
+                        takenCard,
+                        CardMoveSources.StockPile, 
+                        CardMoveSources.PlayerHand(player.Number)));
                 }
             }
 
             var cardTurnedUp = table.MoveCardFromStockPileToDiscardPile();
-            events.Add(new CardMoved(events.Select(x => x.Number).DefaultIfEmpty().Max() + 1, cardTurnedUp,
-                CardMoveSources.StockPile, CardMoveSources.DiscardPile));
+            gameState.AddEvent(new CardMoved(gameState.NextEventNumber, 
+                cardTurnedUp,
+                CardMoveSources.StockPile, 
+                CardMoveSources.DiscardPile));
 
             return table;
         }

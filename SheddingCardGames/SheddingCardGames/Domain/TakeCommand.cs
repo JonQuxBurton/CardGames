@@ -43,7 +43,7 @@ namespace SheddingCardGames.Domain
         {
             var takenCard =
                 gameState.CurrentTable.MoveCardFromStockPileToPlayer(gameState.CurrentPlayerToPlay);
-            gameState.Events.Add(new Taken(gameState.NextEventNumber,
+            gameState.AddEvent(new Taken(gameState.NextEventNumber,
                 gameState.CurrentPlayerToPlayNumber, takenCard));
 
             if (gameState.CurrentTable.StockPile.IsEmpty())
@@ -64,7 +64,7 @@ namespace SheddingCardGames.Domain
             foreach (var card in cardsToRemove)
             {
                 gameState.CurrentTable.MoveCardFromDiscardPileToStockPile();
-                gameState.Events.Add(new CardMoved(gameState.NextEventNumber, card,
+                gameState.AddEvent(new CardMoved(gameState.NextEventNumber, card,
                     CardMoveSources.DiscardPile,
                     CardMoveSources.StockPile));
             }
@@ -77,7 +77,7 @@ namespace SheddingCardGames.Domain
             var startCards = gameState.CurrentTable.StockPile.Cards.ToArray();
             var shuffled = shuffler.Shuffle(new CardCollection(startCards));
             gameState.CurrentTable.StockPile = new StockPile(shuffled);
-            gameState.Events.Add(new Shuffled(gameState.NextEventNumber,
+            gameState.AddEvent(new Shuffled(gameState.NextEventNumber,
                 CardMoveSources.StockPile, new CardCollection(startCards), shuffled));
         }
     }

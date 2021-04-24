@@ -32,8 +32,6 @@ namespace SheddingCardGames.Domain
 
         public GameState GameState { get; private set; }
 
-        public Player CurrentPlayer => GameState.CurrentTurn.PlayerToPlay;
-
         public Card GetCard(int rank, Suit suit)
         {
             var key = $"{rank}|{suit}";

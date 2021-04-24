@@ -59,7 +59,6 @@ namespace SheddingCardGames.Tests.Domain
                 var gameState = new GameState
                 {
                     CurrentTable = table,
-                    Events = new List<DomainEvent>(),
                     PlayerToStart = player1,
                     CurrentTurn = new CurrentTurn(turnNumber, currentPlayer, new Card[0], Action.Play)
                 };
@@ -95,7 +94,6 @@ namespace SheddingCardGames.Tests.Domain
             public void ReturnIsSuccessFalseWhenCardIsNotInPlayersHand()
             {
                 var playedCard = new Card(1, Suit.Clubs);
-                var discardPile = new DiscardPile();
                 var player1Hand = new CardCollection();
                 var player2Hand = new CardCollection();
                 var sut = new PlayCommandBuilder()

@@ -7,8 +7,9 @@ namespace SheddingCardGames.UiLogic
 {
     public class GameState
     {
+        private readonly List<DomainEvent> events = new List<DomainEvent>();
         public Table CurrentTable { get; set; }
-        public List<DomainEvent> Events { get; set; } = new List<DomainEvent>();
+        public IEnumerable<DomainEvent> Events => events;
 
         public GamePhase CurrentGamePhase { get; set; }
         public CurrentTurn CurrentTurn { get; set; }
@@ -33,7 +34,11 @@ namespace SheddingCardGames.UiLogic
             }
         }
 
-        public int NextEventNumber =>  Events.Select(x => x.Number).DefaultIfEmpty().Max() + 1;
+        public int NextEventNumber => Events.Select(x => x.Number).DefaultIfEmpty().Max() + 1;
 
+        public void AddEvent(DomainEvent newEvent)
+        {
+            events.Add(newEvent);
+        }
     }
 }
