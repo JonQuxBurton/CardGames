@@ -6,22 +6,20 @@ namespace SheddingCardGames.Domain
     public class SelectSuitCommand : GameCommand
     {
         private readonly GameState gameState;
-        private readonly Player executingPlayer;
-        private readonly Suit selectedSuit;
+        private readonly SelectSuitContext selectSuitContext;
         private readonly TurnBuilder turnBuilder;
 
-        public SelectSuitCommand(IRules rules, GameState gameState, Player executingPlayer, Suit selectedSuit)
+        public SelectSuitCommand(IRules rules, GameState gameState, SelectSuitContext selectSuitContext)
         {
             this.gameState = gameState;
-            this.executingPlayer = executingPlayer;
-            this.selectedSuit = selectedSuit;
+            this.selectSuitContext = selectSuitContext;
 
             turnBuilder = new TurnBuilder(rules);
         }
 
         public override ActionResult IsValid()
         {
-            if (gameState.CurrentPlayerToPlayNumber != executingPlayer.Number)
+            if (gameState.CurrentPlayerToPlayNumber != selectSuitContext.ExecutingPlayer.Number)
                 return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
 
             if (gameState.CurrentCardToMatch.Rank != 8)
@@ -33,10 +31,10 @@ namespace SheddingCardGames.Domain
         public override GameState Execute()
         {
             gameState.AddEvent(new SuitSelected(gameState.NextEventNumber,
-                executingPlayer.Number, selectedSuit));
+                selectSuitContext.ExecutingPlayer.Number, selectSuitContext.SelectedSuit));
 
-            gameState.PreviousTurnResult = new PreviousTurnResult(false, null, selectedSuit);
-            gameState.CurrentTurn = turnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, selectedSuit);
+            gameState.PreviousTurnResult = new PreviousTurnResult(false, null, selectSuitContext.SelectedSuit);
+            gameState.CurrentTurn = turnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, selectSuitContext.SelectedSuit);
 
             return gameState;
         }

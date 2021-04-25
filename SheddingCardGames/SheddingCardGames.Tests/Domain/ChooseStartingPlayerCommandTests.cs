@@ -15,7 +15,7 @@ namespace SheddingCardGames.Tests.Domain
             public void ReturnIsSuccessTrue()
             {
                 var sampleData = new SampleData();
-                var sut = new ChooseStartingPlayerCommand(sampleData.Player1);
+                var sut = new ChooseStartingPlayerCommand(new ChooseStartingPlayerContext(sampleData.Player1));
 
                 var actual = sut.IsValid();
 
@@ -33,7 +33,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var sampleData = new SampleData();
                 expectedPlayer = sampleData.Player2;
-                var sut = new ChooseStartingPlayerCommand(expectedPlayer);
+                var sut = new ChooseStartingPlayerCommand(new ChooseStartingPlayerContext(expectedPlayer));
 
                 actual = sut.Execute();
             }
@@ -54,6 +54,12 @@ namespace SheddingCardGames.Tests.Domain
             public void ReturnGameStateWithCurrentTurnNull()
             {
                 actual.CurrentTurn.Should().BeNull();
+            }
+
+            [Fact]
+            public void ReturnGameStateWithCurrentGamePhaseReadyToDeal()
+            {
+                actual.CurrentGamePhase.Should().Be(GamePhase.ReadyToDeal);
             }
 
             [Fact]

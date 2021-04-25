@@ -23,7 +23,7 @@ namespace SheddingCardGames.Domain
             var game = new Game(rules, shuffler, deck, players.ToArray());
             var firstPlayer = players[random.Next(numberOfPlayers)];
 
-            game.ChooseStartingPlayer(firstPlayer);
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext(firstPlayer));
 
             return game;
         }

@@ -63,7 +63,7 @@ namespace SheddingCardGames.Tests.Domain
                     CurrentTurn = new CurrentTurn(turnNumber, currentPlayer, new Card[0], Action.Play)
                 };
 
-                return new PlayCommand(executingPlayer, new Rules(), gameState, playedCard);
+                return new PlayCommand(new Rules(), gameState,  new PlayContext(executingPlayer, playedCard));
             }
         }
 

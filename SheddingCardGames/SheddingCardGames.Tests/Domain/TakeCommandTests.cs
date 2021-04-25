@@ -81,7 +81,7 @@ namespace SheddingCardGames.Tests.Domain
                     CurrentTurn = new CurrentTurn(turnNumber, playerToPlay, new Card[0], Action.Play)
                 };
 
-                return new TakeCommand(new Rules(), new DummyShuffler(), gameState, executingPlayer);
+                return new TakeCommand(new Rules(), new DummyShuffler(), gameState, new TakeContext(executingPlayer));
             }
         }
 

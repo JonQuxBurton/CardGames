@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using FluentAssertions;
 using SheddingCardGames.Domain;
 using SheddingCardGames.Domain.Events;
@@ -29,8 +28,10 @@ namespace SheddingCardGames.Tests.Domain
 
                 var deck = new CardCollectionBuilder().Build();
                 var rules = new Rules(7);
-                return new DealCommand(new DummyShuffler(), rules, gameState, deck,
-                    new[] {player1, sampleData.Player2});
+
+                return new DealCommand(rules, 
+                    new DummyShuffler(), 
+                    gameState, new DealContext(deck, new[] {player1, sampleData.Player2}));
             }
 
             [Fact]
@@ -110,7 +111,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 rules = new Rules(5);
 
-                return new DealCommand(new DummyShuffler(), rules, gameState, deck, players);
+                return new DealCommand(rules, new DummyShuffler(), gameState, new DealContext(deck, players));
             }
 
             [Fact]
@@ -302,6 +303,17 @@ namespace SheddingCardGames.Tests.Domain
 
                 actual.PreviousTurnResult.Should().BeNull();
             }
+
+            [Fact]
+            public void ReturnGameStateWithCurrentGamePhaseReadyToInGame()
+            {
+                var sut = CreateSut(players[0]);
+
+                var actual = sut.Execute();
+
+                actual.CurrentGamePhase.Should().Be(GamePhase.InGame);
+            }
+
         }
     }
 }

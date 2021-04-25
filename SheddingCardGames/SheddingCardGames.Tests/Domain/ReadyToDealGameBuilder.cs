@@ -83,7 +83,7 @@ namespace SheddingCardGames.Tests.Domain
                 game = new Game(rules, shuffler, deck, new[] { player1, player2 });
             }
             
-            game.ChooseStartingPlayer(sampleData.GetPlayer(startingPlayerNumber));
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext(sampleData.GetPlayer(startingPlayerNumber)));
 
             return game;
         }

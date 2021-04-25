@@ -7,17 +7,14 @@ namespace SheddingCardGames.Domain
     public class Game
     {
         private readonly Dictionary<string, Card> cards = new Dictionary<string, Card>();
+        private readonly CommandFactory commandFactory;
         private readonly CardCollection deck;
 
         public readonly Dictionary<int, Player> Players = new Dictionary<int, Player>();
-        private readonly IRules rules;
-        private readonly IShuffler shuffler;
 
         public Game(IRules rules, IShuffler shuffler, CardCollection deck,
             Player[] withPlayers)
         {
-            this.rules = rules;
-            this.shuffler = shuffler;
             this.deck = deck;
 
             foreach (var card in deck.Cards)
@@ -28,9 +25,15 @@ namespace SheddingCardGames.Domain
                 Players.Add(player.Number, player);
 
             GameState = new GameState();
+            commandFactory = new CommandFactory(rules, shuffler);
         }
 
         public GameState GameState { get; private set; }
+
+        public Player GetPlayer(int playerNumber)
+        {
+            return Players[playerNumber];
+        }
 
         public Card GetCard(int rank, Suit suit)
         {
@@ -52,68 +55,43 @@ namespace SheddingCardGames.Domain
         //    //events.Add(new Initialised(1));
         //}
 
-        public void ChooseStartingPlayer(Player chosenPlayer)
+        public ActionResult ChooseStartingPlayer(ChooseStartingPlayerContext chooseStartingPlayerContext)
         {
-            GameCommand command = new ChooseStartingPlayerCommand(chosenPlayer);
-            GameState = command.Execute();
-            GameState.CurrentGamePhase = GamePhase.ReadyToDeal;
+            return ProcessCommand(chooseStartingPlayerContext);
         }
 
-        public void Deal()
+        public ActionResult Deal()
         {
-            GameCommand command = new DealCommand(shuffler, rules, GameState, deck, Players.Values.ToArray());
-
-            var updatedGameState = command.Execute();
-            GameState = updatedGameState;
-            GameState.CurrentGamePhase = GamePhase.InGame;
+            return ProcessCommand(new DealContext(deck, Players.Values.ToArray()));
         }
 
-        public ActionResult Play(int executingPlayerNumber, Card playedCard)
+        public ActionResult Play(PlayContext playContext)
         {
-            var executingPlayer = Players[executingPlayerNumber];
-            GameCommand command = new PlayCommand(executingPlayer, rules, GameState, playedCard);
+            return ProcessCommand(playContext);
+        }
+
+        public ActionResult SelectSuit(SelectSuitContext selectSuitContext)
+        {
+            return ProcessCommand(selectSuitContext);
+        }
+
+        public ActionResult Take(TakeContext takeContext)
+        {
+            return ProcessCommand(takeContext);
+        }
+
+        private ActionResult ProcessCommand(ICommandContext commandContext)
+        {
+            var command = commandFactory.Create(GameState, commandContext);
 
             var isValidResult = command.IsValid();
 
             if (!isValidResult.IsSuccess)
                 return isValidResult;
 
-            var updatedGameState = command.Execute();
-            GameState = updatedGameState;
+            GameState = command.Execute();
 
             return isValidResult;
-        }
-
-        public ActionResult SelectSuit(int executingPlayerNumber, Suit selectedSuit)
-        {
-            var executingPlayer = Players[executingPlayerNumber];
-            GameCommand command = new SelectSuitCommand(rules, GameState, executingPlayer, selectedSuit);
-
-            var isValidResult = command.IsValid();
-
-            if (!isValidResult.IsSuccess)
-                return isValidResult;
-
-            var updatedGameState = command.Execute();
-            GameState = updatedGameState;
-
-            return new ActionResult(true, ActionResultMessageKey.Success);
-        }
-
-        public ActionResultWithCard Take(int playerNumber)
-        {
-            var executingPlayer = Players[playerNumber];
-            GameCommand command = new TakeCommand(rules, shuffler, GameState, executingPlayer);
-
-            var isValidResult = command.IsValid();
-
-            if (!isValidResult.IsSuccess)
-                return new ActionResultWithCard(false, isValidResult.MessageKey);
-
-            var updatedGameState = command.Execute();
-            GameState = updatedGameState;
-
-            return new ActionResultWithCard(true, ActionResultMessageKey.Success, updatedGameState.PreviousTurnResult.TakenCard);
         }
     }
 }

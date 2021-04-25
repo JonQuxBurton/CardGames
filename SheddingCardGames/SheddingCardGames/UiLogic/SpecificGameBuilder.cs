@@ -14,7 +14,7 @@ namespace SheddingCardGames.UiLogic
 
             var random = new Random();
             var firstPlayer = players[random.Next(2)];
-            game.ChooseStartingPlayer(firstPlayer);
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext(firstPlayer));
 
             return game;
         }

@@ -7,17 +7,17 @@ namespace SheddingCardGames.Domain
     public class TakeCommand : GameCommand
     {
         private readonly GameState gameState;
-        private readonly Player executingPlayer;
+        private readonly TakeContext takeContext;
         private readonly IRules rules;
         private readonly IShuffler shuffler;
         private readonly TurnBuilder turnBuilder;
 
-        public TakeCommand(IRules rules, IShuffler shuffler, GameState gameState, Player executingPlayer)
+        public TakeCommand(IRules rules, IShuffler shuffler, GameState gameState, TakeContext takeContext)
         {
             this.rules = rules;
             this.shuffler = shuffler;
             this.gameState = gameState;
-            this.executingPlayer = executingPlayer;
+            this.takeContext = takeContext;
 
             turnBuilder = new TurnBuilder(rules);
         }
@@ -25,7 +25,7 @@ namespace SheddingCardGames.Domain
         public override ActionResult IsValid()
         {
             var validPlays = rules.GetValidPlays(gameState.CurrentCardToMatch,
-                    executingPlayer.Hand,
+                    takeContext.ExecutingPlayer.Hand,
                     gameState.CurrentTurnNumber,
                     null)
                 .ToArray();
@@ -33,7 +33,7 @@ namespace SheddingCardGames.Domain
             if (validPlays.Any())
                 return new ActionResult(false, ActionResultMessageKey.InvalidTake);
 
-            if (gameState.CurrentPlayerToPlayNumber != executingPlayer.Number)
+            if (gameState.CurrentPlayerToPlayNumber != takeContext.ExecutingPlayer.Number)
                 return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
 
             return new ActionResult(true, ActionResultMessageKey.Success);

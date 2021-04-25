@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
@@ -8,20 +7,17 @@ namespace SheddingCardGames.Domain
     public class DealCommand : GameCommand
     {
         private readonly GameState gameState;
-        private readonly CardCollection deck;
-        private readonly Player[] players;
+        private readonly DealContext dealContext;
         private readonly IRules rules;
         private readonly IShuffler shuffler;
         private readonly TurnBuilder turnBuilder;
 
-        public DealCommand(IShuffler shuffler, IRules rules, GameState gameState, CardCollection deck,
-            Player[] players)
+        public DealCommand(IRules rules, IShuffler shuffler, GameState gameState, DealContext dealContext)
         {
             this.shuffler = shuffler;
             this.rules = rules;
             this.gameState = gameState;
-            this.deck = deck;
-            this.players = players;
+            this.dealContext = dealContext;
 
             turnBuilder = new TurnBuilder(rules);
         }
@@ -33,17 +29,18 @@ namespace SheddingCardGames.Domain
 
         public override GameState Execute()
         {
-            var shuffled = shuffler.Shuffle(deck);
-            gameState.CurrentTable = Deal(shuffled, gameState);
+            var shuffled = shuffler.Shuffle(dealContext.Deck);
+            gameState.CurrentTable = Deal(shuffled);
             gameState.AddEvent(new DealCompleted(gameState.NextEventNumber));
             gameState.CurrentTurn = turnBuilder.BuildFirstTurn(gameState, gameState.PlayerToStart);
-
+            gameState.CurrentGamePhase = GamePhase.InGame;
+            
             return gameState;
         }
 
-        private Table Deal(CardCollection cardsToDeal, GameState gameState)
+        private Table Deal(CardCollection cardsToDeal)
         {
-            var playersArray = players ?? players.ToArray();
+            var playersArray = dealContext.Players ?? dealContext.Players.ToArray();
             var table = new Table(new StockPile(cardsToDeal), new DiscardPile(), playersArray.ToArray());
 
             for (var i = 0; i < rules.GetHandSize(); i++)

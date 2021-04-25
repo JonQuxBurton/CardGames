@@ -6,27 +6,25 @@ namespace SheddingCardGames.Domain
     public class PlayCommand : GameCommand
     {
         private readonly GameState gameState;
-        private readonly Card playedCard;
-        private readonly Player executingPlayer;
+        private readonly PlayContext playContext;
         private readonly IRules rules;
         private readonly TurnBuilder turnBuilder;
 
-        public PlayCommand(Player executingPlayer, IRules rules, GameState gameState, Card playedCard)
+        public PlayCommand(IRules rules, GameState gameState, PlayContext playContext)
         {
-            this.executingPlayer = executingPlayer;
             this.rules = rules;
             this.gameState = gameState;
-            this.playedCard = playedCard;
+            this.playContext = playContext;
 
             turnBuilder = new TurnBuilder(rules);
         }
 
         public override ActionResult IsValid()
         {
-            if (executingPlayer.Number != gameState.CurrentPlayerToPlayNumber)
+            if (playContext.ExecutingPlayer.Number != gameState.CurrentPlayerToPlayNumber)
                 return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
 
-            if (!executingPlayer.Hand.Contains(playedCard))
+            if (!playContext.ExecutingPlayer.Hand.Contains(playContext.PlayedCard))
                 return new ActionResult(false, ActionResultMessageKey.CardIsNotInPlayersHand);
 
             if (!IsValidPlay())
@@ -37,17 +35,17 @@ namespace SheddingCardGames.Domain
 
         public override GameState Execute()
         {
-            gameState.CurrentTable.MoveCardFromPlayerToDiscardPile(executingPlayer, playedCard);
-            gameState.AddEvent(new Played(gameState.NextEventNumber, executingPlayer.Number,
-                playedCard));
+            gameState.CurrentTable.MoveCardFromPlayerToDiscardPile(playContext.ExecutingPlayer, playContext.PlayedCard);
+            gameState.AddEvent(new Played(gameState.NextEventNumber, playContext.ExecutingPlayer.Number,
+                playContext.PlayedCard));
 
             if (HasWon())
             {
-                gameState.AddEvent(new RoundWon(gameState.NextEventNumber, executingPlayer.Number));
-                gameState.PreviousTurnResult = new PreviousTurnResult(true, executingPlayer);
+                gameState.AddEvent(new RoundWon(gameState.NextEventNumber, playContext.ExecutingPlayer.Number));
+                gameState.PreviousTurnResult = new PreviousTurnResult(true, playContext.ExecutingPlayer);
                 gameState.CurrentTurn = turnBuilder.BuildWinningTurn(gameState);
             }
-            else if (playedCard.Rank == 8)
+            else if (playContext.PlayedCard.Rank == 8)
             {
                 gameState.PreviousTurnResult = new PreviousTurnResult(false);
                 gameState.CurrentTurn = turnBuilder.BuildCrazyEightTurn(gameState);
@@ -63,7 +61,7 @@ namespace SheddingCardGames.Domain
 
         private bool IsValidPlay()
         {
-            return rules.IsValidPlay(playedCard, 
+            return rules.IsValidPlay(playContext.PlayedCard, 
                 gameState.CurrentCardToMatch,
                 gameState.CurrentTurnNumber,
                 gameState.CurrentSelectedSuit);
@@ -71,7 +69,7 @@ namespace SheddingCardGames.Domain
 
         private bool HasWon()
         {
-            return executingPlayer.Hand.IsEmpty();
+            return playContext.ExecutingPlayer.Hand.IsEmpty();
         }
     }
 }
