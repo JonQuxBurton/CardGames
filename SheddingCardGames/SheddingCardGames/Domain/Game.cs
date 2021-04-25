@@ -44,16 +44,10 @@ namespace SheddingCardGames.Domain
             return null;
         }
 
-        public void Initialise2(GameState initialGameState)
+        public void Initialise(GameState initialGameState)
         {
             GameState = initialGameState;
         }
-
-        //public void Initialise(GameState initialGameState)
-        //{
-        //    GameState = initialGameState;
-        //    //events.Add(new Initialised(1));
-        //}
 
         public ActionResult ChooseStartingPlayer(ChooseStartingPlayerContext chooseStartingPlayerContext)
         {

@@ -25,103 +25,29 @@ namespace SheddingCardGames.Tests.Domain
             }
         }
 
-        //public class InitialiseShould
-        //{
-        //    private Game sut;
+        public class InitialiseShould
+        {
+            private readonly Game sut;
 
-        //    public InitialiseShould()
-        //    {
-        //        var sampleData = new SampleData();
-        //        var rules = new Rules(7);
-        //        sut = new Game(rules, new DummyShuffler(), new Dealer(rules), new CardCollectionBuilder().Build(), new [] { sampleData.Player1, sampleData.Player2 });
-        //    }
+            public InitialiseShould()
+            {
+                var sampleData = new SampleData();
+                var rules = new Rules(7);
+                sut = new Game(rules, new DummyShuffler(), new CardCollectionBuilder().Build(),
+                    new[] { sampleData.Player1, sampleData.Player2 });
+            }
 
-        //    [Fact]
-        //    public void CreateInitialisedEvent()
-        //    {
-        //        var gameState = new GameState(GamePhase.New);
+            [Fact]
+            public void SetGameState()
+            {
+                var expectedGameState = new GameState();
 
-        //        sut.Initialise(gameState);
+                sut.Initialise(expectedGameState);
 
-        //        sut.Events.Last().Number.Should().Be(1);
-        //        sut.Events.Last().Should().BeOfType(typeof(Initialised));
-        //    }
-
-        //    [Fact]
-        //    public void SetGameStateWhenGamePhaseIsNew()
-        //    {
-        //        var gameState = new GameState(GamePhase.New);
-                
-        //        sut.Initialise(gameState);
-
-        //        sut.GameState.CurrentGamePhase.Should().Be(GamePhase.New);
-        //        sut.GameState.CurrentTable.Should().BeNull();
-        //        sut.GameState.StartingPlayer.Should().BeNull();
-        //        sut.GameState.CurrentTurn.Should().BeNull();
-        //    }
-            
-        //    [Theory]
-        //    [InlineData(1)]
-        //    [InlineData(2)]
-        //    [InlineData(3)]
-        //    public void SetGameStateWhenGamePhaseIsReadyToDeal(int expectedStartingPlayer)
-        //    {
-        //        var gameState = new GameState(GamePhase.ReadyToDeal, expectedStartingPlayer);
-                
-        //        sut.Initialise(gameState);
-
-        //        sut.GameState.CurrentGamePhase.Should().Be(GamePhase.ReadyToDeal);
-        //        sut.GameState.CurrentTable.Should().BeNull();
-        //        sut.GameState.StartingPlayer.Should().Be(expectedStartingPlayer);
-        //        sut.GameState.CurrentTurn.Should().BeNull();
-        //    }
-
-        //    [Theory]
-        //    [InlineData(1)]
-        //    [InlineData(2)]
-        //    [InlineData(3)]
-        //    public void SetGameStateWhenGamePhaseIsInGame(int expectedStartingPlayerNumber)
-        //    {
-        //        var player1Hand = new CardCollection(new Card(1, Suit.Clubs));
-        //        var player2Hand = new CardCollection(new Card(1, Suit.Diamonds));
-        //        var player3Hand = new CardCollection(new Card(10, Suit.Spades));
-        //        var stockPile = new StockPile(new CardCollection(new Card(1, Suit.Hearts), new Card(2, Suit.Hearts)));
-        //        var discardPile = new DiscardPile(new[]
-        //        {
-        //            new Card(1, Suit.Spades),
-        //            new Card(2, Suit.Spades)
-        //        });
-        //        var sampleData = new SampleData();
-        //        var player1 = sampleData.Player1;
-        //        player1.Hand = player1Hand;
-        //        var player2 = sampleData.Player2;
-        //        player2.Hand = player2Hand;
-        //        var player3 = sampleData.Player3;
-        //        player3.Hand = player3Hand;
-        //        var expectedStartingPlayer = sampleData.GetPlayer(expectedStartingPlayerNumber);
-        //        var expectedTurn = new CurrentTurn(1, expectedStartingPlayer, new Card[0],
-        //            false, null, Action.Play, null);
-        //        sut = new InProgressGameBuilder()
-        //            .WithStartingPlayer(expectedStartingPlayer.Number)
-        //            .WithPlayer(player1)
-        //            .WithPlayer(player2)
-        //            .WithPlayer(player3)
-        //            .WithStockPile(stockPile)
-        //            .WithDiscardPile(discardPile)
-        //            .WithCurrentTurn(expectedTurn)
-        //            .Build();
-                
-        //        sut.GameState.CurrentGamePhase.Should().Be(GamePhase.InGame);
-        //        sut.GameState.StartingPlayer.Should().Be(expectedStartingPlayer.Number);
-        //        sut.GameState.CurrentTable.Players[0].Hand.Should().Be(player1Hand);
-        //        sut.GameState.CurrentTable.Players[1].Hand.Should().Be(player2Hand);
-        //        sut.GameState.CurrentTable.Players[2].Hand.Should().Be(player3Hand);
-        //        sut.GameState.CurrentTable.StockPile.Should().Be(stockPile);
-        //        sut.GameState.CurrentTable.DiscardPile.Should().Be(discardPile);
-        //        sut.GameState.CurrentTurn.Should().Be(expectedTurn);
-        //    }
-        //}
-
+                sut.GameState.Should().Be(expectedGameState);
+            }
+        }
+        
         public class ChooseStartingPlayerShould
         {
             private readonly Game sut;
