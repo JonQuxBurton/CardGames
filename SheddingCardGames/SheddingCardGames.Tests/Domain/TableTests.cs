@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Immutable;
+using System.Linq;
 using FluentAssertions;
 using SheddingCardGames.Domain;
 using Xunit;
@@ -239,6 +240,58 @@ namespace SheddingCardGames.Tests.Domain
                 sut.DiscardPile.RestOfCards.Cards.Should().Equal(new Card(5, Suit.Diamonds));
             }
 
+        }
+
+        public class MoveCardsFromPlayerToDiscardPileShould
+        {
+            private readonly Table sut;
+            private readonly Player player1;
+            
+            public MoveCardsFromPlayerToDiscardPileShould()
+            {
+                var sampleData = new SampleData();
+                player1 = sampleData.Player1;
+                player1.Hand = new CardCollection(
+                        new Card(1, Suit.Clubs), 
+                        new Card(1, Suit.Spades),
+                        new Card(1, Suit.Hearts),
+                        new Card(9, Suit.Diamonds)
+                );
+                var originalDiscardPile = new CardCollection(
+                    new Card(1, Suit.Diamonds)
+                    );
+                sut = TableCreator.Create(new StockPile(new CardCollection()), new DiscardPile(originalDiscardPile.Cards), player1, sampleData.Player2);
+            }
+            
+            [Fact]
+            public void RemoveCardsFromPlayersHand()
+            {
+                sut.MoveCardsFromPlayerToDiscardPile(player1, ImmutableList.Create(
+                    new Card(1, Suit.Clubs),
+                    new Card(1, Suit.Spades),
+                    new Card(1, Suit.Hearts)
+                ));
+                player1.Hand.Cards.Should().Equal(
+                    new Card(9, Suit.Diamonds)
+                );
+            }
+            
+            [Fact]
+            public void AddCardsToDiscardPile()
+            {
+                sut.MoveCardsFromPlayerToDiscardPile(player1, ImmutableList.Create(
+                    new Card(1, Suit.Clubs),
+                    new Card(1, Suit.Spades),
+                    new Card(1, Suit.Hearts)
+                ));
+
+                sut.DiscardPile.CardToMatch.Should().Be(new Card(1, Suit.Hearts));
+                sut.DiscardPile.RestOfCards.Cards.Should().Equal(
+                    new Card(1, Suit.Spades),
+                    new Card(1, Suit.Clubs),
+                    new Card(1, Suit.Diamonds)
+                    );
+            }
         }
 
         public class MoveCardFromStockPileToPlayerShould

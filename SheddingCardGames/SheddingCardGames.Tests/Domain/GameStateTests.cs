@@ -22,7 +22,7 @@ namespace SheddingCardGames.Tests.Domain
                 {
                     CurrentTable = new Table(new StockPile(new CardCollection()), new DiscardPile(), sampleData.Player1,
                         sampleData.Player2),
-                    CurrentTurn = new CurrentTurn(1, playerToPlay, new Card[0], Action.Play)
+                    CurrentTurn = new CurrentTurn(1, playerToPlay, new ValidPlays(), Action.Play)
                 };
             }
 

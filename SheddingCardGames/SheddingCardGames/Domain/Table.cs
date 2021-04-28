@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
 
@@ -43,6 +44,12 @@ namespace SheddingCardGames.Domain
         {
             player.Hand.Remove(card);
             DiscardPile.AddCard(card);
+        }
+
+        public void MoveCardsFromPlayerToDiscardPile(Player player, IImmutableList<Card> cards)
+        {
+            foreach (var card in cards) 
+                MoveCardFromPlayerToDiscardPile(player, card);
         }
 
         public Card MoveCardFromStockPileToPlayer(Player player)

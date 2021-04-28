@@ -37,7 +37,7 @@ namespace SheddingCardGames.Domain
         {
             gameState.CurrentTable.MoveCardFromPlayerToDiscardPile(playContext.ExecutingPlayer, playContext.PlayedCard);
             gameState.AddEvent(new Played(gameState.NextEventNumber, playContext.ExecutingPlayer.Number,
-                playContext.PlayedCard));
+                new []{ playContext.PlayedCard }));
 
             if (HasWon())
             {

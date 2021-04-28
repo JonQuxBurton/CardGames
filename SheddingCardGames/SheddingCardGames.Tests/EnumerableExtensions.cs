@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace SheddingCardGames.Tests.Domain
+namespace SheddingCardGames.Tests
 {
     public static class EnumerableExtensions
     {

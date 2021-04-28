@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Immutable;
+using System.Linq;
 using FluentAssertions;
 using SheddingCardGames.Domain;
 using Xunit;
@@ -196,7 +197,7 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnCard()
+            public void ReturnTrueWhenCollectionContainsCard()
             {
                 var actual = sut.Contains(new Card(2, Suit.Diamonds));
 
@@ -204,9 +205,54 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnNullWhenCardNotFound()
+            public void ReturnFalseWhenCollectionDoesNotContainCard()
             {
                 var actual = sut.Contains(new Card(13, Suit.Clubs));
+
+                actual.Should().BeFalse();
+            }
+        }
+        
+        public class ContainsAllShould
+        {
+            private readonly CardCollection sut;
+
+            public ContainsAllShould()
+            {
+                sut = new CardCollection(
+                    new Card(1, Suit.Diamonds), 
+                    new Card(2, Suit.Diamonds), 
+                    new Card(3, Suit.Diamonds));
+            }
+
+            [Fact]
+            public void ReturnTrueWhenCollectionContainsAllCardsToCheck()
+            {
+                var actual = sut.ContainsAll(ImmutableList.Create(new Card(1, Suit.Diamonds), new Card(2, Suit.Diamonds)));
+
+                actual.Should().BeTrue();
+            }
+
+            [Fact]
+            public void ReturnFalseWhenCollectionDoesNotContainsAllCardsToCheck()
+            {
+                var actual = sut.ContainsAll(ImmutableList.Create(new Card(1, Suit.Diamonds), new Card(1, Suit.Clubs)));
+
+                actual.Should().BeFalse();
+            }
+            
+            [Fact]
+            public void ReturnFalseWhenCardsToCheckIsEmpty()
+            {
+                var actual = sut.ContainsAll(ImmutableList<Card>.Empty);
+
+                actual.Should().BeFalse();
+            }
+            
+            [Fact]
+            public void ReturnFalseWhenCardsToCheckIsNull()
+            {
+                var actual = sut.ContainsAll(null);
 
                 actual.Should().BeFalse();
             }

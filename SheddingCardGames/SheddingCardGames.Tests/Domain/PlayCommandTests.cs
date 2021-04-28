@@ -60,7 +60,7 @@ namespace SheddingCardGames.Tests.Domain
                 {
                     CurrentTable = table,
                     PlayerToStart = player1,
-                    CurrentTurn = new CurrentTurn(turnNumber, currentPlayer, new Card[0], Action.Play)
+                    CurrentTurn = new CurrentTurn(turnNumber, currentPlayer, new ValidPlays(), Action.Play)
                 };
 
                 return new PlayCommand(new Rules(), gameState,  new PlayContext(executingPlayer, playedCard));
@@ -322,7 +322,7 @@ namespace SheddingCardGames.Tests.Domain
                 if (actualEvent == null) Assert.NotNull(actualEvent);
                 actualEvent.Number.Should().Be(1);
                 actualEvent.PlayerNumber.Should().Be(1);
-                actualEvent.Card.Should().Be(playedCard);
+                actualEvent.Cards.Should().Equal(playedCard);
             }
 
             [Fact]
@@ -346,7 +346,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(2);
                 actualTurn.PlayerToPlay.Number.Should().Be(2);
-                actualTurn.ValidPlays.Should().BeEquivalentTo(new Card(1, Suit.Diamonds));
+                actualTurn.ValidPlays.Plays.First().Should().BeEquivalentTo(new Card(1, Suit.Diamonds));
                 actualTurn.NextAction.Should().Be(Action.Play);
 
                 var actualPreviousTurnResult = actual.PreviousTurnResult;
@@ -380,7 +380,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(2);
                 actualTurn.PlayerToPlay.Number.Should().Be(2);
-                actualTurn.ValidPlays.Should().BeEmpty();
+                actualTurn.ValidPlays.Any().Should().BeFalse();
                 actualTurn.NextAction.Should().Be(Action.Take);
 
                 var actualPreviousTurnResult = actual.PreviousTurnResult;
@@ -410,7 +410,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(1);
-                actualTurn.ValidPlays.Should().BeEmpty();
+                actualTurn.ValidPlays.Plays.Should().BeEmpty();
                 actualTurn.NextAction.Should().Be(Action.Won);
 
                 var actualPreviousTurnResult = actual.PreviousTurnResult;
@@ -441,7 +441,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(1);
-                actualTurn.ValidPlays.Should().BeEmpty();
+                actualTurn.ValidPlays.Plays.Should().BeEmpty();
                 actualTurn.NextAction.Should().Be(Action.SelectSuit);
 
                 var actualPreviousTurnResult = actual.PreviousTurnResult;

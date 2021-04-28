@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using SheddingCardGames.Domain;
 using Xunit;
 
@@ -25,7 +26,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.GetValidPlays(discard, hand, 2, null);
 
-                actual.Should().BeEmpty();
+                actual.Any().Should().BeFalse();
             }
 
             [Fact]
@@ -43,7 +44,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.GetValidPlays(discard, hand, 2, null);
 
-                actual.Should().BeEquivalentTo(
+                actual.Plays.First().Should().BeEquivalentTo(
                     deck.Get(2, Suit.Clubs),
                     deck.Get(3, Suit.Clubs),
                     deck.Get(4, Suit.Clubs),
@@ -65,7 +66,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.GetValidPlays(discard, hand, 2, null);
 
-                actual.Should().BeEquivalentTo(
+                actual.Plays.First().Should().BeEquivalentTo(
                     deck.Get(1, Suit.Diamonds),
                     deck.Get(1, Suit.Hearts),
                     deck.Get(1, Suit.Spades)
@@ -87,7 +88,7 @@ namespace SheddingCardGames.Tests.Domain
                     );
                 var actual = sut.GetValidPlays(discard, hand, 2, null);
 
-                actual.Should().BeEquivalentTo(
+                actual.Plays.First().Should().BeEquivalentTo(
                     deck.Get(8, Suit.Diamonds));
             }
             
@@ -106,7 +107,7 @@ namespace SheddingCardGames.Tests.Domain
                     );
                 var actual = sut.GetValidPlays(discard, hand, 2, null);
 
-                actual.Should().BeEquivalentTo(
+                actual.Plays.First().Should().BeEquivalentTo(
                     deck.Get(2, Suit.Clubs),
                     deck.Get(8, Suit.Diamonds)
                     );
@@ -127,7 +128,7 @@ namespace SheddingCardGames.Tests.Domain
                 );
                 var actual = sut.GetValidPlays(discard, hand, 2, null);
 
-                actual.Should().BeEquivalentTo(
+                actual.Plays.First().Should().BeEquivalentTo(
                     deck.Get(8, Suit.Diamonds)
                 );
             }
@@ -147,7 +148,7 @@ namespace SheddingCardGames.Tests.Domain
                     );
                 var actual = sut.GetValidPlays(discard, hand, 1, null);
 
-                actual.Should().Equal(
+                actual.Plays.First().Should().Equal(
                     hand.Cards
                 );
             }
@@ -167,7 +168,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.GetValidPlays(discard, hand, 2, Suit.Clubs);
 
-                actual.Should().BeEquivalentTo(
+                actual.Plays.First().Should().BeEquivalentTo(
                     deck.Get(2, Suit.Clubs),
                     deck.Get(3, Suit.Clubs),
                     deck.Get(4, Suit.Clubs),

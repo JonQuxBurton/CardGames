@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using SheddingCardGames.UiLogic;
 
@@ -39,7 +39,7 @@ namespace SheddingCardGames.Domain
         {
             return new CurrentTurn(gameState.CurrentTurnNumber,
                 gameState.CurrentPlayerToPlay,
-                new Card[0],
+                new ValidPlays(),
                 Action.SelectSuit);
         }
 
@@ -47,19 +47,18 @@ namespace SheddingCardGames.Domain
         {
             return new CurrentTurn(gameState.CurrentTurnNumber,
                 gameState.CurrentPlayerToPlay,
-                new Card[0],
+                new ValidPlays(),
                 Action.Won);
         }
 
-        private Card[] GetValidPlays(GameState gameState, Player nextPlayer, Suit? selectedSuit, int currentTurnNumber)
+        private ValidPlays GetValidPlays(GameState gameState, Player nextPlayer, Suit? selectedSuit, int currentTurnNumber)
         {
             var validPlays = rules
-                .GetValidPlays(gameState.CurrentCardToMatch, nextPlayer.Hand, currentTurnNumber, selectedSuit)
-                .ToArray();
+                .GetValidPlays(gameState.CurrentCardToMatch, nextPlayer.Hand, currentTurnNumber, selectedSuit);
             return validPlays;
         }
 
-        private Action GetNextAction(IEnumerable<Card> validPlays)
+        private Action GetNextAction(ValidPlays validPlays)
         {
             return !validPlays.Any() ? Action.Take : Action.Play;
         }

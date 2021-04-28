@@ -112,7 +112,7 @@ namespace SheddingCardGame.Cli
             }
             else
             {
-                foreach (var validPlay in turn.ValidPlays)
+                foreach (var validPlay in turn.ValidPlays.Plays)
                 {
                     Console.WriteLine($"{validPlay}");
                 }

@@ -17,10 +17,10 @@ namespace SheddingCardGames.Domain
             HandSize = handSize;
         }
         
-        public IEnumerable<Card> GetValidPlays(Card discard, CardCollection hand, int turnNumber, Suit? selectedSuit)
+        public ValidPlays GetValidPlays(Card discard, CardCollection hand, int turnNumber, Suit? selectedSuit)
         {
             if (turnNumber == 1 && discard.Rank == 8)
-                return hand.Cards.ToList();
+                return new ValidPlays(hand.Cards.ToList());
 
             IEnumerable<Card> suitMatches;
             if (discard.Rank == 8)
@@ -39,7 +39,8 @@ namespace SheddingCardGames.Domain
             foreach (var match in hand.Cards.Where(x => x.Rank == 8)) 
                 set.Add(match);
 
-            return set.ToList();
+            return new ValidPlays(set.ToList());
+            //return set.ToList();
         }
 
         public bool IsValidPlay(Card playedCard, Card discardCard, int turnNumber, Suit? selectedSuit)

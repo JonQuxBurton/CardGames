@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace SheddingCardGames.Domain
@@ -70,6 +71,14 @@ namespace SheddingCardGames.Domain
         public bool Contains(Card card)
         {
             return cards.Contains(card);
+        }
+        
+        public bool ContainsAll(IImmutableList<Card> cardsToCheck)
+        {
+            if (cardsToCheck == null || !cardsToCheck.Any())
+                return false;
+
+            return !cardsToCheck.Except(cards).Any();
         }
 
         public bool IsEmpty()
