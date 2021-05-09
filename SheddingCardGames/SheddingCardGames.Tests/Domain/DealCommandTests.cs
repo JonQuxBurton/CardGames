@@ -81,7 +81,7 @@ namespace SheddingCardGames.Tests.Domain
                 {
                     CurrentTable = table,
                     PlayerToStart = currentPlayer,
-                    CurrentTurn = new CurrentTurn(1, currentPlayer, new ValidPlays(), Action.Play)
+                    CurrentTurn = new CurrentTurn(1, currentPlayer, Action.Play)
                 };
 
                 var player2Hand = new CardCollection(
@@ -233,7 +233,6 @@ namespace SheddingCardGames.Tests.Domain
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(1);
-                actualTurn.ValidPlays.Plays.First().Should().Equal(new Card(9, Suit.Clubs));
                 actualTurn.NextAction.Should().Be(Action.Play);
 
                 actual.PreviousTurnResult.Should().BeNull();
@@ -249,7 +248,6 @@ namespace SheddingCardGames.Tests.Domain
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(2);
-                actualTurn.ValidPlays.Plays.First().Should().Equal(new Card(9, Suit.Hearts));
                 actualTurn.NextAction.Should().Be(Action.Play);
 
                 actual.PreviousTurnResult.Should().BeNull();
@@ -265,7 +263,6 @@ namespace SheddingCardGames.Tests.Domain
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(3);
-                actualTurn.ValidPlays.Plays.First().Should().Equal(new Card(9, Suit.Spades));
                 actualTurn.NextAction.Should().Be(Action.Play);
 
                 actual.PreviousTurnResult.Should().BeNull();
@@ -288,7 +285,6 @@ namespace SheddingCardGames.Tests.Domain
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(1);
-                actualTurn.ValidPlays.Plays.Should().BeEmpty();
                 actualTurn.NextAction.Should().Be(Action.Take);
 
                 actual.PreviousTurnResult.Should().BeNull();

@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 using FluentAssertions;
 using SheddingCardGames.Domain;
 using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
+using static SheddingCardGames.Domain.CardsUtils;
+using static SheddingCardGames.Domain.Suit;
 using Action = SheddingCardGames.Domain.Action;
 
 namespace SheddingCardGames.Tests.Domain
@@ -62,10 +63,10 @@ namespace SheddingCardGames.Tests.Domain
                 {
                     CurrentTable = table,
                     PlayerToStart = player1,
-                    CurrentTurn = new CurrentTurn(turnNumber, currentPlayer, new ValidPlays(), Action.Play)
+                    CurrentTurn = new CurrentTurn(turnNumber, currentPlayer, Action.Play)
                 };
 
-                return new PlayMultipleCommand(new Rules(), gameState,  new PlayMultipleContext(executingPlayer, playedCards));
+                return new PlayMultipleCommand(new OlsenOlsenRules(), gameState,  new PlayMultipleContext(executingPlayer, playedCards));
             }
         }
 
@@ -76,17 +77,17 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessTrueWhenValid()
             {
-                var playedCard = new Card(1, Suit.Clubs);
-                var player1Hand = new CardCollection(playedCard);
+                var cardsPlayed = Cards(Card(1, Clubs));
+                var player1Hand = new CardCollection(cardsPlayed);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(2, Suit.Clubs)
+                    Card(2, Clubs)
                 ));
                 var sut = new PlayMultipleCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithDiscardPile(discardPile)
-                    .Build(ImmutableList.Create(playedCard));
+                    .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
 
@@ -97,13 +98,13 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessFalseWhenCardIsNotInPlayersHand()
             {
-                var playedCard = new Card(1, Suit.Clubs);
+                var cardsPlayed = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection();
                 var player2Hand = new CardCollection();
                 var sut = new PlayMultipleCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
-                    .Build(ImmutableList.Create(playedCard));
+                    .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
 
@@ -117,20 +118,20 @@ namespace SheddingCardGames.Tests.Domain
             [InlineData("2|Clubs", "2|Diamonds", "2|Hearts")]
             public void ReturnIsSuccessFalseWhenAnyCardIsNotInPlayersHand(params string[] playedCardsData)
             {
-                var playedCards = playedCardsData.Select(cardParser.Parse).ToArray();
+                var cardsPlayed = Cards(cardParser.Parse(playedCardsData));
                 var player1Hand = new CardCollection(
-                    new Card(2, Suit.Clubs),
-                    new Card(2, Suit.Diamonds)
+                    Card(2, Clubs),
+                    Card(2, Diamonds)
                     );
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(
-                    new[] { new Card(1, Suit.Clubs) }
+                    new[] { Card(1, Clubs) }
                 );
                 var sut = new PlayMultipleCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithDiscardPile(discardPile)
-                    .Build(ImmutableList.Create(playedCards));
+                    .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
 
@@ -141,20 +142,20 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessFalseWhenNotPlayersTurn()
             {
-                var playedCard = new Card(1, Suit.Clubs);
+                var cardsPlayed = Cards(Card(1, Clubs));
                 var discardPile = new DiscardPile(
-                    new[] { new Card(1, Suit.Clubs) }
+                    new[] { Card(1, Clubs) }
                 );
                 var player1Hand = new CardCollection();
                 var player2Hand = new CardCollection(
-                    playedCard
+                    cardsPlayed
                 );
                 var sut = new PlayMultipleCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithExecutingPlayer(2)
-                    .Build(ImmutableList.Create(playedCard));
+                    .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
 
@@ -165,17 +166,17 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessFalseForInvalidPlay()
             {
-                var playedCards = new[] { new Card(1, Suit.Clubs) };
-                var player1Hand = new CardCollection(playedCards);
+                var cardsPlayed = Cards(Card(1, Clubs));
+                var player1Hand = new CardCollection(cardsPlayed);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(2, Suit.Spades)
+                    Card(2, Spades)
                 ));
                 var sut = new PlayMultipleCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
-                    .Build(ImmutableList.Create(playedCards));
+                    .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
 
@@ -189,17 +190,17 @@ namespace SheddingCardGames.Tests.Domain
             [InlineData("10|Hearts", "2|Clubs", "2|Diamonds")]
             public void ReturnIsSuccessFalseForInvalidPlayWheMultipleCardsPlayed(params string[] playedCardsData)
             {
-                var playedCards = playedCardsData.Select(cardParser.Parse).ToArray();
-                var player1Hand = new CardCollection(playedCards);
+                var cardsPlayed = Cards(cardParser.Parse(playedCardsData));
+                var player1Hand = new CardCollection(cardsPlayed);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(2, Suit.Spades)
+                    Card(2, Spades)
                 ));
                 var sut = new PlayMultipleCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
-                    .Build(ImmutableList.Create(playedCards));
+                    .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
 
@@ -210,18 +211,18 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessTrueForValidPlayWithMatchingSuit()
             {
-                var playedCards = new []{ new Card(1, Suit.Clubs) };
-                var player1Hand = new CardCollection(playedCards);
+                var cardPlayed = Cards(Card(1, Clubs));
+                var player1Hand = new CardCollection(cardPlayed);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(1, Suit.Spades)
+                    Card(1, Spades)
                 ));
 
                 var sut = new PlayMultipleCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
-                    .Build(ImmutableList.Create(playedCards));
+                    .Build(cardPlayed);
 
                 var actual = sut.IsValid();
                 actual.IsSuccess.Should().BeTrue();
@@ -230,18 +231,18 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessTrueForValidPlayWithMatchingSuitWhenSelectedSuit()
             {
-                var playedCards = new []{ new Card(1, Suit.Clubs) };
+                var playedCards = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection(playedCards);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(8, Suit.Spades)
+                    Card(8, Spades)
                 ));
 
                 var sut = new PlayMultipleCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
-                    .Build(ImmutableList.Create(playedCards));
+                    .Build(playedCards);
 
                 var actual = sut.IsValid();
                 actual.IsSuccess.Should().BeTrue();
@@ -250,18 +251,18 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessTrueForValidPlayWithMatchingRank()
             {
-                var playedCards = new [] { new Card(1, Suit.Clubs), new Card(1, Suit.Diamonds), new Card(1, Suit.Hearts) };
-                var player1Hand = new CardCollection(playedCards);
+                var cardsPlayed = Cards(Card(1, Clubs), Card(1, Diamonds), Card(1, Hearts));
+                var player1Hand = new CardCollection(cardsPlayed);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(1, Suit.Spades)
+                    Card(1, Spades)
                 ));
 
                 var sut = new PlayMultipleCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
-                    .Build(ImmutableList.Create(playedCards));
+                    .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
                 actual.IsSuccess.Should().BeTrue();
@@ -270,18 +271,18 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessTrueForValidPlayWithRank8()
             {
-                var playedCards = new []{  new Card(8, Suit.Clubs)} ;
-                var player1Hand = new CardCollection(playedCards);
+                var cardsPlayed = Cards(Card(8, Clubs));
+                var player1Hand = new CardCollection(cardsPlayed);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(1, Suit.Spades)
+                    Card(1, Spades)
                 ));
 
                 var sut = new PlayMultipleCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
-                    .Build(ImmutableList.Create(playedCards));
+                    .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
 
@@ -291,18 +292,18 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessTrueForAnyCardWhenFirstTurnAndDiscardCardIs8()
             {
-                var playedCards = new []{ new Card(1, Suit.Clubs) };
-                var player1Hand = new CardCollection(playedCards);
+                var cardsPlayed = Cards(Card(1, Clubs));
+                var player1Hand = new CardCollection(cardsPlayed);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(8, Suit.Spades)
+                    Card(8, Spades)
                 ));
 
                 var sut = new PlayMultipleCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
-                    .Build(ImmutableList.Create(playedCards));
+                    .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
                 actual.IsSuccess.Should().BeTrue();
@@ -311,17 +312,17 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessFalseWhenFirstTurnAndDiscardCardIsNot8()
             {
-                var playedCards = new Card(1, Suit.Clubs);
-                var player1Hand = new CardCollection(playedCards);
+                var cardsPlayed = Cards(Card(1, Clubs));
+                var player1Hand = new CardCollection(cardsPlayed);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(7, Suit.Spades)
+                    Card(7, Spades)
                 ));
                 var sut = new PlayMultipleCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
-                    .Build(ImmutableList.Create(playedCards));
+                    .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
 
@@ -335,54 +336,52 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnUpdatedTable()
             {
-                var playedCards = new[]
-                {
-                    new Card(1, Suit.Clubs), 
-                    new Card(1, Suit.Diamonds)
-                };
+                var cardsPlayed = Cards(
+                    Card(1, Clubs), 
+                    Card(1, Diamonds)
+                );
                 var player1Hand = new CardCollection(
-                    playedCards.Append(
-                        new Card(2, Suit.Clubs)
+                    cardsPlayed.Append(
+                        Card(2, Clubs)
                 ));
                 var player2Hand = new CardCollection(
-                    new Card(2, Suit.Diamonds)
+                    Card(2, Diamonds)
                 );
-                var discardPile = new DiscardPile(new [] { new Card(1, Suit.Hearts) });
+                var discardPile = new DiscardPile(new [] { Card(1, Hearts) });
                 var sut = new PlayMultipleCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithDiscardPile(discardPile)
-                    .Build(ImmutableList.Create(playedCards));
+                    .Build(cardsPlayed);
 
                 var actual = sut.Execute();
 
-                actual.CurrentTable.DiscardPile.CardToMatch.Should().Be(new Card(1, Suit.Diamonds));
-                actual.CurrentTable.DiscardPile.RestOfCards.Cards.First().Should().Be(new Card(1, Suit.Clubs));
-                actual.CurrentTable.Players[0].Hand.Cards.Should().NotContain(new Card(1, Suit.Clubs));
-                actual.CurrentTable.Players[0].Hand.Cards.Should().NotContain(new Card(1, Suit.Diamonds));
+                actual.CurrentTable.DiscardPile.CardToMatch.Should().Be(Card(1, Diamonds));
+                actual.CurrentTable.DiscardPile.RestOfCards.Cards.First().Should().Be(Card(1, Clubs));
+                actual.CurrentTable.Players[0].Hand.Cards.Should().NotContain(Card(1, Clubs));
+                actual.CurrentTable.Players[0].Hand.Cards.Should().NotContain(Card(1, Diamonds));
             }
 
             [Fact]
             public void AddPlayedEvent()
             {
-                var playedCards = new[]
-                {
-                    new Card(1, Suit.Clubs),
-                    new Card(1, Suit.Diamonds)
-                };
+                var cardsPlayed = Cards(
+                    Card(1, Clubs),
+                    Card(1, Diamonds)
+                );
                 var player1Hand = new CardCollection(
-                    playedCards.Append(
-                        new Card(2, Suit.Clubs)
+                    cardsPlayed.Append(
+                        Card(2, Clubs)
                     ));
                 var player2Hand = new CardCollection(
-                    new Card(2, Suit.Diamonds)
+                    Card(2, Diamonds)
                 );
-                var discardPile = new DiscardPile(new[] { new Card(1, Suit.Hearts) });
+                var discardPile = new DiscardPile(new[] { Card(1, Hearts) });
                 var sut = new PlayMultipleCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithDiscardPile(discardPile)
-                    .Build(ImmutableList.Create(playedCards));
+                    .Build(cardsPlayed);
 
                 var actual = sut.Execute();
 
@@ -391,31 +390,31 @@ namespace SheddingCardGames.Tests.Domain
                 if (actualEvent == null) Assert.NotNull(actualEvent);
                 actualEvent.Number.Should().Be(1);
                 actualEvent.PlayerNumber.Should().Be(1);
-                actualEvent.Cards.Should().Equal(playedCards);
+                actualEvent.Cards.Should().Equal(cardsPlayed);
             }
 
             [Fact]
             public void CreateNewTurn()
             {
-                var playedCards = new[]
-                {
-                    new Card(1, Suit.Clubs),
-                    new Card(1, Suit.Diamonds)
-                };
+                var cardsPlayed = Cards
+                (
+                    Card(1, Clubs),
+                    Card(1, Diamonds)
+                );
                 var player1Hand = new CardCollection(
-                    playedCards.Append(
-                        new Card(2, Suit.Clubs)
+                    cardsPlayed.Append(
+                        Card(2, Clubs)
                     ));
                 var player2Hand = new CardCollection(
-                    new Card(2, Suit.Diamonds),
-                    new Card(3, Suit.Diamonds)
+                    Card(2, Diamonds),
+                    Card(3, Diamonds)
                 );
-                var discardPile = new DiscardPile(new[] { new Card(1, Suit.Hearts) });
+                var discardPile = new DiscardPile(new[] { Card(1, Hearts) });
                 var sut = new PlayMultipleCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithDiscardPile(discardPile)
-                    .Build(ImmutableList.Create(playedCards));
+                    .Build(cardsPlayed);
 
                 var actual = sut.Execute();
 
@@ -430,135 +429,106 @@ namespace SheddingCardGames.Tests.Domain
                 actualPreviousTurnResult.SelectedSuit.Should().BeNull();
                 actualPreviousTurnResult.TakenCard.Should().BeNull();
 
-                actual.CurrentTable.Players[0].Hand.Cards.Should().NotContain(playedCards);
-                actual.CurrentTable.DiscardPile.CardToMatch.Should().Be(playedCards.Last());
+                actual.CurrentTable.Players[0].Hand.Cards.Should().NotContain(cardsPlayed);
+                actual.CurrentTable.DiscardPile.CardToMatch.Should().Be(cardsPlayed.Last());
             }
 
             [Fact]
-            public void CreateNewTurnWithValidPlays()
+            public void CreateNewTurnWithNextActionTake()
             {
-                var playedCards = new[]
-                {
-                    new Card(1, Suit.Clubs),
-                    new Card(1, Suit.Diamonds)
-                };
-                var player1Hand = new CardCollection(
-                    playedCards.Append(
-                        new Card(2, Suit.Clubs)
-                    ));
-                var player2Hand = new CardCollection(
-                    new Card(2, Suit.Diamonds),
-                    new Card(3, Suit.Diamonds),
-                    new Card(10, Suit.Hearts)
+                var cardsPlayed = Cards (
+                    Card(1, Clubs)
                 );
-                var discardPile = new DiscardPile(new[] { new Card(1, Suit.Hearts) });
+                var player1Hand = new CardCollection(
+                    cardsPlayed.Append(
+                        Card(2, Clubs)
+                    )
+                );
+                var player2Hand = new CardCollection(
+                    Card(10, Diamonds)
+                );
                 var sut = new PlayMultipleCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
-                    .WithDiscardPile(discardPile)
-                    .Build(ImmutableList.Create(playedCards));
+                    .Build(cardsPlayed);
 
                 var actual = sut.Execute();
 
                 var actualTurn = actual.CurrentTurn;
-                //actualTurn.ValidPlays.Should().Contain(new Card(2, Suit.Diamonds));
-                //actualTurn.ValidPlays.Should().Contain(new Card(3, Suit.Diamonds));
-                //actualTurn.ValidPlays.Should().Contain(new Card(3, Suit.Diamonds));
+                actualTurn.TurnNumber.Should().Be(2);
+                actualTurn.PlayerToPlay.Number.Should().Be(2);
+                actualTurn.NextAction.Should().Be(Action.Take);
+
+                var actualPreviousTurnResult = actual.PreviousTurnResult;
+                actualPreviousTurnResult.HasWinner.Should().BeFalse();
+                actualPreviousTurnResult.Winner.Should().BeNull();
+                actualPreviousTurnResult.SelectedSuit.Should().BeNull();
+                actualPreviousTurnResult.TakenCard.Should().BeNull();
             }
 
-            //    [Fact]
-            //    public void CreateNewTurnWithNextActionTake()
-            //    {
-            //        var playedCard = new Card(1, Suit.Clubs);
-            //        var player1Hand = new CardCollection(
-            //            playedCard,
-            //            new Card(2, Suit.Clubs)
-            //        );
-            //        var player2Hand = new CardCollection(
-            //            new Card(10, Suit.Diamonds)
-            //        );
-            //        var sut = new PlayCommandBuilder()
-            //            .WithPlayer1Hand(player1Hand)
-            //            .WithPlayer2Hand(player2Hand)
-            //            .Build(playedCard);
+            [Fact]
+            public void CreateWinningTurn()
+            {
+                var cardsPlayed = Cards(
+                    Card(1, Clubs)
+                );
+                var player1Hand = new CardCollection(
+                    cardsPlayed
+                );
+                var player2Hand = new CardCollection(
+                    Card(10, Diamonds)
+                );
+                var sut = new PlayMultipleCommandBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .Build(cardsPlayed);
 
-            //        var actual = sut.Execute();
+                var actual = sut.Execute();
 
-            //        var actualTurn = actual.CurrentTurn;
-            //        actualTurn.TurnNumber.Should().Be(2);
-            //        actualTurn.PlayerToPlay.Number.Should().Be(2);
-            //        actualTurn.ValidPlays.Should().BeEmpty();
-            //        actualTurn.NextAction.Should().Be(Action.Take);
+                var actualTurn = actual.CurrentTurn;
+                actualTurn.TurnNumber.Should().Be(1);
+                actualTurn.PlayerToPlay.Number.Should().Be(1);
+                actualTurn.NextAction.Should().Be(Action.Won);
 
-            //        var actualPreviousTurnResult = actual.PreviousTurnResult;
-            //        actualPreviousTurnResult.HasWinner.Should().BeFalse();
-            //        actualPreviousTurnResult.Winner.Should().BeNull();
-            //        actualPreviousTurnResult.SelectedSuit.Should().BeNull();
-            //        actualPreviousTurnResult.TakenCard.Should().BeNull();
-            //    }
+                var actualPreviousTurnResult = actual.PreviousTurnResult;
+                actualPreviousTurnResult.HasWinner.Should().BeTrue();
+                actualPreviousTurnResult.Winner.Number.Should().Be(1);
+                actualPreviousTurnResult.SelectedSuit.Should().BeNull();
+                actualPreviousTurnResult.TakenCard.Should().BeNull();
+            }
 
-            //    [Fact]
-            //    public void CreateWinningTurn()
-            //    {
-            //        var playedCard = new Card(1, Suit.Clubs);
-            //        var player1Hand = new CardCollection(
-            //            playedCard
-            //        );
-            //        var player2Hand = new CardCollection(
-            //            new Card(10, Suit.Diamonds)
-            //        );
-            //        var sut = new PlayCommandBuilder()
-            //            .WithPlayer1Hand(player1Hand)
-            //            .WithPlayer2Hand(player2Hand)
-            //            .Build(playedCard);
+            [Fact]
+            public void CreateCrazyEightTurn()
+            {
+                var cardsPlayed = Cards(Card(8, Clubs));
+                var player1Hand = new CardCollection(
+                    cardsPlayed.Append(
+                    Card(1, Clubs)
+                    )
+                );
+                var player2Hand = new CardCollection(
+                    Card(10, Diamonds)
+                );
+                var sut = new PlayMultipleCommandBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .Build(cardsPlayed);
 
-            //        var actual = sut.Execute();
+                var actual = sut.Execute();
 
-            //        var actualTurn = actual.CurrentTurn;
-            //        actualTurn.TurnNumber.Should().Be(1);
-            //        actualTurn.PlayerToPlay.Number.Should().Be(1);
-            //        actualTurn.ValidPlays.Should().BeEmpty();
-            //        actualTurn.NextAction.Should().Be(Action.Won);
+                var actualTurn = actual.CurrentTurn;
+                actualTurn.TurnNumber.Should().Be(1);
+                actualTurn.PlayerToPlay.Number.Should().Be(1);
+                actualTurn.NextAction.Should().Be(Action.SelectSuit);
 
-            //        var actualPreviousTurnResult = actual.PreviousTurnResult;
-            //        actualPreviousTurnResult.HasWinner.Should().BeTrue();
-            //        actualPreviousTurnResult.Winner.Number.Should().Be(1);
-            //        actualPreviousTurnResult.SelectedSuit.Should().BeNull();
-            //        actualPreviousTurnResult.TakenCard.Should().BeNull();
-            //    }
+                var actualPreviousTurnResult = actual.PreviousTurnResult;
+                actualPreviousTurnResult.HasWinner.Should().BeFalse();
+                actualPreviousTurnResult.Winner.Should().BeNull();
+                actualPreviousTurnResult.SelectedSuit.Should().BeNull();
+                actualPreviousTurnResult.TakenCard.Should().BeNull();
 
-            //    [Fact]
-            //    public void CreateCrazyEightTurn()
-            //    {
-            //        var playedCard = new Card(8, Suit.Clubs);
-            //        var player1Hand = new CardCollection(
-            //            playedCard,
-            //            new Card(1, Suit.Clubs)
-            //        );
-            //        var player2Hand = new CardCollection(
-            //            new Card(10, Suit.Diamonds)
-            //        );
-            //        var sut = new PlayCommandBuilder()
-            //            .WithPlayer1Hand(player1Hand)
-            //            .WithPlayer2Hand(player2Hand)
-            //            .Build(playedCard);
-
-            //        var actual = sut.Execute();
-
-            //        var actualTurn = actual.CurrentTurn;
-            //        actualTurn.TurnNumber.Should().Be(1);
-            //        actualTurn.PlayerToPlay.Number.Should().Be(1);
-            //        actualTurn.ValidPlays.Should().BeEmpty();
-            //        actualTurn.NextAction.Should().Be(Action.SelectSuit);
-
-            //        var actualPreviousTurnResult = actual.PreviousTurnResult;
-            //        actualPreviousTurnResult.HasWinner.Should().BeFalse();
-            //        actualPreviousTurnResult.Winner.Should().BeNull();
-            //        actualPreviousTurnResult.SelectedSuit.Should().BeNull();
-            //        actualPreviousTurnResult.TakenCard.Should().BeNull();
-
-            //        actual.CurrentTable.DiscardPile.CardToMatch.Should().Be(playedCard);
-            //    }
+                actual.CurrentTable.DiscardPile.CardToMatch.Should().Be(cardsPlayed.First());
+            }
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Linq;
 using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
+using static SheddingCardGames.Domain.CardsUtils;
 using Action = SheddingCardGames.Domain.Action;
 
 namespace SheddingCardGame.Cli
@@ -63,7 +64,7 @@ namespace SheddingCardGame.Cli
 
         private static void Play(Game game, CurrentTurn currentTurn)
         {
-            if (!currentTurn.ValidPlays.Any())
+            if (currentTurn.NextAction == Action.Take)
             {
                 Console.WriteLine($"No valid plays, press any key to Take a card");
                 Console.ReadKey();
@@ -83,7 +84,7 @@ namespace SheddingCardGame.Cli
 
             Console.WriteLine($"{currentTurn.PlayerToPlay.Name} plays: {play}");
 
-            var playResult = game.Play(new PlayContext(currentTurn.PlayerToPlay, play));
+            var playResult = game.Play(new PlayContext(currentTurn.PlayerToPlay, Cards(play)));
             Console.WriteLine($"IsValidPlay: {playResult}");
         }
 
@@ -104,20 +105,7 @@ namespace SheddingCardGame.Cli
                 var playerHand = string.Join(", ", player.Hand.Cards.Select(x => x.ToString()));
                 Console.WriteLine($"Player {player.Number} ({player.Name}) hand: {playerHand} ");
             }
-
-            Console.WriteLine($"{turn.PlayerToPlay.Name} potential plays:");
-            if (!turn.ValidPlays.Any())
-            {
-                Console.WriteLine("None");
-            }
-            else
-            {
-                foreach (var validPlay in turn.ValidPlays.Plays)
-                {
-                    Console.WriteLine($"{validPlay}");
-                }
-            }
-
+            
             Console.WriteLine("--------------------------------------------------");
         }
     }

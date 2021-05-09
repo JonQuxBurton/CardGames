@@ -78,7 +78,7 @@ namespace SheddingCardGames.Tests.Domain
                 {
                     CurrentTable = table,
                     PlayerToStart = player1,
-                    CurrentTurn = new CurrentTurn(turnNumber, playerToPlay, new ValidPlays(), Action.Play)
+                    CurrentTurn = new CurrentTurn(turnNumber, playerToPlay, Action.Play)
                 };
 
                 return new TakeCommand(new Rules(), new DummyShuffler(), gameState, new TakeContext(executingPlayer));
@@ -194,7 +194,6 @@ namespace SheddingCardGames.Tests.Domain
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(2);
                 actualTurn.PlayerToPlay.Number.Should().Be(2);
-                actualTurn.ValidPlays.Plays.First().Should().BeEquivalentTo(new Card(2, Suit.Clubs));
                 actualTurn.NextAction.Should().Be(Action.Play);
 
                 var actualPreviousTurnResult = actual.PreviousTurnResult;

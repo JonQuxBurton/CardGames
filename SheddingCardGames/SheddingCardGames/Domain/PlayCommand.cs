@@ -1,3 +1,4 @@
+using System.Linq;
 using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 
@@ -24,7 +25,7 @@ namespace SheddingCardGames.Domain
             if (playContext.ExecutingPlayer.Number != gameState.CurrentPlayerToPlayNumber)
                 return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
 
-            if (!playContext.ExecutingPlayer.Hand.Contains(playContext.PlayedCard))
+            if (!playContext.ExecutingPlayer.Hand.Contains(playContext.CardsPlayed.First()))
                 return new ActionResult(false, ActionResultMessageKey.CardIsNotInPlayersHand);
 
             if (!IsValidPlay())
@@ -35,9 +36,9 @@ namespace SheddingCardGames.Domain
 
         public override GameState Execute()
         {
-            gameState.CurrentTable.MoveCardFromPlayerToDiscardPile(playContext.ExecutingPlayer, playContext.PlayedCard);
+            gameState.CurrentTable.MoveCardFromPlayerToDiscardPile(playContext.ExecutingPlayer, playContext.CardsPlayed.First());
             gameState.AddEvent(new Played(gameState.NextEventNumber, playContext.ExecutingPlayer.Number,
-                new []{ playContext.PlayedCard }));
+                new []{ playContext.CardsPlayed.First() }));
 
             if (HasWon())
             {
@@ -45,7 +46,7 @@ namespace SheddingCardGames.Domain
                 gameState.PreviousTurnResult = new PreviousTurnResult(true, playContext.ExecutingPlayer);
                 gameState.CurrentTurn = turnBuilder.BuildWinningTurn(gameState);
             }
-            else if (playContext.PlayedCard.Rank == 8)
+            else if (playContext.CardsPlayed.First().Rank == 8)
             {
                 gameState.PreviousTurnResult = new PreviousTurnResult(false);
                 gameState.CurrentTurn = turnBuilder.BuildCrazyEightTurn(gameState);
@@ -61,7 +62,7 @@ namespace SheddingCardGames.Domain
 
         private bool IsValidPlay()
         {
-            return rules.IsValidPlay(playContext.PlayedCard, 
+            return rules.IsValidPlay(playContext.CardsPlayed, 
                 gameState.CurrentCardToMatch,
                 gameState.CurrentTurnNumber,
                 gameState.CurrentSelectedSuit);

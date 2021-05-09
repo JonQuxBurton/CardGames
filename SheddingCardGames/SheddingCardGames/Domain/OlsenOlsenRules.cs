@@ -4,19 +4,24 @@ using static SheddingCardGames.Domain.CardsUtils;
 
 namespace SheddingCardGames.Domain
 {
-    public class Rules : IRules
+    public class OlsenOlsenRules : IRules
     {
-        public Rules()
+        public OlsenOlsenRules()
         {
             HandSize = 7;
         }
 
-        public Rules(int handSize)
+        public OlsenOlsenRules(int handSize)
         {
             HandSize = handSize;
         }
 
         public int HandSize { get; }
+
+        public int GetHandSize()
+        {
+            return HandSize;
+        }
 
         public bool HasValidPlay(Card discardCard, CardCollection hand, int turnNumber, Suit? selectedSuit)
         {
@@ -28,24 +33,24 @@ namespace SheddingCardGames.Domain
             if (turnNumber == 1 && discardCard.Rank == 8)
                 return true;
 
-            if (discardCard.Rank == 8 && selectedSuit != null)
-            {
-                if (selectedSuit == cardsPlayed.First().Suit || cardsPlayed.First().Rank == 8)
-                    return true;
-
-                return false;
-            }
-
-            if (discardCard.Suit == cardsPlayed.First().Suit || discardCard.Rank == cardsPlayed.First().Rank ||
-                cardsPlayed.First().Rank == 8)
-                return true;
-
-            return false;
+            return cardsPlayed.All(x => IsCardValid(x, discardCard, selectedSuit));
         }
 
-        public int GetHandSize()
+        private static bool IsCardValid(Card cardPlayed, Card discardCard, Suit? selectedSuit)
         {
-            return HandSize;
+            if (cardPlayed.Rank == 8)
+                return true;
+
+            if (discardCard.Rank == cardPlayed.Rank)
+                return true;
+
+            if (selectedSuit != null && selectedSuit == cardPlayed.Suit)
+                return true;
+
+            if (selectedSuit == null && discardCard.Suit == cardPlayed.Suit)
+                return true;
+            
+            return false;
         }
     }
 }

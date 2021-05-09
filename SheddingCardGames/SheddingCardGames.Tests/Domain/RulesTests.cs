@@ -1,182 +1,12 @@
-﻿using System.Linq;
-using FluentAssertions;
+﻿using FluentAssertions;
 using SheddingCardGames.Domain;
 using Xunit;
+using static SheddingCardGames.Domain.CardsUtils;
 
 namespace SheddingCardGames.Tests.Domain
 {
     namespace RulesTests
     {
-        public class GetValidPlaysShould
-        {
-            private readonly CardCollection deck;
-            private readonly Rules sut;
-
-            public GetValidPlaysShould()
-            {
-                deck = new CardCollectionBuilder().Build();
-                sut = new Rules();
-            }
-
-            [Fact]
-            public void ReturnNoPotentialPlays()
-            {
-                var discard = deck.Get(1, Suit.Clubs);
-                var hand = deck.GetCardCollection(new Card(2, Suit.Hearts));
-
-                var actual = sut.GetValidPlays(discard, hand, 2, null);
-
-                actual.Any().Should().BeFalse();
-            }
-
-            [Fact]
-            public void ReturnPotentialPlaysWithMatchingSuit()
-            {
-                var discard = deck.Get(1, Suit.Clubs);
-                var hand = deck.GetCardCollection(
-                    new Card(2, Suit.Clubs),
-                    new Card(3, Suit.Clubs),
-                    new Card(4, Suit.Clubs),
-                    new Card(5, Suit.Clubs),
-                    new Card(2, Suit.Diamonds),
-                    new Card(2, Suit.Hearts),
-                    new Card(2, Suit.Spades));
-
-                var actual = sut.GetValidPlays(discard, hand, 2, null);
-
-                actual.Plays.First().Should().BeEquivalentTo(
-                    deck.Get(2, Suit.Clubs),
-                    deck.Get(3, Suit.Clubs),
-                    deck.Get(4, Suit.Clubs),
-                    deck.Get(5, Suit.Clubs));
-            }
-
-            [Fact]
-            public void ReturnPotentialPlaysWithMatchingRank()
-            {
-                var discard = deck.Get(1, Suit.Clubs);
-                var hand = deck.GetCardCollection(
-                    new Card(2, Suit.Diamonds),
-                    new Card(3, Suit.Diamonds),
-                    new Card(4, Suit.Diamonds),
-                    new Card(5, Suit.Diamonds),
-                    new Card(1, Suit.Diamonds),
-                    new Card(1, Suit.Hearts),
-                    new Card(1, Suit.Spades));
-
-                var actual = sut.GetValidPlays(discard, hand, 2, null);
-
-                actual.Plays.First().Should().BeEquivalentTo(
-                    deck.Get(1, Suit.Diamonds),
-                    deck.Get(1, Suit.Hearts),
-                    deck.Get(1, Suit.Spades)
-                    );
-            }
-
-            [Fact]
-            public void ReturnPotentialPlaysWithMatchingEight()
-            {
-                var discard = deck.Get(1, Suit.Clubs);
-                var hand = deck.GetCardCollection(
-                    new Card(2, Suit.Diamonds),
-                    new Card(3, Suit.Diamonds),
-                    new Card(4, Suit.Diamonds),
-                    new Card(5, Suit.Diamonds),
-                    new Card(6, Suit.Diamonds),
-                    new Card(7, Suit.Diamonds),
-                    new Card(8, Suit.Diamonds)
-                    );
-                var actual = sut.GetValidPlays(discard, hand, 2, null);
-
-                actual.Plays.First().Should().BeEquivalentTo(
-                    deck.Get(8, Suit.Diamonds));
-            }
-            
-            [Fact]
-            public void ReturnPotentialPlaysWithoutDuplicateEightWhenSuitAlsoMatches()
-            {
-                var discard = deck.Get(2, Suit.Diamonds);
-                var hand = deck.GetCardCollection(
-                    new Card(2, Suit.Clubs),
-                    new Card(3, Suit.Clubs),
-                    new Card(4, Suit.Clubs),
-                    new Card(5, Suit.Clubs),
-                    new Card(6, Suit.Clubs),
-                    new Card(7, Suit.Clubs),
-                    new Card(8, Suit.Diamonds)
-                    );
-                var actual = sut.GetValidPlays(discard, hand, 2, null);
-
-                actual.Plays.First().Should().BeEquivalentTo(
-                    deck.Get(2, Suit.Clubs),
-                    deck.Get(8, Suit.Diamonds)
-                    );
-            }
-
-            [Fact]
-            public void ReturnPotentialPlaysWithoutDuplicateEightWhenRankAlsoMatches()
-            {
-                var discard = deck.Get(8, Suit.Hearts);
-                var hand = deck.GetCardCollection(
-                    new Card(2, Suit.Clubs),
-                    new Card(3, Suit.Clubs),
-                    new Card(4, Suit.Clubs),
-                    new Card(5, Suit.Clubs),
-                    new Card(6, Suit.Clubs),
-                    new Card(7, Suit.Clubs),
-                    new Card(8, Suit.Diamonds)
-                );
-                var actual = sut.GetValidPlays(discard, hand, 2, null);
-
-                actual.Plays.First().Should().BeEquivalentTo(
-                    deck.Get(8, Suit.Diamonds)
-                );
-            }
-
-            [Fact]
-            public void ReturnPotentialPlaysWhenFirstTurnAndDiscardCardIs8()
-            {
-                var discard = deck.Get(8, Suit.Hearts);
-                var hand = deck.GetCardCollection(
-                    new Card(2, Suit.Clubs),
-                    new Card(3, Suit.Clubs),
-                    new Card(4, Suit.Clubs),
-                    new Card(5, Suit.Clubs),
-                    new Card(6, Suit.Clubs),
-                    new Card(7, Suit.Clubs),
-                    new Card(8, Suit.Diamonds)
-                    );
-                var actual = sut.GetValidPlays(discard, hand, 1, null);
-
-                actual.Plays.First().Should().Equal(
-                    hand.Cards
-                );
-            }
-
-            [Fact]
-            public void ReturnPotentialPlaysWithMatchingSuitWhenSelectedSuit()
-            {
-                var discard = deck.Get(8, Suit.Hearts);
-                var hand = deck.GetCardCollection(
-                    new Card(2, Suit.Clubs),
-                    new Card(3, Suit.Clubs),
-                    new Card(4, Suit.Clubs),
-                    new Card(5, Suit.Clubs),
-                    new Card(2, Suit.Diamonds),
-                    new Card(2, Suit.Hearts),
-                    new Card(2, Suit.Spades));
-
-                var actual = sut.GetValidPlays(discard, hand, 2, Suit.Clubs);
-
-                actual.Plays.First().Should().BeEquivalentTo(
-                    deck.Get(2, Suit.Clubs),
-                    deck.Get(3, Suit.Clubs),
-                    deck.Get(4, Suit.Clubs),
-                    deck.Get(5, Suit.Clubs));
-            }
-
-        }
-
         public class IsValidPlayShould
         {
             private readonly CardCollection deck;
@@ -192,7 +22,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardCard = deck.Get(1, Suit.Clubs);
                 var sut = new Rules();
 
-                var actual = sut.IsValidPlay(deck.Get(10, Suit.Hearts), discardCard, 2, null);
+                var actual = sut.IsValidPlay(Cards(deck.Get(10, Suit.Hearts)), discardCard, 2, null);
 
                 actual.Should().BeFalse();
             }
@@ -204,12 +34,12 @@ namespace SheddingCardGames.Tests.Domain
                 var playedCard = deck.Get(1, Suit.Clubs);
 
                 var sut = new Rules();
-                
-                var actual = sut.IsValidPlay(playedCard, discardCard, 2, null);
+
+                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, 2, null);
 
                 actual.Should().BeTrue();
             }
-            
+
             [Fact]
             public void ReturnTrueForValidPlayWithMatchingSuitWhenSelectedSuit()
             {
@@ -217,12 +47,12 @@ namespace SheddingCardGames.Tests.Domain
                 var playedCard = deck.Get(1, Suit.Hearts);
 
                 var sut = new Rules();
-                
-                var actual = sut.IsValidPlay(playedCard, discardCard, 2, Suit.Hearts);
+
+                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, 2, Suit.Hearts);
 
                 actual.Should().BeTrue();
             }
-            
+
             [Fact]
             public void ReturnFalseWhenMatchingSuitButSelectedSuit()
             {
@@ -230,8 +60,8 @@ namespace SheddingCardGames.Tests.Domain
                 var playedCard = deck.Get(1, Suit.Clubs);
 
                 var sut = new Rules();
-                
-                var actual = sut.IsValidPlay(playedCard, discardCard, 2, Suit.Hearts);
+
+                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, 2, Suit.Hearts);
 
                 actual.Should().BeFalse();
             }
@@ -243,8 +73,8 @@ namespace SheddingCardGames.Tests.Domain
                 var playedCard = deck.Get(10, Suit.Hearts);
 
                 var sut = new Rules();
-                
-                var actual = sut.IsValidPlay(playedCard, discardCard, 2, null);
+
+                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, 2, null);
 
                 actual.Should().BeTrue();
             }
@@ -256,8 +86,8 @@ namespace SheddingCardGames.Tests.Domain
                 var playedCard = deck.Get(8, Suit.Clubs);
 
                 var sut = new Rules();
-                
-                var actual = sut.IsValidPlay(playedCard, discardCard, 2, null);
+
+                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, 2, null);
 
                 actual.Should().BeTrue();
             }
@@ -269,12 +99,12 @@ namespace SheddingCardGames.Tests.Domain
                 var playedCard = deck.Get(1, Suit.Clubs);
 
                 var sut = new Rules();
-                
-                var actual = sut.IsValidPlay(playedCard, discardCard, 1, null);
+
+                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, 1, null);
 
                 actual.Should().BeTrue();
             }
-            
+
             [Fact]
             public void ReturnFalseWhenFirstTurnAndDiscardCardIsNot8()
             {
@@ -282,12 +112,11 @@ namespace SheddingCardGames.Tests.Domain
                 var playedCard = deck.Get(1, Suit.Clubs);
 
                 var sut = new Rules();
-                
-                var actual = sut.IsValidPlay(playedCard, discardCard, 1, null);
+
+                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, 1, null);
 
                 actual.Should().BeFalse();
             }
         }
-
     }
 }

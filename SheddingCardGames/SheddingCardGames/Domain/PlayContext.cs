@@ -1,15 +1,23 @@
+using System.Collections.Immutable;
+using static SheddingCardGames.Domain.CardsUtils;
+
 namespace SheddingCardGames.Domain
 {
     public class PlayContext : ICommandContext
     {
+        public PlayContext(Player executingPlayer, IImmutableList<Card> cardsPlayed)
+        {
+            ExecutingPlayer = executingPlayer;
+            CardsPlayed = cardsPlayed;
+        }
+
         public PlayContext(Player executingPlayer, Card playedCard)
         {
             ExecutingPlayer = executingPlayer;
-
-            PlayedCard = playedCard;
+            CardsPlayed = Cards(playedCard);
         }
 
         public Player ExecutingPlayer { get; }
-        public Card PlayedCard { get; }
+        public IImmutableList<Card> CardsPlayed { get; }
     }
 }

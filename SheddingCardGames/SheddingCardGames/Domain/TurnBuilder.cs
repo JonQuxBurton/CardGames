@@ -1,5 +1,3 @@
-using System.Collections.Immutable;
-using System.Linq;
 using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGames.Domain
@@ -15,10 +13,11 @@ namespace SheddingCardGames.Domain
 
         public CurrentTurn BuildFirstTurn(GameState gameState, Player nextPlayer)
         {
+            var hasValidPlays = rules.HasValidPlay(gameState.CurrentCardToMatch, nextPlayer.Hand, 1, null);
+
             return new CurrentTurn(1,
                 nextPlayer,
-                GetValidPlays(gameState, nextPlayer, null, 1),
-                GetNextAction(GetValidPlays(gameState, nextPlayer, null, 1)));
+                GetNextAction(hasValidPlays));
         }
 
         public CurrentTurn BuildNextTurn(GameState gameState, Player nextPlayer, Suit? selectedSuit = null)
@@ -29,17 +28,17 @@ namespace SheddingCardGames.Domain
             if (gameState.CurrentTurn != null)
                 currentTurnNumber = gameState.CurrentTurnNumber;
 
+            var hasValidPlays = rules.HasValidPlay(gameState.CurrentCardToMatch, nextPlayer.Hand, currentTurnNumber, selectedSuit);
+
             return new CurrentTurn(nextTurnNumber,
                 nextPlayer,
-                GetValidPlays(gameState, nextPlayer, selectedSuit, currentTurnNumber),
-                GetNextAction(GetValidPlays(gameState, nextPlayer, selectedSuit, currentTurnNumber)));
+                GetNextAction(hasValidPlays));
         }
 
         public CurrentTurn BuildCrazyEightTurn(GameState gameState)
         {
             return new CurrentTurn(gameState.CurrentTurnNumber,
                 gameState.CurrentPlayerToPlay,
-                new ValidPlays(),
                 Action.SelectSuit);
         }
 
@@ -47,20 +46,12 @@ namespace SheddingCardGames.Domain
         {
             return new CurrentTurn(gameState.CurrentTurnNumber,
                 gameState.CurrentPlayerToPlay,
-                new ValidPlays(),
                 Action.Won);
         }
-
-        private ValidPlays GetValidPlays(GameState gameState, Player nextPlayer, Suit? selectedSuit, int currentTurnNumber)
+        
+        private Action GetNextAction(bool hasValidPlays)
         {
-            var validPlays = rules
-                .GetValidPlays(gameState.CurrentCardToMatch, nextPlayer.Hand, currentTurnNumber, selectedSuit);
-            return validPlays;
-        }
-
-        private Action GetNextAction(ValidPlays validPlays)
-        {
-            return !validPlays.Any() ? Action.Take : Action.Play;
+            return !hasValidPlays ? Action.Take : Action.Play;
         }
     }
 }

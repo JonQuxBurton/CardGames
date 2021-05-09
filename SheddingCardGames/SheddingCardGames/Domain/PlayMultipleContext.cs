@@ -4,13 +4,13 @@ namespace SheddingCardGames.Domain
 {
     public class PlayMultipleContext : ICommandContext
     {
-        public PlayMultipleContext(Player executingPlayer, IImmutableList<Card> playedCards)
+        public PlayMultipleContext(Player executingPlayer, IImmutableList<Card> cardsPlayed)
         {
             ExecutingPlayer = executingPlayer;
-            PlayedCards = playedCards;
+            CardsPlayed = cardsPlayed;
         }
 
         public Player ExecutingPlayer { get; }
-        public IImmutableList<Card> PlayedCards { get; }
+        public IImmutableList<Card> CardsPlayed { get; }
     }
 }

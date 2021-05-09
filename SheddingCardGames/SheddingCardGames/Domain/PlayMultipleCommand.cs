@@ -25,7 +25,7 @@ namespace SheddingCardGames.Domain
             if (playContext.ExecutingPlayer.Number != gameState.CurrentPlayerToPlayNumber)
                 return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
 
-            if (!playContext.ExecutingPlayer.Hand.ContainsAll(playContext.PlayedCards))
+            if (!playContext.ExecutingPlayer.Hand.ContainsAll(playContext.CardsPlayed))
                 return new ActionResult(false, ActionResultMessageKey.CardIsNotInPlayersHand);
 
             if (!IsValidPlay())
@@ -36,37 +36,36 @@ namespace SheddingCardGames.Domain
 
         public override GameState Execute()
         {
-            gameState.CurrentTable.MoveCardsFromPlayerToDiscardPile(playContext.ExecutingPlayer, playContext.PlayedCards);
+            gameState.CurrentTable.MoveCardsFromPlayerToDiscardPile(playContext.ExecutingPlayer, playContext.CardsPlayed);
 
             gameState.AddEvent(new Played(gameState.NextEventNumber, playContext.ExecutingPlayer.Number,
-                playContext.PlayedCards.ToArray()));
+                playContext.CardsPlayed.ToArray()));
 
-            //if (HasWon())
-            //{
-            //    gameState.AddEvent(new RoundWon(gameState.NextEventNumber, playContext.ExecutingPlayer.Number));
-            //    gameState.PreviousTurnResult = new PreviousTurnResult(true, playContext.ExecutingPlayer);
-            //    gameState.CurrentTurn = turnBuilder.BuildWinningTurn(gameState);
-            //}
-            //else if (playContext.PlayedCard.Rank == 8)
-            //{
-            //    gameState.PreviousTurnResult = new PreviousTurnResult(false);
-            //    gameState.CurrentTurn = turnBuilder.BuildCrazyEightTurn(gameState);
-            //}
-            //else
-            //{
-            gameState.PreviousTurnResult = new PreviousTurnResult(false);
-            gameState.CurrentTurn = turnBuilder.BuildNextTurn(gameState, gameState.NextPlayer);
-            //}
+            if (HasWon())
+            {
+                gameState.AddEvent(new RoundWon(gameState.NextEventNumber, playContext.ExecutingPlayer.Number));
+                gameState.PreviousTurnResult = new PreviousTurnResult(true, playContext.ExecutingPlayer);
+                gameState.CurrentTurn = turnBuilder.BuildWinningTurn(gameState);
+            }
+            else if (playContext.CardsPlayed.First().Rank == 8)
+            {
+                gameState.PreviousTurnResult = new PreviousTurnResult(false);
+                gameState.CurrentTurn = turnBuilder.BuildCrazyEightTurn(gameState);
+            }
+            else
+            {
+                gameState.PreviousTurnResult = new PreviousTurnResult(false);
+                gameState.CurrentTurn = turnBuilder.BuildNextTurn(gameState, gameState.NextPlayer);
+            }
 
             return gameState;
         }
 
         private bool IsValidPlay()
         {
-            return playContext.PlayedCards.All(x => rules.IsValidPlay(x,
-                gameState.CurrentCardToMatch,
+            return rules.IsValidPlay(playContext.CardsPlayed, gameState.CurrentCardToMatch,
                 gameState.CurrentTurnNumber,
-                gameState.CurrentSelectedSuit));
+                gameState.CurrentSelectedSuit);
         }
 
         private bool HasWon()

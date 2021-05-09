@@ -24,12 +24,12 @@ namespace SheddingCardGames.Domain
 
         public override ActionResult IsValid()
         {
-            var validPlays = rules.GetValidPlays(gameState.CurrentCardToMatch,
+            var validPlays = rules.HasValidPlay(gameState.CurrentCardToMatch,
                     takeContext.ExecutingPlayer.Hand,
                     gameState.CurrentTurnNumber,
                     null);
 
-            if (validPlays.Any())
+            if (validPlays)
                 return new ActionResult(false, ActionResultMessageKey.InvalidTake);
 
             if (gameState.CurrentPlayerToPlayNumber != takeContext.ExecutingPlayer.Number)
