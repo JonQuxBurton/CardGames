@@ -5,11 +5,11 @@ using System.Diagnostics.CodeAnalysis;
 namespace SheddingCardGames.Domain
 {
     [ExcludeFromCodeCoverage]
-    public class CrazyEightsGameBuilder
+    public class CrazyEightsGameBuilder : ICrazyEightsGameBuilder
     {
         public Game Build(CardCollection deck, int numberOfPlayers)
         {
-            var players = new List<Player> { new Player(1, "Alice"), new Player(2, "Bob") };
+            var players = new List<Player> {new Player(1, "Alice"), new Player(2, "Bob")};
             var rules = new Rules(7);
             var random = new Random();
 

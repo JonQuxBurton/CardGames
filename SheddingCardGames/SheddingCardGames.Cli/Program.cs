@@ -3,37 +3,58 @@ using System.Linq;
 using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
 using static SheddingCardGames.Domain.CardsUtils;
+using static SheddingCardGames.Domain.Suit;
 using Action = SheddingCardGames.Domain.Action;
 
 namespace SheddingCardGame.Cli
 {
     class Program
     {
-        static void Main(string[] args)
+        private static Game SetupGame()
         {
             var numberOfPlayers = 2;
-            IDeckBuilder deckBuilder;
-            deckBuilder = new MinimalDeckBuilder(numberOfPlayers);
-            //deckBuilder = new DeckBuilder();
-            
-            var gameBuilder = new CrazyEightsGameBuilder();
-            var game = gameBuilder.Build(deckBuilder.Build(), numberOfPlayers);
+            IDeckBuilder deckBuilder = new DeckBuilder();
+            ICrazyEightsGameBuilder gameBuilder = new CrazyEightsGameBuilder();
+
+            return gameBuilder.Build(deckBuilder.Build(), numberOfPlayers);
+        }
+        
+        private static Game SetupMinimalGame()
+        {
+            var numberOfPlayers = 2;
+            IDeckBuilder deckBuilder = new MinimalDeckBuilder(numberOfPlayers);
+            ICrazyEightsGameBuilder gameBuilder = new CrazyEightsGameBuilder();
+
+            return gameBuilder.Build(deckBuilder.Build(), numberOfPlayers);
+        }
+        
+        private static Game SetupTestGame()
+        {
+            var numberOfPlayers = 2;
+            IDeckBuilder deckBuilder = new SpecificDeckBuilder(Card(1, Hearts), new CardCollection(Cards(Card(1, Spades))),
+                new CardCollection(Cards(Card(8, Clubs), Card(2, Clubs))),
+                new CardCollection(Cards(Card(3, Clubs), Card(5, Clubs))));
+            ICrazyEightsGameBuilder gameBuilder = new TestCrazyEightsGameBuilder(2, 1);
+
+            return gameBuilder.Build(deckBuilder.Build(), numberOfPlayers);
+        }
+
+        static void Main(string[] args)
+        {
+            var game = SetupTestGame();
             game.Deal();
-            
-            CurrentTurn currentTurn = null;
+
             PreviousTurnResult previousTurnResult = null;
 
             while (previousTurnResult == null || !previousTurnResult.HasWinner)
             {
-                currentTurn = game.GameState.CurrentTurn;
+                var currentTurn = game.GameState.CurrentTurn;
                 previousTurnResult = game.GameState.PreviousTurnResult;
                 RenderTurn(currentTurn, game.GameState);
-                //Console.WriteLine($"Moves: {string.Join(",", game.CardMoves)}");
                 if (currentTurn.NextAction == Action.SelectSuit)
                     SelectSuit(game, currentTurn);
                 else
                     Play(game, currentTurn);
-                currentTurn = game.GameState.CurrentTurn;
             }
 
             Console.WriteLine($"{previousTurnResult.Winner.Name} has won!");
@@ -68,7 +89,7 @@ namespace SheddingCardGame.Cli
             {
                 Console.WriteLine($"No valid plays, press any key to Take a card");
                 Console.ReadKey();
-                var actionResult  = game.Take(new TakeContext(currentTurn.PlayerToPlay));
+                game.Take(new TakeContext(currentTurn.PlayerToPlay));
                 Console.WriteLine($"Taken: {game.GameState.PreviousTurnResult.TakenCard}");
                 return;
             }
@@ -96,7 +117,7 @@ namespace SheddingCardGame.Cli
             Console.WriteLine($"Turn {turn.TurnNumber}");
             Console.WriteLine($"PlayerToPlay: {turn.PlayerToPlay.Name}");
             Console.WriteLine($"NextAction: {turn.NextAction}");
-            Console.WriteLine($"SelectedSuit: {gameState.PreviousTurnResult.SelectedSuit}");
+            Console.WriteLine($"SelectedSuit: {gameState.PreviousTurnResult?.SelectedSuit}");
             Console.WriteLine($"Stock pile: {currentTable.StockPile.Cards.Count()} cards");
             Console.WriteLine($"Discard pile: {currentTable.DiscardPile.CardToMatch} ({currentTable.DiscardPile.RestOfCards.Cards.Count()} other cards)");
             
