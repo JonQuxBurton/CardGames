@@ -30,25 +30,26 @@ namespace SheddingCardGames.Domain
             if (!anyPlaysOrTakes && discardCard.Rank == 8)
                 return true;
 
-            if (discardCard.Rank == 8 && selectedSuit == null)
-            {
-                return false;
-            }
+            return IsCardValid(cardsPlayed.First(), discardCard, selectedSuit);
+        }
 
-            if (discardCard.Rank == 8 && selectedSuit != null)
-            {
-                if (selectedSuit == cardsPlayed.First().Suit || cardsPlayed.First().Rank == 8)
-                    return true;
+        private static bool IsCardValid(Card cardPlayed, Card discardCard, Suit? selectedSuit)
+        {
+            if (cardPlayed.Rank == 8)
+                return true;
 
-                return false;
-            }
+            if (discardCard.Rank == cardPlayed.Rank)
+                return true;
 
-            if (discardCard.Suit == cardsPlayed.First().Suit || discardCard.Rank == cardsPlayed.First().Rank ||
-                cardsPlayed.First().Rank == 8)
+            if (selectedSuit != null && selectedSuit == cardPlayed.Suit)
+                return true;
+
+            if (selectedSuit == null && discardCard.Suit == cardPlayed.Suit)
                 return true;
 
             return false;
         }
+
 
         public int GetHandSize()
         {

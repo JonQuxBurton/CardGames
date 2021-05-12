@@ -19,7 +19,7 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnTrue_WhenCardPlayed_MatchingSuit()
+            public void ReturnTrue_WhenCardPlayed_WithMatchingSuit()
             {
                 var discardCard = Card(10, Clubs);
                 var cardPlayed = Card(1, Clubs);
@@ -54,7 +54,7 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnTrue_WhenCardPlayed_WithRank8()
+            public void ReturnTrue_WhenCardPlayed_WithRankEight()
             {
                 var discardCard = Card(10, Hearts);
                 var cardPlayed = Card(8, Clubs);
@@ -67,7 +67,7 @@ namespace SheddingCardGames.Tests.Domain
             [Theory]
             [InlineData("8|Clubs", "8|Diamonds")]
             [InlineData("8|Clubs", "8|Diamonds", "8|Spades")]
-            public void ReturnTrue_WhenMultipleCardsPlayed_WithRank8(params string[] cardsPlayedData)
+            public void ReturnTrue_WhenMultipleCardsPlayed_WithRankEight(params string[] cardsPlayedData)
             {
                 var discardCard = Card(10, Hearts);
                 var cardsPlayed = Cards(cardParser.Parse(cardsPlayedData));
@@ -89,7 +89,7 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnTrue_ForAnyCard_WhenInitialDiscardCardsIsEight()
+            public void ReturnTrue_ForAnyCard_WhenInitialDiscardCardIsEight()
             {
                 var discardCard = Card(8, Hearts);
                 var cardPlayed = Card(1, Clubs);
@@ -101,7 +101,7 @@ namespace SheddingCardGames.Tests.Domain
 
             [Theory]
             [InlineData("1|Clubs", "1|Diamonds")]
-            public void ReturnTrue_ForAnyCards_WhenInitialDiscardCardsIsEight(params string[] cardsPlayedData)
+            public void ReturnTrue_ForAnyCards_WhenInitialDiscardCardIsEight_AndMultipleCardsArePlayed(params string[] cardsPlayedData)
             {
                 var discardCard = Card(8, Hearts);
                 var cardsPlayed = Cards(cardParser.Parse(cardsPlayedData));
@@ -123,7 +123,7 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnFalse_WhenInitialDiscardIsNotEight()
+            public void ReturnFalse_WhenInitialDiscardCardIsNotEight()
             {
                 var discardCard = Card(7, Hearts);
                 var playedCard = Card(1, Clubs);
