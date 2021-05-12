@@ -13,7 +13,7 @@ namespace SheddingCardGames.Domain
 
         public CurrentTurn BuildFirstTurn(GameState gameState, Player nextPlayer)
         {
-            var hasValidPlays = rules.HasValidPlay(gameState.CurrentCardToMatch, nextPlayer.Hand, 1, null);
+            var hasValidPlays = rules.HasValidPlay(gameState.CurrentCardToMatch, nextPlayer.Hand, null, gameState.AnyPlaysOrTakes);
 
             return new CurrentTurn(1,
                 nextPlayer,
@@ -28,7 +28,7 @@ namespace SheddingCardGames.Domain
             if (gameState.CurrentTurn != null)
                 currentTurnNumber = gameState.CurrentTurnNumber;
 
-            var hasValidPlays = rules.HasValidPlay(gameState.CurrentCardToMatch, nextPlayer.Hand, currentTurnNumber, selectedSuit);
+            var hasValidPlays = rules.HasValidPlay(gameState.CurrentCardToMatch, nextPlayer.Hand, selectedSuit, gameState.AnyPlaysOrTakes);
 
             return new CurrentTurn(nextTurnNumber,
                 nextPlayer,

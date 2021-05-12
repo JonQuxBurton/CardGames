@@ -18,15 +18,22 @@ namespace SheddingCardGames.Domain
 
         public int HandSize { get; }
 
-        public bool HasValidPlay(Card discardCard, CardCollection hand, int turnNumber, Suit? selectedSuit)
+        public bool HasValidPlay(Card discardCard, CardCollection hand, Suit? selectedSuit,
+            bool anyPlaysOrTakes)
         {
-            return hand.Cards.Any(x => IsValidPlay(Cards(x), discardCard, turnNumber, selectedSuit));
+            return hand.Cards.Any(x => IsValidPlay(Cards(x), discardCard, selectedSuit, anyPlaysOrTakes));
         }
 
-        public bool IsValidPlay(IImmutableList<Card> cardsPlayed, Card discardCard, int turnNumber, Suit? selectedSuit)
+        public bool IsValidPlay(IImmutableList<Card> cardsPlayed, Card discardCard, Suit? selectedSuit,
+            bool anyPlaysOrTakes)
         {
-            if (turnNumber == 1 && discardCard.Rank == 8)
+            if (!anyPlaysOrTakes && discardCard.Rank == 8)
                 return true;
+
+            if (discardCard.Rank == 8 && selectedSuit == null)
+            {
+                return false;
+            }
 
             if (discardCard.Rank == 8 && selectedSuit != null)
             {

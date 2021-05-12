@@ -22,6 +22,9 @@ namespace SheddingCardGames.Domain
             if (gameState.CurrentPlayerToPlayNumber != selectSuitContext.ExecutingPlayer.Number)
                 return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
 
+            if (!gameState.AnyPlaysOrTakes)
+                return new ActionResult(false, ActionResultMessageKey.InvalidPlay);
+
             if (gameState.CurrentCardToMatch.Rank != 8)
                 return new ActionResult(false, ActionResultMessageKey.InvalidPlay);
 

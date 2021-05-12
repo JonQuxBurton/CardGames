@@ -1134,7 +1134,7 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnTrueForPlayMatchingSelectedSuit()
+            public void ReturnTrue_ForPlayMatchingSelectedSuit()
             {
                 sut = new AtStartGameBuilder()
                     .WithPlayer1Hand(player1Hand)
@@ -1151,7 +1151,7 @@ namespace SheddingCardGames.Tests.Domain
             }
             
             [Fact]
-            public void ReturnTrueForPlayMatchingSelectedSuitAfterPlayer2()
+            public void ReturnTrue_ForPlayMatchingSelectedSuitAfterPlayer2()
             {
                 sut = new AtStartGameBuilder()
                     .WithPlayer1Hand(player1Hand)
@@ -1169,7 +1169,7 @@ namespace SheddingCardGames.Tests.Domain
             }
             
             [Fact]
-            public void ReturnTrueForPlayMatchingSelectedSuitAfterPlayer3()
+            public void ReturnTrue_ForPlayMatchingSelectedSuitAfterPlayer3()
             {
                 sut = new AtStartGameBuilder()
                     .WithPlayer1Hand(player1Hand)

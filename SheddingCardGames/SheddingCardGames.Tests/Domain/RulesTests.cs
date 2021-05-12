@@ -2,6 +2,7 @@
 using SheddingCardGames.Domain;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
+using static SheddingCardGames.Domain.Suit;
 
 namespace SheddingCardGames.Tests.Domain
 {
@@ -9,20 +10,19 @@ namespace SheddingCardGames.Tests.Domain
     {
         public class IsValidPlayShould
         {
-            private readonly CardCollection deck;
+            private Rules sut;
 
             public IsValidPlayShould()
             {
-                deck = new CardCollectionBuilder().Build();
+                sut = new Rules();
             }
 
             [Fact]
             public void ReturnFalseForInvalidPlay()
             {
-                var discardCard = deck.Get(1, Suit.Clubs);
-                var sut = new Rules();
+                var discardCard = Card(1, Clubs);
 
-                var actual = sut.IsValidPlay(Cards(deck.Get(10, Suit.Hearts)), discardCard, 2, null);
+                var actual = sut.IsValidPlay(Cards(Card(10, Hearts)), discardCard, null, true);
 
                 actual.Should().BeFalse();
             }
@@ -30,12 +30,10 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnTrueForValidPlayWithMatchingSuit()
             {
-                var discardCard = deck.Get(10, Suit.Clubs);
-                var playedCard = deck.Get(1, Suit.Clubs);
+                var discardCard = Card(10, Clubs);
+                var playedCard = Card(1, Clubs);
 
-                var sut = new Rules();
-
-                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, 2, null);
+                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, null, true);
 
                 actual.Should().BeTrue();
             }
@@ -43,12 +41,10 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnTrueForValidPlayWithMatchingSuitWhenSelectedSuit()
             {
-                var discardCard = deck.Get(8, Suit.Clubs);
-                var playedCard = deck.Get(1, Suit.Hearts);
+                var discardCard = Card(8, Clubs);
+                var playedCard = Card(1, Hearts);
 
-                var sut = new Rules();
-
-                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, 2, Suit.Hearts);
+                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, Hearts, true);
 
                 actual.Should().BeTrue();
             }
@@ -56,12 +52,10 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnFalseWhenMatchingSuitButSelectedSuit()
             {
-                var discardCard = deck.Get(8, Suit.Clubs);
-                var playedCard = deck.Get(1, Suit.Clubs);
-
-                var sut = new Rules();
-
-                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, 2, Suit.Hearts);
+                var discardCard = Card(8, Clubs);
+                var playedCard = Card(1, Clubs);
+                
+                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, Hearts, true);
 
                 actual.Should().BeFalse();
             }
@@ -69,12 +63,10 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnTrueForValidPlayWithMatchingRank()
             {
-                var discardCard = deck.Get(10, Suit.Clubs);
-                var playedCard = deck.Get(10, Suit.Hearts);
-
-                var sut = new Rules();
-
-                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, 2, null);
+                var discardCard = Card(10, Clubs);
+                var playedCard = Card(10, Hearts);
+                
+                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, null, true);
 
                 actual.Should().BeTrue();
             }
@@ -82,38 +74,55 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnTrueForValidPlayWithRank8()
             {
-                var discardCard = deck.Get(10, Suit.Hearts);
-                var playedCard = deck.Get(8, Suit.Clubs);
-
-                var sut = new Rules();
-
-                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, 2, null);
+                var discardCard = Card(10, Hearts);
+                var playedCard = Card(8, Clubs);
+                
+                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, null, true);
 
                 actual.Should().BeTrue();
             }
 
             [Fact]
-            public void ReturnTrueForAnyCardWhenFirstTurnAndDiscardCardIs8()
+            public void ReturnTrue_ForAnyCard_WhenInitialDiscardCardsIsEight()
             {
-                var discardCard = deck.Get(8, Suit.Hearts);
-                var playedCard = deck.Get(1, Suit.Clubs);
-
-                var sut = new Rules();
-
-                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, 1, null);
+                var discardCard = Card(8, Hearts);
+                var playedCard = Card(1, Clubs);
+                
+                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, null, false);
 
                 actual.Should().BeTrue();
             }
 
             [Fact]
-            public void ReturnFalseWhenFirstTurnAndDiscardCardIsNot8()
+            public void ReturnTrue_WhenFirstTurn_AndEightPlayed_AndSelectedSuit()
             {
-                var discardCard = deck.Get(7, Suit.Hearts);
-                var playedCard = deck.Get(1, Suit.Clubs);
+                var discardCard = Card(8, Hearts);
+                var playedCard = Card(1, Clubs);
+                var selectedSuit = Clubs;
 
-                var sut = new Rules();
+                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, selectedSuit, true);
 
-                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, 1, null);
+                actual.Should().BeTrue();
+            }
+            
+            [Fact]
+            public void ReturnFalse_WhenFirstTurn_AndEightPlayed_AndNoSelectedSuit()
+            {
+                var discardCard = Card(8, Hearts);
+                var playedCard = Card(1, Clubs);
+                
+                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, null, true);
+
+                actual.Should().BeFalse();
+            }
+
+            [Fact]
+            public void ReturnFalse_WhenInitialDiscardIsNotEight()
+            {
+                var discardCard = Card(7, Hearts);
+                var playedCard = Card(1, Clubs);
+                
+                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, null, false);
 
                 actual.Should().BeFalse();
             }

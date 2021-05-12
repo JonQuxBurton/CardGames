@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using FluentAssertions;
 using SheddingCardGames.Domain;
 using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
+using static SheddingCardGames.Domain.CardsUtils;
+using static SheddingCardGames.Domain.Suit;
 
 namespace SheddingCardGames.Tests.Domain
 {
@@ -12,13 +13,15 @@ namespace SheddingCardGames.Tests.Domain
     {
         public class SelectSuitCommandBuilder
         {
-            private readonly int turnNumber = 1;
+            private readonly CardCollection player1Hand = new CardCollection();
+            private readonly CardCollection stockPile = new CardCollection();
             private DiscardPile discardPile = new DiscardPile();
             private int executingPlayerNumber = 1;
-            private readonly CardCollection player1Hand = new CardCollection();
             private CardCollection player2Hand = new CardCollection();
             private int playerToPlayNumber = 1;
-            private readonly CardCollection stockPile = new CardCollection();
+            private PreviousTurnResult previousTurnResult;
+            private Suit selectedSuit;
+            private readonly int turnNumber = 1;
 
             public SelectSuitCommandBuilder WithExecutingPlayer(int withExecutingPlayerNumber)
             {
@@ -44,7 +47,25 @@ namespace SheddingCardGames.Tests.Domain
                 return this;
             }
 
-            public SelectSuitCommand Build()
+            public SelectSuitCommandBuilder WithSelectedSuit(Suit withSelectedSuit)
+            {
+                selectedSuit = withSelectedSuit;
+                return this;
+            }
+
+            public SelectSuitCommand BuildWithPlay()
+            {
+                previousTurnResult = new PreviousTurnResult(false);
+
+                return Build();
+            }
+
+            public SelectSuitCommand BuildWithNoPlaysOrTakes()
+            {
+                return Build();
+            }
+
+            private SelectSuitCommand Build()
             {
                 var sampleData = new SampleData();
                 var player1 = sampleData.Player1;
@@ -66,24 +87,29 @@ namespace SheddingCardGames.Tests.Domain
                 {
                     CurrentTable = table,
                     PlayerToStart = player1,
-                    CurrentTurn = new CurrentTurn(turnNumber, playerToPlay, Action.Play)
+                    CurrentTurn = new CurrentTurn(turnNumber, playerToPlay, Action.Play),
+                    PreviousTurnResult = previousTurnResult
                 };
 
-                return new SelectSuitCommand(new Rules(), gameState, new SelectSuitContext(executingPlayer, Suit.Hearts));
+                return new SelectSuitCommand(new Rules(), gameState,
+                    new SelectSuitContext(executingPlayer, selectedSuit));
             }
         }
 
         public class IsValidShould
         {
+            private readonly Suit expectedSelectedSuit = Hearts;
+
             [Fact]
             public void ReturnIsSuccessTrue()
             {
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(8, Suit.Hearts)
+                    Card(8, Hearts)
                 ));
                 var sut = new SelectSuitCommandBuilder()
                     .WithDiscardPile(discardPile)
-                    .Build();
+                    .WithSelectedSuit(expectedSelectedSuit)
+                    .BuildWithPlay();
 
                 var actual = sut.IsValid();
 
@@ -92,16 +118,17 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnIsSuccessFalseWhenNotPlayersTurn()
+            public void ReturnIsSuccessFalse_WhenNotPlayersTurn()
             {
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(8, Suit.Hearts)
+                    Card(8, Hearts)
                 ));
                 var sut = new SelectSuitCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithExecutingPlayer(2)
                     .WithPlayerToPlayNumber(1)
-                    .Build();
+                    .WithSelectedSuit(expectedSelectedSuit)
+                    .BuildWithPlay();
 
                 var actual = sut.IsValid();
 
@@ -110,60 +137,118 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnIsSuccessFalseWhenCardPlayedWasNotAnEight()
+            public void ReturnIsSuccessFalse_WhenCardPlayedWasNotAnEight()
             {
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(2, Suit.Clubs)
+                    Card(2, Clubs)
                 ));
                 var sut = new SelectSuitCommandBuilder()
                     .WithDiscardPile(discardPile)
-                    .Build();
+                    .WithSelectedSuit(expectedSelectedSuit)
+                    .BuildWithPlay();
 
                 var actual = sut.IsValid();
 
                 actual.IsSuccess.Should().BeFalse();
                 actual.MessageKey.Should().Be(ActionResultMessageKey.InvalidPlay);
             }
+
+            [Fact]
+            public void ReturnIsSuccessFalse_WhenNoPlaysOrTakes()
+            {
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(8, Hearts)
+                ));
+                var sut = new SelectSuitCommandBuilder()
+                    .WithDiscardPile(discardPile)
+                    .WithSelectedSuit(expectedSelectedSuit)
+                    .BuildWithNoPlaysOrTakes();
+
+                var actual = sut.IsValid();
+                actual.IsSuccess.Should().BeFalse();
+
+                actual.MessageKey.Should().Be(ActionResultMessageKey.InvalidPlay);
+            }
         }
 
         public class ExecuteShould
         {
-            private readonly GameState actual;
-            private readonly Suit selectedSuit;
+            private readonly Suit expectedSelectedSuit;
+            private GameState actual;
+            private readonly SelectSuitCommand sut;
 
             public ExecuteShould()
             {
-                selectedSuit = Suit.Hearts;
+                expectedSelectedSuit = Hearts;
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(8, Suit.Clubs)
+                    Card(8, Clubs)
                 ));
-                var player2Hand = new CardCollection(new Card(1, Suit.Hearts));
-                var sut = new SelectSuitCommandBuilder()
+                var player2Hand = new CardCollection(new Card(1, Hearts));
+                sut = new SelectSuitCommandBuilder()
                     .WithPlayer2Hand(player2Hand)
                     .WithDiscardPile(discardPile)
-                    .Build();
-
-                actual = sut.Execute();
+                    .WithSelectedSuit(expectedSelectedSuit)
+                    .BuildWithPlay();
             }
-            
+
             [Fact]
             public void AddSuitSelectedEvent()
             {
+                actual = sut.Execute();
+
                 actual.Events.First().Should().BeOfType<SuitSelected>();
                 var actualEvent = actual.Events.First() as SuitSelected;
                 if (actualEvent == null) Assert.NotNull(actualEvent);
                 actualEvent.Number.Should().Be(1);
                 actualEvent.PlayerNumber.Should().Be(1);
-                actualEvent.Suit.Should().Be(selectedSuit);
+                actualEvent.Suit.Should().Be(expectedSelectedSuit);
             }
 
             [Fact]
-            public void CreateNewTurn()
+            public void AddSuitSelectedToGameState()
             {
+                actual = sut.Execute();
+
+                actual.CurrentSelectedSuit.Should().Be(expectedSelectedSuit);
+            }
+
+            [Fact]
+            public void CreateNewTurn_WithNextActionPlay()
+            {
+                actual = sut.Execute();
+
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(2);
                 actualTurn.PlayerToPlay.Number.Should().Be(2);
                 actualTurn.NextAction.Should().Be(Action.Play);
+
+                var actualPreviousTurnResult = actual.PreviousTurnResult;
+                actualPreviousTurnResult.HasWinner.Should().BeFalse();
+                actualPreviousTurnResult.Winner.Should().BeNull();
+                actualPreviousTurnResult.SelectedSuit.Should().Be(expectedSelectedSuit);
+                actualPreviousTurnResult.TakenCard.Should().BeNull();
+            }
+
+            [Fact]
+            public void CreateNewTurn_WithNextActionTake()
+            {
+                var selectedSuit = Hearts;
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(8, Clubs)
+                ));
+                var player2Hand = new CardCollection(new Card(1, Clubs));
+                var sut = new SelectSuitCommandBuilder()
+                    .WithPlayer2Hand(player2Hand)
+                    .WithDiscardPile(discardPile)
+                    .WithSelectedSuit(expectedSelectedSuit)
+                    .BuildWithPlay();
+
+                var actual = sut.Execute();
+
+                var actualTurn = actual.CurrentTurn;
+                actualTurn.TurnNumber.Should().Be(2);
+                actualTurn.PlayerToPlay.Number.Should().Be(2);
+                actualTurn.NextAction.Should().Be(Action.Take);
 
                 var actualPreviousTurnResult = actual.PreviousTurnResult;
                 actualPreviousTurnResult.HasWinner.Should().BeFalse();

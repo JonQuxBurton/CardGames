@@ -26,8 +26,8 @@ namespace SheddingCardGames.Domain
         {
             var validPlays = rules.HasValidPlay(gameState.CurrentCardToMatch,
                     takeContext.ExecutingPlayer.Hand,
-                    gameState.CurrentTurnNumber,
-                    null);
+                    gameState.CurrentSelectedSuit, 
+                    gameState.AnyPlaysOrTakes);
 
             if (validPlays)
                 return new ActionResult(false, ActionResultMessageKey.InvalidTake);

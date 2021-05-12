@@ -14,6 +14,7 @@ namespace SheddingCardGames.UiLogic
         public GamePhase CurrentGamePhase { get; set; }
         public CurrentTurn CurrentTurn { get; set; }
         public PreviousTurnResult PreviousTurnResult { get; set; }
+        public bool AnyPlaysOrTakes => PreviousTurnResult != null;
         public Player PlayerToStart { get; set; }
 
         public int CurrentTurnNumber => CurrentTurn.TurnNumber;

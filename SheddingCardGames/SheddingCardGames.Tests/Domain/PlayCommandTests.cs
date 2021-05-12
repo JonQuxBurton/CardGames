@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using FluentAssertions;
 using SheddingCardGames.Domain;
 using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
+using static SheddingCardGames.Domain.Suit;
 
 namespace SheddingCardGames.Tests.Domain
 {
@@ -18,6 +18,7 @@ namespace SheddingCardGames.Tests.Domain
             private CardCollection player1Hand = new CardCollection();
             private CardCollection player2Hand = new CardCollection();
             private readonly int turnNumber = 1;
+            private Suit? selectedSuit;
 
             public PlayCommandBuilder WithExecutingPlayer(int withExecutingPlayerNumber)
             {
@@ -43,6 +44,12 @@ namespace SheddingCardGames.Tests.Domain
                 return this;
             }
 
+            public PlayCommandBuilder WithSelectedSuit(Suit withSelectedSuit)
+            {
+                selectedSuit = withSelectedSuit;
+                return this;
+            }
+
             public PlayCommand Build(Card playedCard)
             {
                 var sampleData = new SampleData();
@@ -61,9 +68,12 @@ namespace SheddingCardGames.Tests.Domain
                 {
                     CurrentTable = table,
                     PlayerToStart = player1,
-                    CurrentTurn = new CurrentTurn(turnNumber, currentPlayer, Action.Play)
+                    CurrentTurn = new CurrentTurn(turnNumber, currentPlayer, Action.Play),
                 };
-                
+
+                if (selectedSuit != null)
+                    gameState.PreviousTurnResult = new PreviousTurnResult(false, null, selectedSuit);
+
                 return new PlayCommand(new Rules(), gameState,  new PlayContext(executingPlayer, Cards(playedCard)));
             }
         }
@@ -73,11 +83,11 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessTrueWhenValid()
             {
-                var playedCard = new Card(1, Suit.Clubs);
+                var playedCard = Card(1, Clubs);
                 var player1Hand = new CardCollection(playedCard);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(2, Suit.Clubs)
+                    Card(2, Clubs)
                 ));
                 var sut = new PlayCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
@@ -94,7 +104,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessFalseWhenCardIsNotInPlayersHand()
             {
-                var playedCard = new Card(1, Suit.Clubs);
+                var playedCard = Card(1, Clubs);
                 var player1Hand = new CardCollection();
                 var player2Hand = new CardCollection();
                 var sut = new PlayCommandBuilder()
@@ -111,9 +121,9 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessFalseWhenNotPlayersTurn()
             {
-                var playedCard = new Card(1, Suit.Clubs);
+                var playedCard = Card(1, Clubs);
                 var discardPile = new DiscardPile(
-                    new[] {new Card(1, Suit.Clubs)}
+                    new[] {Card(1, Clubs)}
                 );
                 var player1Hand = new CardCollection();
                 var player2Hand = new CardCollection(
@@ -135,11 +145,11 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessFalseForInvalidPlay()
             {
-                var playedCard = new Card(1, Suit.Clubs);
+                var playedCard = Card(1, Clubs);
                 var player1Hand = new CardCollection(playedCard);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(2, Suit.Spades)
+                    Card(2, Spades)
                 ));
                 var sut = new PlayCommandBuilder()
                     .WithDiscardPile(discardPile)
@@ -156,11 +166,11 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessTrueForValidPlayWithMatchingSuit()
             {
-                var playedCard = new Card(1, Suit.Clubs);
+                var playedCard = Card(1, Clubs);
                 var player1Hand = new CardCollection(playedCard);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(1, Suit.Spades)
+                    Card(1, Spades)
                 ));
 
                 var sut = new PlayCommandBuilder()
@@ -176,11 +186,11 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessTrueForValidPlayWithMatchingSuitWhenSelectedSuit()
             {
-                var playedCard = new Card(1, Suit.Clubs);
+                var playedCard = Card(1, Clubs);
                 var player1Hand = new CardCollection(playedCard);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(8, Suit.Spades)
+                    Card(8, Spades)
                 ));
 
                 var sut = new PlayCommandBuilder()
@@ -196,11 +206,11 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessTrueForValidPlayWithMatchingRank()
             {
-                var playedCard = new Card(1, Suit.Clubs);
+                var playedCard = new Card(1, Clubs);
                 var player1Hand = new CardCollection(playedCard);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(1, Suit.Spades)
+                    new Card(1, Spades)
                 ));
 
                 var sut = new PlayCommandBuilder()
@@ -216,11 +226,11 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessTrueForValidPlayWithRank8()
             {
-                var playedCard = new Card(8, Suit.Clubs);
+                var playedCard = Card(8, Clubs);
                 var player1Hand = new CardCollection(playedCard);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(1, Suit.Spades)
+                    Card(1, Spades)
                 ));
 
                 var sut = new PlayCommandBuilder()
@@ -235,13 +245,36 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnIsSuccessTrueForAnyCardWhenFirstTurnAndDiscardCardIs8()
+            public void ReturnIsSuccessFalse_WhenSelectedSuit_AndPlayDoesNotMatch()
             {
-                var playedCard = new Card(1, Suit.Clubs);
+                var selectedSuit = Hearts;
+                var playedCard = Card(1, Clubs);
                 var player1Hand = new CardCollection(playedCard);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(8, Suit.Spades)
+                    Card(8, Clubs)
+                ));
+
+                var sut = new PlayCommandBuilder()
+                    .WithDiscardPile(discardPile)
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithSelectedSuit(selectedSuit)
+                    .Build(playedCard);
+
+                var actual = sut.IsValid();
+
+                actual.IsSuccess.Should().BeFalse();
+            }
+
+            [Fact]
+            public void ReturnIsSuccessTrueForAnyCardWhenFirstTurnAndDiscardCardIs8()
+            {
+                var playedCard = Card(1, Clubs);
+                var player1Hand = new CardCollection(playedCard);
+                var player2Hand = new CardCollection();
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(8, Spades)
                 ));
 
                 var sut = new PlayCommandBuilder()
@@ -257,11 +290,11 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnIsSuccessFalseWhenFirstTurnAndDiscardCardIsNot8()
             {
-                var playedCard = new Card(1, Suit.Clubs);
+                var playedCard = Card(1, Clubs);
                 var player1Hand = new CardCollection(playedCard);
                 var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
-                    new Card(7, Suit.Spades)
+                    Card(7, Spades)
                 ));
                 var sut = new PlayCommandBuilder()
                     .WithDiscardPile(discardPile)
@@ -281,13 +314,13 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnUpdatedTable()
             {
-                var playedCard = new Card(1, Suit.Clubs);
+                var playedCard = Card(1, Clubs);
                 var player1Hand = new CardCollection(
                     playedCard,
-                    new Card(2, Suit.Clubs)
+                    Card(2, Clubs)
                 );
                 var player2Hand = new CardCollection(
-                    new Card(1, Suit.Diamonds)
+                    Card(1, Diamonds)
                 );
                 var sut = new PlayCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
@@ -296,20 +329,20 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                actual.CurrentTable.DiscardPile.CardToMatch.Should().Be(new Card(1, Suit.Clubs));
-                actual.CurrentTable.Players[0].Hand.Cards.Should().NotContain(new Card(1, Suit.Clubs));
+                actual.CurrentTable.DiscardPile.CardToMatch.Should().Be(Card(1, Clubs));
+                actual.CurrentTable.Players[0].Hand.Cards.Should().NotContain(Card(1, Clubs));
             }
 
             [Fact]
             public void AddPlayedEvent()
             {
-                var playedCard = new Card(1, Suit.Clubs);
+                var playedCard = Card(1, Clubs);
                 var player1Hand = new CardCollection(
                     playedCard,
-                    new Card(2, Suit.Clubs)
+                    Card(2, Clubs)
                 );
                 var player2Hand = new CardCollection(
-                    new Card(1, Suit.Diamonds)
+                    new Card(1, Diamonds)
                 );
                 var sut = new PlayCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
@@ -329,13 +362,13 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void CreateNewTurn()
             {
-                var playedCard = new Card(1, Suit.Clubs);
+                var playedCard = Card(1, Clubs);
                 var player1Hand = new CardCollection(
                     playedCard,
-                    new Card(2, Suit.Clubs)
+                    Card(2, Clubs)
                 );
                 var player2Hand = new CardCollection(
-                    new Card(1, Suit.Diamonds)
+                    Card(1, Diamonds)
                 );
                 var sut = new PlayCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
@@ -362,13 +395,13 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void CreateNewTurnWithNextActionTake()
             {
-                var playedCard = new Card(1, Suit.Clubs);
+                var playedCard = Card(1, Clubs);
                 var player1Hand = new CardCollection(
                     playedCard,
-                    new Card(2, Suit.Clubs)
+                    Card(2, Clubs)
                 );
                 var player2Hand = new CardCollection(
-                    new Card(10, Suit.Diamonds)
+                    Card(10, Diamonds)
                 );
                 var sut = new PlayCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
@@ -392,12 +425,12 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void CreateWinningTurn()
             {
-                var playedCard = new Card(1, Suit.Clubs);
+                var playedCard = Card(1, Clubs);
                 var player1Hand = new CardCollection(
                     playedCard
                 );
                 var player2Hand = new CardCollection(
-                    new Card(10, Suit.Diamonds)
+                    Card(10, Diamonds)
                 );
                 var sut = new PlayCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
@@ -421,13 +454,13 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void CreateCrazyEightTurn()
             {
-                var playedCard = new Card(8, Suit.Clubs);
+                var playedCard = Card(8, Clubs);
                 var player1Hand = new CardCollection(
                     playedCard,
-                    new Card(1, Suit.Clubs)
+                    Card(1, Clubs)
                 );
                 var player2Hand = new CardCollection(
-                    new Card(10, Suit.Diamonds)
+                    Card(10, Diamonds)
                 );
                 var sut = new PlayCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
