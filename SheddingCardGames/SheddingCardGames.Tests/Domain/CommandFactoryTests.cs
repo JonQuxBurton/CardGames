@@ -3,6 +3,8 @@ using Moq;
 using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
 using Xunit;
+using static SheddingCardGames.Domain.CardsUtils;
+using static SheddingCardGames.Domain.Suit;
 
 namespace SheddingCardGames.Tests.Domain
 {
@@ -37,9 +39,10 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
+
             public void ReturnPlayCommand()
             {
-                var actual = sut.Create(new GameState(), new PlayContext(sampleData.Player1, new Card(1, Suit.Clubs)));
+                var actual = sut.Create(new GameState(), new PlayContext(sampleData.Player1, Cards(Card(1, Clubs))));
 
                 actual.Should().BeOfType<PlayCommand>();
             }
@@ -47,7 +50,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnSelectSuitCommand()
             {
-                var actual = sut.Create(new GameState(), new SelectSuitContext(sampleData.Player1, Suit.Clubs));
+                var actual = sut.Create(new GameState(), new SelectSuitContext(sampleData.Player1, Clubs));
 
                 actual.Should().BeOfType<SelectSuitCommand>();
             }

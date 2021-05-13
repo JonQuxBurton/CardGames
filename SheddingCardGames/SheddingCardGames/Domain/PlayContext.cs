@@ -10,11 +10,11 @@ namespace SheddingCardGames.Domain
             ExecutingPlayer = executingPlayer;
             CardsPlayed = cardsPlayed;
         }
-
-        public PlayContext(Player executingPlayer, Card playedCard)
+        
+        public PlayContext(Player executingPlayer, Card cardPlayed)
         {
             ExecutingPlayer = executingPlayer;
-            CardsPlayed = Cards(playedCard);
+            CardsPlayed = Cards(cardPlayed);
         }
 
         public Player ExecutingPlayer { get; }

@@ -48,7 +48,7 @@ namespace SheddingCardGame.UI
             if (!cardComponent.IsTurnedUp)
                 return false;
 
-            var actionResult = game.Play(new PlayContext(CurrentTurn.PlayerToPlay, cardComponent.Card));
+            var actionResult = game.Play(new PlayContext(CurrentTurn.PlayerToPlay, CardsUtils.Cards(cardComponent.Card)));
 
             if (actionResult.IsSuccess)
             {

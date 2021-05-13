@@ -25,7 +25,7 @@ namespace SheddingCardGames.Domain
             if (playContext.ExecutingPlayer.Number != gameState.CurrentPlayerToPlayNumber)
                 return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
 
-            if (!playContext.ExecutingPlayer.Hand.Contains(playContext.CardsPlayed.First()))
+            if (!playContext.ExecutingPlayer.Hand.ContainsAll(playContext.CardsPlayed))
                 return new ActionResult(false, ActionResultMessageKey.CardIsNotInPlayersHand);
 
             if (!IsValidPlay())
@@ -36,9 +36,10 @@ namespace SheddingCardGames.Domain
 
         public override GameState Execute()
         {
-            gameState.CurrentTable.MoveCardFromPlayerToDiscardPile(playContext.ExecutingPlayer, playContext.CardsPlayed.First());
+            gameState.CurrentTable.MoveCardsFromPlayerToDiscardPile(playContext.ExecutingPlayer, playContext.CardsPlayed);
+
             gameState.AddEvent(new Played(gameState.NextEventNumber, playContext.ExecutingPlayer.Number,
-                new []{ playContext.CardsPlayed.First() }));
+                playContext.CardsPlayed.ToArray()));
 
             if (HasWon())
             {
@@ -62,10 +63,8 @@ namespace SheddingCardGames.Domain
 
         private bool IsValidPlay()
         {
-            return rules.IsValidPlay(playContext.CardsPlayed, 
-                gameState.CurrentCardToMatch,
-                gameState.CurrentSelectedSuit, 
-                gameState.AnyPlaysOrTakes);
+            return rules.IsValidPlay(playContext.CardsPlayed, gameState.CurrentCardToMatch,
+                gameState.CurrentSelectedSuit, false);
         }
 
         private bool HasWon()
