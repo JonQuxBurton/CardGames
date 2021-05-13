@@ -66,7 +66,7 @@ namespace SheddingCardGames.Tests.Domain
                     CurrentTurn = new CurrentTurn(turnNumber, currentPlayer, Action.Play)
                 };
 
-                return new PlayMultipleCommand(new OlsenOlsenRules(), gameState,  new PlayMultipleContext(executingPlayer, playedCards));
+                return new PlayMultipleCommand(new Rules(), gameState,  new PlayMultipleContext(executingPlayer, playedCards));
             }
         }
 

@@ -18,6 +18,11 @@ namespace SheddingCardGames.Domain
 
         public int HandSize { get; }
 
+        public int GetHandSize()
+        {
+            return HandSize;
+        }
+
         public bool HasValidPlay(Card discardCard, CardCollection hand, Suit? selectedSuit,
             bool anyPlaysOrTakes)
         {
@@ -30,7 +35,7 @@ namespace SheddingCardGames.Domain
             if (!anyPlaysOrTakes && discardCard.Rank == 8)
                 return true;
 
-            return IsCardValid(cardsPlayed.First(), discardCard, selectedSuit);
+            return cardsPlayed.All(x => IsCardValid(x, discardCard, selectedSuit));
         }
 
         private static bool IsCardValid(Card cardPlayed, Card discardCard, Suit? selectedSuit)
@@ -46,14 +51,8 @@ namespace SheddingCardGames.Domain
 
             if (selectedSuit == null && discardCard.Suit == cardPlayed.Suit)
                 return true;
-
+            
             return false;
-        }
-
-
-        public int GetHandSize()
-        {
-            return HandSize;
         }
     }
 }
