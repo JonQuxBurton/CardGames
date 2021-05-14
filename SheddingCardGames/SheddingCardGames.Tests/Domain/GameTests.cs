@@ -18,7 +18,7 @@ namespace SheddingCardGames.Tests.Domain
                 var sampleData = new SampleData();
                 var rules = new Rules(7);
                 
-                var sut = new Game(new Variant(new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new CardCollectionBuilder().Build(), new [] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
+                var sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new CardCollectionBuilder().Build(), new [] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
 
                 sut.GameState.CurrentTurn.Should().BeNull();
                 sut.GameState.CurrentGamePhase.Should().Be(GamePhase.New);
@@ -34,7 +34,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var sampleData = new SampleData();
                 var rules = new Rules(7);
-                sut = new Game(new Variant(new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new CardCollectionBuilder().Build(),
+                sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new CardCollectionBuilder().Build(),
                     new[] { sampleData.Player1, sampleData.Player2 });
             }
 
@@ -65,7 +65,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var rules = new Rules(7);
                 var deck = new DeckBuilder().Build();
-                sut = new Game(new Variant(new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), deck, new[] { player1, player2, player3 });
+                sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), deck, new[] { player1, player2, player3 });
             }
 
             [Fact]
@@ -435,7 +435,6 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void CreateFirstTurnWhenStartingWithPlayer1()
             {
-                var expectedValidPlaysForPlayer1 = new CardCollection(new Card(2, Suit.Clubs));
                 var discardCard = new Card(2, Suit.Hearts);
                 var startingPlayer = 1;
                 var sut = CreateSut(startingPlayer, discardCard);
@@ -452,7 +451,6 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void CreateFirstTurnWhenStartingWithPlayer2()
             {
-                var expectedValidPlaysForPlayer2 = new CardCollection(new Card(2, Suit.Diamonds));
                 var discardCard = new Card(2, Suit.Hearts);
                 var startingPlayer = 2;
                 var sut = CreateSut(startingPlayer, discardCard);
@@ -469,7 +467,6 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void CreateFirstTurnWhenStartingWithPlayer3()
             {
-                var expectedValidPlaysForPlayer3 = new CardCollection(new Card(2, Suit.Spades));
                 var discardCard = new Card(2, Suit.Hearts);
                 var startingPlayer = 3;
                 var sut = CreateSut(startingPlayer, discardCard);
@@ -1648,7 +1645,7 @@ namespace SheddingCardGames.Tests.Domain
                 var sampleData = new SampleData();
                 discardCard = new Card(13, Suit.Diamonds);
                 var rules = new Rules(7);
-                sut = new Game(new Variant(new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new CardCollectionBuilder().Build(), new[] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
+                sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new CardCollectionBuilder().Build(), new[] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
             }
 
             [Fact]

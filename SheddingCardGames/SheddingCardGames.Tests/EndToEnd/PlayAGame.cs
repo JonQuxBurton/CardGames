@@ -406,7 +406,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             var rules = new Rules(5);
             var shuffler = new DummyShuffler();
 
-            sut = new Game(new Variant(new OlsenOlsenVariantCommandFactory(rules, shuffler)), deck, players);
+            sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), deck, players);
             
             sut.ChooseStartingPlayer(new ChooseStartingPlayerContext(player3));
             sut.Deal();
@@ -522,7 +522,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             var rules = new Rules(7);
             var shuffler = new DummyShuffler();
 
-            return new Game(new Variant(new OlsenOlsenVariantCommandFactory(rules, shuffler)), deck, players);
+            return new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), deck, players);
         }
 
         private void VerifyPlayerTake(int playerNumber, ActionResult takeResult, int turnNumber,

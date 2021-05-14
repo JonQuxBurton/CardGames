@@ -10,25 +10,25 @@ namespace SheddingCardGame.Cli
 {
     class Program
     {
-        private static Game SetupGame()
+        private static Game SetupGame(VariantName variantName)
         {
             var numberOfPlayers = 2;
             IDeckBuilder deckBuilder = new DeckBuilder();
             ICrazyEightsGameBuilder gameBuilder = new CrazyEightsGameBuilder();
 
-            return gameBuilder.Build(VariantName.OlsenOlsen, deckBuilder.Build(), numberOfPlayers);
+            return gameBuilder.Build(variantName, deckBuilder.Build(), numberOfPlayers);
         }
         
-        private static Game SetupMinimalGame()
+        private static Game SetupMinimalGame(VariantName variantName)
         {
             var numberOfPlayers = 2;
             IDeckBuilder deckBuilder = new MinimalDeckBuilder(numberOfPlayers);
             ICrazyEightsGameBuilder gameBuilder = new CrazyEightsGameBuilder();
 
-            return gameBuilder.Build(VariantName.OlsenOlsen, deckBuilder.Build(), numberOfPlayers);
+            return gameBuilder.Build(variantName, deckBuilder.Build(), numberOfPlayers);
         }
         
-        private static Game SetupTestGame()
+        private static Game SetupTestGame(VariantName variantName)
         {
             var numberOfPlayers = 2;
             IDeckBuilder deckBuilder = new SpecificDeckBuilder(Card(1, Hearts), new CardCollection(Cards(Card(1, Spades))),
@@ -36,12 +36,18 @@ namespace SheddingCardGame.Cli
                 new CardCollection(Cards(Card(3, Clubs), Card(5, Clubs))));
             ICrazyEightsGameBuilder gameBuilder = new TestCrazyEightsGameBuilder(2, 1);
 
-            return gameBuilder.Build(VariantName.OlsenOlsen, deckBuilder.Build(), numberOfPlayers);
+            return gameBuilder.Build(variantName, deckBuilder.Build(), numberOfPlayers);
         }
 
         static void Main(string[] args)
         {
-            var game = SetupTestGame();
+            var variantNameInput = "OlsenOlsen";
+            
+            VariantName variantName = Enum.Parse<VariantName>(variantNameInput);
+            var game = SetupTestGame(variantName);
+
+            Console.WriteLine($"Playing CrazyEights, Variant: {game.Variant.Name}");
+
             game.Deal();
 
             PreviousTurnResult previousTurnResult = null;

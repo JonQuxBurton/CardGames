@@ -28,9 +28,9 @@ namespace SheddingCardGames.Domain
 
             Variant variant;
             if (variantName == VariantName.OlsenOlsen)
-                variant = new Variant(new OlsenOlsenVariantCommandFactory(rules, shuffler));
+                variant = new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler));
             else
-                variant = new Variant(new BasicVariantCommandFactory(rules, shuffler));
+                variant = new Variant(VariantName.Basic, new BasicVariantCommandFactory(rules, shuffler));
 
             var game = new Game(variant, deck, players.ToArray());
             var firstPlayer = players[firstPlayerNumber-1];
