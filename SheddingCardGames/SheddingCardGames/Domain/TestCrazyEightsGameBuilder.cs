@@ -17,7 +17,7 @@ namespace SheddingCardGames.Domain
             this.firstPlayerNumber = firstPlayerNumber;
         }
 
-        public Game Build(CardCollection deck, int numberOfPlayers)
+        public Game Build(VariantName variantName, CardCollection deck, int numberOfPlayers)
         {
             var players = new List<Player> {new Player(1, "Alice"), new Player(2, "Bob")};
             var rules = new Rules(handSize);
@@ -25,7 +25,14 @@ namespace SheddingCardGames.Domain
             if (numberOfPlayers > 2) players.Add(new Player(3, "Carol"));
 
             var shuffler = new DummyShuffler();
-            var game = new Game(rules, shuffler, deck, players.ToArray());
+
+            Variant variant;
+            if (variantName == VariantName.OlsenOlsen)
+                variant = new Variant(new OlsenOlsenVariantCommandFactory(rules, shuffler));
+            else
+                variant = new Variant(new BasicVariantCommandFactory(rules, shuffler));
+
+            var game = new Game(variant, deck, players.ToArray());
             var firstPlayer = players[firstPlayerNumber-1];
 
             game.ChooseStartingPlayer(new ChooseStartingPlayerContext(firstPlayer));

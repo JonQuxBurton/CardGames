@@ -8,17 +8,17 @@ using static SheddingCardGames.Domain.Suit;
 
 namespace SheddingCardGames.Tests.Domain
 {
-    namespace CommandFactoryTests
+    namespace OlsenOlsenCommandFactoryTests
     {
         public class CreateShould
         {
             private readonly SampleData sampleData;
-            private readonly CommandFactory sut;
+            private readonly OlsenOlsenVariantCommandFactory sut;
 
             public CreateShould()
             {
                 sampleData = new SampleData();
-                sut = new CommandFactory(new Rules(), new DummyShuffler());
+                sut = new OlsenOlsenVariantCommandFactory(new Rules(), new DummyShuffler());
             }
 
             [Fact]

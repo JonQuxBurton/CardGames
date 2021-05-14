@@ -2,12 +2,12 @@ using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGames.Domain
 {
-    public class CommandFactory
+    public class OlsenOlsenVariantCommandFactory : ICommandFactory
     {
         private readonly IRules rules;
         private readonly IShuffler shuffler;
 
-        public CommandFactory(IRules rules, IShuffler shuffler)
+        public OlsenOlsenVariantCommandFactory(IRules rules, IShuffler shuffler)
         {
             this.rules = rules;
             this.shuffler = shuffler;

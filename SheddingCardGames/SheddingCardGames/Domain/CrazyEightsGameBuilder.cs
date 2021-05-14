@@ -7,7 +7,7 @@ namespace SheddingCardGames.Domain
     [ExcludeFromCodeCoverage]
     public class CrazyEightsGameBuilder : ICrazyEightsGameBuilder
     {
-        public Game Build(CardCollection deck, int numberOfPlayers)
+        public Game Build(VariantName variantNameName, CardCollection deck, int numberOfPlayers)
         {
             var players = new List<Player> {new Player(1, "Alice"), new Player(2, "Bob")};
             var rules = new Rules(7);
@@ -20,7 +20,14 @@ namespace SheddingCardGames.Domain
             }
 
             var shuffler = new Shuffler();
-            var game = new Game(rules, shuffler, deck, players.ToArray());
+            
+            Variant variant;
+            if (variantNameName == VariantName.OlsenOlsen)
+                variant = new Variant(new OlsenOlsenVariantCommandFactory(rules, shuffler));
+            else
+                variant = new Variant(new BasicVariantCommandFactory(rules, shuffler));
+
+            var game = new Game(variant, deck, players.ToArray());
             var firstPlayer = players[random.Next(numberOfPlayers)];
 
             game.ChooseStartingPlayer(new ChooseStartingPlayerContext(firstPlayer));

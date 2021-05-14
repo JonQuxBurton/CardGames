@@ -62,7 +62,7 @@ namespace SheddingCardGames.Tests.Domain
             var deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards),
                 players.Select(x => x.Hand).ToArray()).Build();
             var rules = new Rules(7);
-            var sut = new Game(rules, shuffler, deck, new[]
+            var sut = new Game(new Variant(new OlsenOlsenVariantCommandFactory(rules, shuffler)), deck, new[]
             {
                 players.ElementAt(0),
                 players.ElementAt(1)

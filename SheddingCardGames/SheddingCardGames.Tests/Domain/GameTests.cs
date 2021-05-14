@@ -17,7 +17,8 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var sampleData = new SampleData();
                 var rules = new Rules(7);
-                var sut = new Game(rules, new DummyShuffler(), new CardCollectionBuilder().Build(), new [] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
+                
+                var sut = new Game(new Variant(new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new CardCollectionBuilder().Build(), new [] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
 
                 sut.GameState.CurrentTurn.Should().BeNull();
                 sut.GameState.CurrentGamePhase.Should().Be(GamePhase.New);
@@ -33,7 +34,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var sampleData = new SampleData();
                 var rules = new Rules(7);
-                sut = new Game(rules, new DummyShuffler(), new CardCollectionBuilder().Build(),
+                sut = new Game(new Variant(new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new CardCollectionBuilder().Build(),
                     new[] { sampleData.Player1, sampleData.Player2 });
             }
 
@@ -61,10 +62,10 @@ namespace SheddingCardGames.Tests.Domain
                 player1 = sampleData.Player1;
                 player2 = sampleData.Player2;
                 player3 = sampleData.Player3;
-                var shuffler = new DummyShuffler();
+
                 var rules = new Rules(7);
                 var deck = new DeckBuilder().Build();
-                sut = new Game(rules, shuffler, deck, new[] { player1, player2, player3 });
+                sut = new Game(new Variant(new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), deck, new[] { player1, player2, player3 });
             }
 
             [Fact]
@@ -1647,7 +1648,7 @@ namespace SheddingCardGames.Tests.Domain
                 var sampleData = new SampleData();
                 discardCard = new Card(13, Suit.Diamonds);
                 var rules = new Rules(7);
-                sut = new Game(rules, new DummyShuffler(), new CardCollectionBuilder().Build(), new[] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
+                sut = new Game(new Variant(new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new CardCollectionBuilder().Build(), new[] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
             }
 
             [Fact]

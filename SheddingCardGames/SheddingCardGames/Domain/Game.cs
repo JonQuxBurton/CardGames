@@ -7,14 +7,14 @@ namespace SheddingCardGames.Domain
     public class Game
     {
         private readonly Dictionary<string, Card> cards = new Dictionary<string, Card>();
-        private readonly CommandFactory commandFactory;
+        private readonly Variant variant;
         private readonly CardCollection deck;
 
         public readonly Dictionary<int, Player> Players = new Dictionary<int, Player>();
 
-        public Game(IRules rules, IShuffler shuffler, CardCollection deck,
-            Player[] withPlayers)
+        public Game(Variant variant, CardCollection deck, Player[] withPlayers)
         {
+            this.variant = variant;
             this.deck = deck;
 
             foreach (var card in deck.Cards)
@@ -25,7 +25,7 @@ namespace SheddingCardGames.Domain
                 Players.Add(player.Number, player);
 
             GameState = new GameState();
-            commandFactory = new CommandFactory(rules, shuffler);
+            
         }
 
         public GameState GameState { get; private set; }
@@ -76,7 +76,7 @@ namespace SheddingCardGames.Domain
 
         private ActionResult ProcessCommand(ICommandContext commandContext)
         {
-            var command = commandFactory.Create(GameState, commandContext);
+            var command = variant.CommandFactory.Create(GameState, commandContext);
 
             var isValidResult = command.IsValid();
 
