@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
@@ -31,10 +32,12 @@ namespace SheddingCardGame.Cli
         private static Game SetupTestGame(VariantName variantName)
         {
             var numberOfPlayers = 2;
-            IDeckBuilder deckBuilder = new SpecificDeckBuilder(Card(1, Hearts), new CardCollection(Cards(Card(1, Spades))),
-                new CardCollection(Cards(Card(8, Clubs), Card(2, Clubs))),
-                new CardCollection(Cards(Card(3, Clubs), Card(5, Clubs))));
-            ICrazyEightsGameBuilder gameBuilder = new TestCrazyEightsGameBuilder(2, 1);
+            IDeckBuilder deckBuilder = 
+                new SpecificDeckBuilder(Card(1, Clubs), 
+                new CardCollection(Cards(Card(10, Spades))),
+                new CardCollection(Cards(Card(1, Diamonds), Card(1, Hearts), Card(1, Spades))),
+                new CardCollection(Cards(Card(3, Clubs), Card(5, Clubs), Card(7, Clubs))));
+            ICrazyEightsGameBuilder gameBuilder = new TestCrazyEightsGameBuilder(3, 1);
 
             return gameBuilder.Build(variantName, deckBuilder.Build(), numberOfPlayers);
         }
@@ -42,6 +45,7 @@ namespace SheddingCardGame.Cli
         static void Main(string[] args)
         {
             var variantNameInput = "OlsenOlsen";
+            //var variantNameInput = "Basic";
             
             VariantName variantName = Enum.Parse<VariantName>(variantNameInput);
             var game = SetupTestGame(variantName);
@@ -79,14 +83,23 @@ namespace SheddingCardGame.Cli
             game.SelectSuit(new SelectSuitContext(currentTurn.PlayerToPlay, selectedSuit));
         }
 
-        private static (int Rank, Suit Suit) ParseInput(string input)
+        private static IEnumerable<Card> ParseInput(string input)
         {
-            var rankString = input.Count() > 2 ? input.Substring(0, 2) : input.Substring(0, 1);
-            var suitString = input.Last().ToString().Trim().ToUpperInvariant();
-            var rank = int.Parse(rankString);
-            var suit = new SuitParser().Parse(suitString);
+            var cardsString = input.Split(" ", StringSplitOptions.RemoveEmptyEntries);
 
-            return (rank, suit);
+            var cards = new List<Card>();
+
+            foreach (var cardString in cardsString)
+            {
+                var rankString = cardString.Count() > 2 ? cardString.Substring(0, 2) : cardString.Substring(0, 1);
+                var suitString = cardString.Last().ToString().Trim().ToUpperInvariant();
+                var rank = int.Parse(rankString);
+                var suit = new SuitParser().Parse(suitString);
+                
+                cards.Add(Card(rank, suit));
+            }
+
+            return cards;
         }
 
         private static void Play(Game game, CurrentTurn currentTurn)
@@ -103,15 +116,10 @@ namespace SheddingCardGame.Cli
             Console.WriteLine($"Enter {currentTurn.PlayerToPlay.Name}'s play in format RS (RankSuit):");
             var playInput = Console.ReadLine();
 
-            var parsedInput = ParseInput(playInput);
-            var playInputRank = parsedInput.Rank;
-            var playSuit = parsedInput.Suit;
+            var parsedInput = ParseInput(playInput).ToList();
+            Console.WriteLine($"{currentTurn.PlayerToPlay.Name} plays: {string.Join(" ", parsedInput)}");
 
-            var play = new Card(playInputRank, playSuit);
-
-            Console.WriteLine($"{currentTurn.PlayerToPlay.Name} plays: {play}");
-
-            var playResult = game.Play(new PlayContext(currentTurn.PlayerToPlay, Cards(play)));
+            var playResult = game.Play(new PlayContext(currentTurn.PlayerToPlay, Cards(parsedInput.ToArray())));
             Console.WriteLine($"IsValidPlay: {playResult}");
         }
 
