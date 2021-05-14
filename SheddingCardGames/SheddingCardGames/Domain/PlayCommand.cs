@@ -64,7 +64,7 @@ namespace SheddingCardGames.Domain
         private bool IsValidPlay()
         {
             return rules.IsValidPlay(playContext.CardsPlayed, gameState.CurrentCardToMatch,
-                gameState.CurrentSelectedSuit, false);
+                gameState.CurrentSelectedSuit, gameState.AnyPlaysOrTakes);
         }
 
         private bool HasWon()

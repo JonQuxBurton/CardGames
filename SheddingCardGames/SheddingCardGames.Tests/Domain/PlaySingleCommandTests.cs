@@ -20,6 +20,7 @@ namespace SheddingCardGames.Tests.Domain
             private CardCollection player1Hand = new CardCollection();
             private CardCollection player2Hand = new CardCollection();
             private readonly int turnNumber = 1;
+            private Suit? selectedSuit;
 
             public PlaySingleCommandBuilder WithExecutingPlayer(int withExecutingPlayerNumber)
             {
@@ -36,6 +37,12 @@ namespace SheddingCardGames.Tests.Domain
             public PlaySingleCommandBuilder WithPlayer2Hand(CardCollection withPlayer2Hand)
             {
                 player2Hand = withPlayer2Hand;
+                return this;
+            }
+
+            public PlaySingleCommandBuilder WithSelectedSuit(Suit withSelectedSuit)
+            {
+                selectedSuit = withSelectedSuit;
                 return this;
             }
 
@@ -65,6 +72,9 @@ namespace SheddingCardGames.Tests.Domain
                     PlayerToStart = player1,
                     CurrentTurn = new CurrentTurn(turnNumber, currentPlayer, Action.Play)
                 };
+
+                if (selectedSuit.HasValue)
+                    gameState.PreviousTurnResult = new PreviousTurnResult(false, null, selectedSuit);
 
                 return new PlaySingleCommand(new Rules(), gameState,  new PlayContext(executingPlayer, playedCards));
             }
@@ -217,6 +227,29 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.IsValid();
                 actual.IsSuccess.Should().BeTrue();
+            }
+
+            [Fact]
+            public void ReturnIsSuccessFalse_WhenCardPlayed_AndSelectedSuit_ButDoesNotMatchSuit()
+            {
+                var selectedSuit = Hearts;
+                var playedCards = Cards(Card(1, Clubs));
+                var player1Hand = new CardCollection(playedCards);
+                var player2Hand = new CardCollection();
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(8, Spades)
+                ));
+
+                var sut = new PlaySingleCommandBuilder()
+                    .WithDiscardPile(discardPile)
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithSelectedSuit(selectedSuit)
+                    .Build(playedCards);
+
+                var actual = sut.IsValid();
+
+                actual.IsSuccess.Should().BeFalse();
             }
 
             [Fact]
