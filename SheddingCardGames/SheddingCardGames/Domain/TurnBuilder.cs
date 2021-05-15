@@ -24,10 +24,6 @@ namespace SheddingCardGames.Domain
         {
             var nextTurnNumber = gameState.CurrentTurnNumber + 1;
 
-            var currentTurnNumber = 1;
-            if (gameState.CurrentTurn != null)
-                currentTurnNumber = gameState.CurrentTurnNumber;
-
             var hasValidPlays = rules.HasValidPlay(gameState.CurrentCardToMatch, nextPlayer.Hand, selectedSuit, gameState.AnyPlaysOrTakes);
 
             return new CurrentTurn(nextTurnNumber,

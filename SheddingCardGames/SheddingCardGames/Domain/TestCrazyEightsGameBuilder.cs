@@ -10,11 +10,9 @@ namespace SheddingCardGames.Domain
 
     {
         private readonly int firstPlayerNumber;
-        private readonly int handSize;
 
-        public TestCrazyEightsGameBuilder(int handSize, int firstPlayerNumber)
+        public TestCrazyEightsGameBuilder(int firstPlayerNumber)
         {
-            this.handSize = handSize;
             this.firstPlayerNumber = firstPlayerNumber;
         }
 
