@@ -4,23 +4,28 @@ using static SheddingCardGames.Domain.CardsUtils;
 
 namespace SheddingCardGames.Domain
 {
-    public class Rules : IRules
+    public class CrazyEightsRules : IRules
     {
-        public Rules()
+        public enum NumberOfPlayers
         {
-            HandSize = 7;
+            Two = 2,
+            Three = 3,
+            Four = 4
         }
 
-        public Rules(int handSize)
+        private readonly int numberOfPlayers;
+
+        public CrazyEightsRules(NumberOfPlayers numberOfPlayers)
         {
-            HandSize = handSize;
+            this.numberOfPlayers = (int)numberOfPlayers;
         }
-
-        public int HandSize { get; }
-
+        
         public int GetHandSize()
         {
-            return HandSize;
+            if (numberOfPlayers==2)
+                return 7;
+
+            return 5;
         }
 
         public bool HasValidPlay(Card discardCard, CardCollection hand, Suit? selectedSuit,
@@ -37,7 +42,7 @@ namespace SheddingCardGames.Domain
 
             return cardsPlayed.All(x => IsCardValid(x, discardCard, selectedSuit));
         }
-
+        
         private static bool IsCardValid(Card cardPlayed, Card discardCard, Suit? selectedSuit)
         {
             if (cardPlayed.Rank == 8)

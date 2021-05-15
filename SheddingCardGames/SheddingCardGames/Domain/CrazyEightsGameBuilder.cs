@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using static SheddingCardGames.Domain.CrazyEightsRules;
 
 namespace SheddingCardGames.Domain
 {
@@ -10,13 +11,19 @@ namespace SheddingCardGames.Domain
         public Game Build(VariantName variantNameName, CardCollection deck, int numberOfPlayers)
         {
             var players = new List<Player> {new Player(1, "Alice"), new Player(2, "Bob")};
-            var rules = new Rules(7);
+            var rules = new CrazyEightsRules(NumberOfPlayers.Two);
             var random = new Random();
 
             if (numberOfPlayers > 2)
             {
                 players.Add(new Player(3, "Carol"));
-                rules = new Rules(5);
+                rules = new CrazyEightsRules(NumberOfPlayers.Two);
+            }
+            
+            if (numberOfPlayers > 3)
+            {
+                players.Add(new Player(4, "Dan"));
+                rules = new CrazyEightsRules(NumberOfPlayers.Four);
             }
 
             var shuffler = new Shuffler();

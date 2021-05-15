@@ -3,19 +3,20 @@ using SheddingCardGames.Domain;
 using Xunit;
 using static SheddingCardGames.Domain.Suit;
 using static SheddingCardGames.Domain.CardsUtils;
+using static SheddingCardGames.Domain.CrazyEightsRules;
 
 namespace SheddingCardGames.Tests.Domain
 {
-    namespace RulesTests
+    namespace CrazyEightsRulesTests
     {
         public class IsValidPlayShould
         {
             private readonly CardParser cardParser = new CardParser();
-            private readonly Rules sut;
+            private readonly CrazyEightsRules sut;
 
             public IsValidPlayShould()
             {
-                sut = new Rules();
+                sut = new CrazyEightsRules(NumberOfPlayers.Two);
             }
 
             [Fact]
@@ -166,6 +167,29 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.IsValidPlay(Cards(cardPlayed), discardCard, Hearts, true);
 
                 actual.Should().BeFalse();
+            }
+        }
+
+        public class GetHandSizeShould
+        {
+            [Fact]
+            public void Return7_WhenNumberOfPlayersIs2()
+            {
+                var sut = new CrazyEightsRules(NumberOfPlayers.Two);
+
+                var actual = sut.GetHandSize();
+
+                actual.Should().Be(7);
+            }
+
+            [Fact]
+            public void Return5_WhenNumberOfPlayersIs3OrMore()
+            {
+                var sut = new CrazyEightsRules(NumberOfPlayers.Three);
+
+                var actual = sut.GetHandSize();
+
+                actual.Should().Be(5);
             }
         }
     }

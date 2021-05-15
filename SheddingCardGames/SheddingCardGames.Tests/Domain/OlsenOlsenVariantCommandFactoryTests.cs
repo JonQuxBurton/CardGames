@@ -4,6 +4,7 @@ using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
+using static SheddingCardGames.Domain.CrazyEightsRules.NumberOfPlayers;
 using static SheddingCardGames.Domain.Suit;
 
 namespace SheddingCardGames.Tests.Domain
@@ -18,7 +19,7 @@ namespace SheddingCardGames.Tests.Domain
             public CreateShould()
             {
                 sampleData = new SampleData();
-                sut = new OlsenOlsenVariantCommandFactory(new Rules(), new DummyShuffler());
+                sut = new OlsenOlsenVariantCommandFactory(new CrazyEightsRules(Two), new DummyShuffler());
             }
 
             [Fact]

@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
+using static SheddingCardGames.Domain.CardsUtils;
+using static SheddingCardGames.Domain.CrazyEightsRules;
 
 namespace SheddingCardGames.Tests.Domain
 {
@@ -13,6 +15,7 @@ namespace SheddingCardGames.Tests.Domain
         private DiscardPile discardPile = new DiscardPile();
         private IShuffler shuffler = new DummyShuffler();
         private StockPile stockPile = new StockPile(new CardCollection());
+        private NumberOfPlayers numberOfPlayers = NumberOfPlayers.Two;
 
         public InProgressGameBuilder WithShuffler(IShuffler withShuffler)
         {
@@ -44,6 +47,13 @@ namespace SheddingCardGames.Tests.Domain
             return this;
         }
 
+        public InProgressGameBuilder WithDiscardCard(Card withDiscardCard)
+        {
+            discardPile = new DiscardPile(Cards(withDiscardCard));
+            discardPile.TurnUpTopCard();
+            return this;
+        }
+
         public InProgressGameBuilder WithCurrentTurn(CurrentTurn withCurrentTurn)
         {
             currentTurn = withCurrentTurn;
@@ -59,14 +69,15 @@ namespace SheddingCardGames.Tests.Domain
                 players.Add(sampleData.Player2);
             }
 
+            if (players.Count == 3)
+                numberOfPlayers = NumberOfPlayers.Three;
+            else if (players.Count == 4)
+                numberOfPlayers = NumberOfPlayers.Four;
+
             var deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards),
                 players.Select(x => x.Hand).ToArray()).Build();
-            var rules = new Rules(7);
-            var sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), deck, new[]
-            {
-                players.ElementAt(0),
-                players.ElementAt(1)
-            });
+            var rules = new CrazyEightsRules(numberOfPlayers);
+            var sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), deck, players.ToArray());
             var expectedTable = new Table(stockPile, discardPile, players.ToArray());
 
             var gameState = new GameState

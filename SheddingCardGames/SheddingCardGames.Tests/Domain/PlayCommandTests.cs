@@ -6,6 +6,7 @@ using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
+using static SheddingCardGames.Domain.CrazyEightsRules.NumberOfPlayers;
 using static SheddingCardGames.Domain.Suit;
 using Action = SheddingCardGames.Domain.Action;
 
@@ -76,7 +77,7 @@ namespace SheddingCardGames.Tests.Domain
                 if (selectedSuit.HasValue)
                     gameState.PreviousTurnResult = new PreviousTurnResult(false, null, selectedSuit);
 
-                return new PlayCommand(new Rules(), gameState,  new PlayContext(executingPlayer, playedCards));
+                return new PlayCommand(new CrazyEightsRules(Two), gameState,  new PlayContext(executingPlayer, playedCards));
             }
         }
 

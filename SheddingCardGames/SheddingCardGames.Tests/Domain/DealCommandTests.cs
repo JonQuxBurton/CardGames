@@ -4,6 +4,7 @@ using SheddingCardGames.Domain;
 using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
+using static SheddingCardGames.Domain.CrazyEightsRules;
 
 namespace SheddingCardGames.Tests.Domain
 {
@@ -27,7 +28,7 @@ namespace SheddingCardGames.Tests.Domain
                 };
 
                 var deck = new CardCollectionBuilder().Build();
-                var rules = new Rules(7);
+                var rules = new CrazyEightsRules(NumberOfPlayers.Two);
 
                 return new DealCommand(rules, 
                     new DummyShuffler(), 
@@ -57,7 +58,7 @@ namespace SheddingCardGames.Tests.Domain
             private int deckCount;
             private CardCollection player1Hand;
             private readonly Player[] players;
-            private Rules rules;
+            private CrazyEightsRules rules;
 
             public ExecuteShould()
             {
@@ -109,7 +110,7 @@ namespace SheddingCardGames.Tests.Domain
                     new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand, player3Hand).Build();
                 deckCount = deck.Count();
 
-                rules = new Rules(5);
+                rules = new CrazyEightsRules(NumberOfPlayers.Three);
 
                 return new DealCommand(rules, new DummyShuffler(), gameState, new DealContext(deck, players));
             }
@@ -198,7 +199,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Execute();
 
                 var actualEvents = actual.Events;
-                for (var i = 0; i < rules.HandSize; i++)
+                for (var i = 0; i < rules.GetHandSize(); i++)
                 {
                     var counter1 = i * players.Length;
                     actualEvents.ElementAt(counter1).Should().BeOfType<CardMoved>();

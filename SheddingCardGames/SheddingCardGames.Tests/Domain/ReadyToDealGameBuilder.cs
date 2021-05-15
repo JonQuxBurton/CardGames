@@ -1,6 +1,7 @@
 using System.Linq;
 using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
+using static SheddingCardGames.Domain.CrazyEightsRules;
 
 namespace SheddingCardGames.Tests.Domain
 {
@@ -65,13 +66,13 @@ namespace SheddingCardGames.Tests.Domain
             var player2 = sampleData.Player2;
             player2.Hand = player2Hand;
 
-            var rules = new Rules(player1Hand.Cards.Count());
-
+            IRules rules;
             CardCollection deck;
             Game game;
 
             if (numberOfPlayers > 2)
             {
+                rules = new CrazyEightsRules(NumberOfPlayers.Three);
                 var player3 = sampleData.Player3;
                 player3.Hand = player3Hand;
                 deck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand, player3Hand).Build();
@@ -79,6 +80,7 @@ namespace SheddingCardGames.Tests.Domain
             }
             else
             {
+                rules = new CrazyEightsRules(NumberOfPlayers.Two);
                 deck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand).Build();
                 game = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), deck, new[] { player1, player2 });
             }

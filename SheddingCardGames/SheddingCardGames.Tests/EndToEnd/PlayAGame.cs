@@ -3,6 +3,7 @@ using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
+using static SheddingCardGames.Domain.CrazyEightsRules;
 using static SheddingCardGames.Domain.Suit;
 
 namespace SheddingCardGames.Tests.EndToEnd
@@ -403,7 +404,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             var deck = deckBuilder.Build();
 
             var players = new[] { player1, player2, player3 };
-            var rules = new Rules(5);
+            var rules = new CrazyEightsRules(NumberOfPlayers.Three);
             var shuffler = new DummyShuffler();
 
             sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), deck, players);
@@ -519,7 +520,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             var deck = deckBuilder.Build();
 
             var players = new[] {player1, player2};
-            var rules = new Rules(7);
+            var rules = new CrazyEightsRules(NumberOfPlayers.Two);
             var shuffler = new DummyShuffler();
 
             return new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), deck, players);
