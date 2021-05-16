@@ -16,7 +16,7 @@ namespace SheddingCardGames.Domain
             this.firstPlayerNumber = firstPlayerNumber;
         }
 
-        public Game Build(VariantName variantName, CardCollection deck, int numberOfPlayers)
+        public Game Build(VariantName variantName, int numberOfPlayers)
         {
             var players = new List<Player> {new Player(1, "Alice"), new Player(2, "Bob")};
             var rules = new CrazyEightsRules(NumberOfPlayers.Two);

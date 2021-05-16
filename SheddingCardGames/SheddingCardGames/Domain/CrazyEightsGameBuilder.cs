@@ -8,7 +8,7 @@ namespace SheddingCardGames.Domain
     [ExcludeFromCodeCoverage]
     public class CrazyEightsGameBuilder : ICrazyEightsGameBuilder
     {
-        public Game Build(VariantName variantNameName, CardCollection deck, int numberOfPlayers)
+        public Game Build(VariantName variantNameName, int numberOfPlayers)
         {
             var players = new List<Player> {new Player(1, "Alice"), new Player(2, "Bob")};
             var rules = new CrazyEightsRules(NumberOfPlayers.Two);

@@ -5,7 +5,7 @@ namespace SheddingCardGames.UiLogic
 {
     public class SpecificGameBuilder
     {
-        public Game Build(CardCollection deck)
+        public Game Build()
         {
             var players = new[] {new Player(1, "Alice"), new Player(2,"Bob")};
             var rules = new CrazyEightsRules(CrazyEightsRules.NumberOfPlayers.Two);

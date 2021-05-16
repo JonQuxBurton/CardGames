@@ -103,13 +103,11 @@ namespace SheddingCardGames.Tests.Domain
             {
                 rules = new CrazyEightsRules(NumberOfPlayers.Three);
                 var player3 = sampleData.Player3;
-                deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards), player1Hand, player2Hand, player3Hand).Build();
                 game = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), new[] { player1, player2, player3 });
             }
             else
             {
                 rules = new CrazyEightsRules(NumberOfPlayers.Two);
-                deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards), player1Hand, player2Hand).Build();
                 game = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), new[] { player1, player2 });
             }
 

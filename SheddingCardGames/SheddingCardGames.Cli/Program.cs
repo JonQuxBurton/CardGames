@@ -19,7 +19,7 @@ namespace SheddingCardGame.Cli
             deck = new DeckBuilder().Build();
             ICrazyEightsGameBuilder gameBuilder = new CrazyEightsGameBuilder();
 
-            return gameBuilder.Build(variantName, deck, numberOfPlayers);
+            return gameBuilder.Build(variantName, numberOfPlayers);
         }
         
         private static Game SetupMinimalGame(VariantName variantName)
@@ -28,7 +28,7 @@ namespace SheddingCardGame.Cli
             deck = new MinimalDeckBuilder(numberOfPlayers).Build();
             ICrazyEightsGameBuilder gameBuilder = new CrazyEightsGameBuilder();
 
-            return gameBuilder.Build(variantName, deck, numberOfPlayers);
+            return gameBuilder.Build(variantName,  numberOfPlayers);
         }
         
         private static Game SetupTestGame(VariantName variantName)
@@ -42,7 +42,7 @@ namespace SheddingCardGame.Cli
                     new CardCollection(Cards(Card(3, Clubs), Card(5, Clubs), Card(7, Clubs)))).Build();
             ICrazyEightsGameBuilder gameBuilder = new TestCrazyEightsGameBuilder(1);
 
-            return gameBuilder.Build(variantName, deck, numberOfPlayers);
+            return gameBuilder.Build(variantName, numberOfPlayers);
         }
 
         static void Main(string[] args)
