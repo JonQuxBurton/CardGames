@@ -1392,7 +1392,7 @@ namespace SheddingCardGames.Tests.Domain
                 var player1 = sampleData.Player1;
                 var currentTurn = new CurrentTurn(1, player1, Action.Take);
                 
-                var sut = new InProgressGameBuilder()
+                var sut = new GameBuilder()
                     .WithCurrentPlayer(player1)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
@@ -1400,7 +1400,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithDiscardPile(discardPile)
                     .WithStockPile(stockPile)
                     .WithCurrentTurn(currentTurn)
-                    .Build();
+                    .BuildInProgressGame();
                 
                 sut.Take(new TakeContext(sut.GetPlayer(1)));
 
@@ -1474,7 +1474,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var currentTurn = new CurrentTurn(1, player1, Action.Take);
                 
-                var sut = new InProgressGameBuilder()
+                var sut = new GameBuilder()
                     .WithShuffler(shufflerMock.Object)
                     .WithCurrentPlayer(player1)
                     .WithPlayer1Hand(player1Hand)
@@ -1483,7 +1483,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithDiscardPile(discardPile)
                     .WithStockPile(stockPile)
                     .WithCurrentTurn(currentTurn)
-                    .Build();
+                    .BuildInProgressGame();
                 
                 sut.Take(new TakeContext(sut.GetPlayer(1)));
 
@@ -1667,7 +1667,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var discardCard = Card(1, Hearts);
                 var currentTurn = new CurrentTurn(7, player1, Action.Play);
-                var sut = new InProgressGameBuilder()
+                var sut = new GameBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithPlayer3Hand(player3Hand)
@@ -1675,7 +1675,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithStockPile(stockPile)
                     .WithCurrentTurn(currentTurn)
                     .WithCurrentPlayer(player1)
-                    .Build();
+                    .BuildInProgressGame();
 
                 sut.Play(new PlayContext(sut.GetPlayer(1), player1Hand.Cards.First()));
 
@@ -1693,7 +1693,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var discardCard = Card(2, Hearts);
                 var currentTurn = new CurrentTurn(8, player2, Action.Play);
-                var sut = new InProgressGameBuilder()
+                var sut = new GameBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithPlayer3Hand(player3Hand)
@@ -1701,7 +1701,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithStockPile(stockPile)
                     .WithCurrentTurn(currentTurn)
                     .WithCurrentPlayer(player2)
-                    .Build();
+                    .BuildInProgressGame();
 
                 sut.Play(new PlayContext(sut.GetPlayer(2), player2Hand.Cards.First()));
 
@@ -1719,7 +1719,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var discardCard = Card(3, Hearts);
                 var currentTurn = new CurrentTurn(9, player3, Action.Play);
-                var sut = new InProgressGameBuilder()
+                var sut = new GameBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithPlayer3Hand(player3Hand)
@@ -1727,7 +1727,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithStockPile(stockPile)
                     .WithCurrentTurn(currentTurn)
                     .WithCurrentPlayer(player3)
-                    .Build();
+                    .BuildInProgressGame();
 
                 sut.Play(new PlayContext(sut.GetPlayer(3), player3Hand.Cards.First()));
 
@@ -1745,7 +1745,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var discardCard = Card(1, Hearts);
                 var currentTurn = new CurrentTurn(7, player1, Action.Play);
-                var sut = new InProgressGameBuilder()
+                var sut = new GameBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithPlayer3Hand(player3Hand)
@@ -1753,7 +1753,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithStockPile(stockPile)
                     .WithCurrentTurn(currentTurn)
                     .WithCurrentPlayer(player1)
-                    .Build();
+                    .BuildInProgressGame();
 
                 sut.Play(new PlayContext(sut.GetPlayer(1), player1Hand.Cards.First()));
 

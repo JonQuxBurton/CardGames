@@ -1,20 +1,38 @@
 using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
+using static SheddingCardGames.Domain.CardsUtils;
 using static SheddingCardGames.Domain.CrazyEightsRules;
+using static SheddingCardGames.Domain.Suit;
 
 namespace SheddingCardGames.Tests.Domain
 {
+
     public class GameBuilder
     {
+        private Player currentPlayer;
+        private CurrentTurn currentTurn;
+
         private IShuffler shuffler = new DummyShuffler();
-        private Card discardCard = new Card(1, Suit.Clubs);
         private CardCollection player1Hand = new CardCollection();
         private CardCollection player2Hand = new CardCollection();
         private CardCollection player3Hand = new CardCollection();
-        private CardCollection stockPile = new CardCollection();
+        private StockPile stockPile = new StockPile(new CardCollection());
         private int startingPlayerNumber = 1;
         private int numberOfPlayers = 2;
         private SampleData sampleData;
+        private DiscardPile discardPile = new DiscardPile(Cards(Card(1, Clubs)));
+
+        public GameBuilder WithCurrentPlayer(Player withCurrentPlayer)
+        {
+            currentPlayer = withCurrentPlayer;
+            return this;
+        }
+
+        public GameBuilder WithCurrentTurn(CurrentTurn withCurrentTurn)
+        {
+            currentTurn = withCurrentTurn;
+            return this;
+        }
 
         public GameBuilder WithPlayer1Hand(CardCollection hand)
         {
@@ -36,13 +54,26 @@ namespace SheddingCardGames.Tests.Domain
 
         public GameBuilder WithDiscardCard(Card card)
         {
-            discardCard = card;
+            discardPile = new DiscardPile(Cards(card));
+            discardPile.TurnUpTopCard();
             return this;
         }
 
-        public GameBuilder WithStockPile(CardCollection cards)
+        public GameBuilder WithDiscardPile(DiscardPile withDiscardPile)
         {
-            stockPile = cards;
+            discardPile = withDiscardPile;
+            return this;
+        }
+
+        public GameBuilder WithStockPile(StockPile withStockPile)
+        {
+            stockPile = withStockPile;
+            return this;
+        }
+
+        public GameBuilder WithStockPile(CardCollection withStockPile)
+        {
+            stockPile = new StockPile(withStockPile);
             return this;
         }
 
@@ -58,7 +89,7 @@ namespace SheddingCardGames.Tests.Domain
             return this;
         }
 
-        private Game Build()
+        private Game BuildGame()
         {
             var player1 = sampleData.Player1;
             var player2 = sampleData.Player2;
@@ -71,17 +102,55 @@ namespace SheddingCardGames.Tests.Domain
             {
                 rules = new CrazyEightsRules(NumberOfPlayers.Three);
                 var player3 = sampleData.Player3;
-                deck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand, player3Hand).Build();
+                deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards), player1Hand, player2Hand, player3Hand).Build();
                 game = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), deck, new[] { player1, player2, player3 });
             }
             else
             {
                 rules = new CrazyEightsRules(NumberOfPlayers.Two);
-                deck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand).Build();
+                deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards), player1Hand, player2Hand).Build();
                 game = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), deck, new[] { player1, player2 });
             }
 
             return game;
+        }
+
+        public Game BuildInProgressGame()
+        {
+            sampleData = new SampleData();
+
+            Table expectedTable;
+            if (numberOfPlayers > 2)
+            {
+                expectedTable = new Table(stockPile, discardPile, sampleData.Player1, sampleData.Player2, sampleData.Player3);
+            }
+            else
+            {
+                expectedTable = new Table(stockPile, discardPile, sampleData.Player1, sampleData.Player2);
+            }
+            var player1 = sampleData.Player1;
+            player1.Hand = player1Hand;
+            var player2 = sampleData.Player2;
+            player2.Hand = player2Hand;
+
+            if (numberOfPlayers > 2)
+            {
+                var player3 = sampleData.Player3;
+                player3.Hand = player3Hand;
+            }
+
+            var game = BuildGame();
+
+            var gameState = new GameState
+            {
+                CurrentTable = expectedTable,
+                PlayerToStart = currentPlayer,
+                CurrentTurn = currentTurn
+            };
+            game.Initialise(gameState);
+
+            return game;
+
         }
 
         public Game BuildReadyToDealGame()
@@ -98,7 +167,7 @@ namespace SheddingCardGames.Tests.Domain
                 player3.Hand = player3Hand;
             }
 
-            var game = Build();
+            var game = BuildGame();
             
             game.ChooseStartingPlayer(new ChooseStartingPlayerContext(sampleData.GetPlayer(startingPlayerNumber)));
 
@@ -109,7 +178,7 @@ namespace SheddingCardGames.Tests.Domain
         {
             sampleData = new SampleData();
 
-            var game = Build();
+            var game = BuildGame();
 
             game.ChooseStartingPlayer(new ChooseStartingPlayerContext(sampleData.GetPlayer(startingPlayerNumber)));
             game.Deal();
