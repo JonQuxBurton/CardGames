@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Linq;
 using FluentAssertions;
 using Moq;
@@ -7,6 +8,7 @@ using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
 using static SheddingCardGames.Domain.CrazyEightsRules;
+using static SheddingCardGames.Domain.PlayersUtils;
 using static SheddingCardGames.Domain.Suit;
 
 namespace SheddingCardGames.Tests.Domain
@@ -21,7 +23,7 @@ namespace SheddingCardGames.Tests.Domain
                 var sampleData = new SampleData();
                 var rules = new CrazyEightsRules(NumberOfPlayers.Two);
                 
-                var sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new CardCollectionBuilder().Build(), new [] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
+                var sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new [] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
 
                 sut.GameState.CurrentTurn.Should().BeNull();
                 sut.GameState.CurrentGamePhase.Should().Be(GamePhase.New);
@@ -32,19 +34,21 @@ namespace SheddingCardGames.Tests.Domain
         public class InitialiseShould
         {
             private readonly Game sut;
+            private readonly ImmutableList<Player> players;
 
             public InitialiseShould()
             {
-                var sampleData = new SampleData();
+                var sampleData1 = new SampleData();
                 var rules = new CrazyEightsRules(NumberOfPlayers.Two);
-                sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new CardCollectionBuilder().Build(),
-                    new[] { sampleData.Player1, sampleData.Player2 });
+                players = Players(sampleData1.Player1, sampleData1.Player2);
+                sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())),
+                    players.ToArray());
             }
 
             [Fact]
             public void SetGameState()
             {
-                var expectedGameState = new GameState();
+                var expectedGameState = new GameState(players);
 
                 sut.Initialise(expectedGameState);
 
@@ -68,7 +72,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var rules = new CrazyEightsRules(NumberOfPlayers.Two);
                 var deck = new DeckBuilder().Build();
-                sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), deck, new[] { player1, player2, player3 });
+                sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new[] { player1, player2, player3 });
             }
 
             [Fact]
@@ -120,6 +124,7 @@ namespace SheddingCardGames.Tests.Domain
             private readonly CardCollection player3Hand;
             private readonly CardCollection stockPile;
             private Card discardCard;
+            private CardCollection deck;
 
             public DealShould()
             {
@@ -146,6 +151,7 @@ namespace SheddingCardGames.Tests.Domain
                     Card(5, Spades)
                 );
                 stockPile = new CardCollection(Card(1, Hearts));
+                deck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand, player3Hand).Build();
             }
 
             [Fact]
@@ -159,7 +165,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithDiscardCard(discardCard)
                     .BuildReadyToDealGame();
 
-                var actual = sut.Deal();
+                var actual = sut.Deal(new DealContext(deck));
 
                 actual.IsSuccess.Should().BeTrue();
                 actual.MessageKey.Should().Be(ActionResultMessageKey.Success);
@@ -176,7 +182,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithDiscardCard(discardCard)
                     .BuildReadyToDealGame();
 
-                sut.Deal();
+                sut.Deal(new DealContext(deck));
 
                 CardMoved domainEvent;
 
@@ -225,7 +231,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithDiscardCard(discardCard)
                     .BuildReadyToDealGame();
 
-                sut.Deal();
+                sut.Deal(new DealContext(deck));
 
                 sut.GameState.Events.Last().Should().BeOfType(typeof(DealCompleted));
             }
@@ -233,10 +239,9 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ShuffleCards()
             {
-                var expectedDeck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand, player3Hand).Build();
                 var shufflerMock = new Mock<IShuffler>();
-                shufflerMock.Setup(x => x.Shuffle(It.Is<CardCollection>(y => y.Cards.SequenceEqual(expectedDeck.Cards) )))
-                    .Returns(expectedDeck);
+                shufflerMock.Setup(x => x.Shuffle(It.Is<CardCollection>(y => y.Cards.SequenceEqual(deck.Cards) )))
+                    .Returns(deck);
                 var sut = new GameBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
@@ -246,7 +251,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithShuffler(shufflerMock.Object)
                     .BuildReadyToDealGame();
 
-                sut.Deal();
+                sut.Deal(new DealContext(deck));
                 
                 shufflerMock.VerifyAll();
             }
@@ -262,7 +267,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithDiscardCard(discardCard)
                     .BuildReadyToDealGame();
                 
-                sut.Deal();
+                sut.Deal(new DealContext(deck));
 
                 sut.GameState.CurrentGamePhase.Should().Be(GamePhase.InGame);
             }
@@ -282,7 +287,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithStartingPlayer(expectedStartingPlayer)
                     .BuildReadyToDealGame();
 
-                sut.Deal();
+                sut.Deal(new DealContext(deck));
 
                 sut.GameState.CurrentTurn.PlayerToPlay.Number.Should().Be(expectedStartingPlayer);
             }
@@ -298,7 +303,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithDiscardCard(discardCard)
                     .BuildReadyToDealGame();
 
-                sut.Deal();
+                sut.Deal(new DealContext(deck));
 
                 sut.GameState.CurrentTable.Players[0].Hand.Cards.Should().Equal(player1Hand.Cards);
             }
@@ -314,7 +319,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithDiscardCard(discardCard)
                     .BuildReadyToDealGame();
 
-                sut.Deal();
+                sut.Deal(new DealContext(deck));
 
                 var actual = sut.GameState.CurrentTable;
                 actual.Players[1].Hand.Cards.Should().Equal(player2Hand.Cards);
@@ -331,7 +336,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithDiscardCard(discardCard)
                     .BuildReadyToDealGame();
 
-                sut.Deal();
+                sut.Deal(new DealContext(deck));
 
                 var actual = sut.GameState.CurrentTable;
                 actual.Players[2].Hand.Cards.Should().Equal(player3Hand.Cards);
@@ -348,7 +353,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithDiscardCard(discardCard)
                     .BuildReadyToDealGame();
 
-                sut.Deal();
+                sut.Deal(new DealContext(deck));
 
                 sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(discardCard);
             }
@@ -364,7 +369,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithDiscardCard(discardCard)
                     .BuildReadyToDealGame();
 
-                sut.Deal();
+                sut.Deal(new DealContext(deck));
 
                 sut.GameState.CurrentTable.StockPile.Cards.Should().Equal(stockPile.Cards);
             }
@@ -380,7 +385,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithDiscardCard(discardCard)
                     .BuildReadyToDealGame();
 
-                sut.Deal();
+                sut.Deal(new DealContext(deck));
 
                 var actual = sut.GameState.CurrentTurn;
                 actual.TurnNumber.Should().Be(1);
@@ -401,7 +406,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithDiscardCard(discardCard)
                     .BuildReadyToDealGame();
 
-                sut.Deal();
+                sut.Deal(new DealContext(deck));
                 
                 var actual = sut.GameState.CurrentTurn;
                 actual.TurnNumber.Should().Be(1);
@@ -422,7 +427,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithDiscardCard(discardCard)
                     .BuildReadyToDealGame();
 
-                sut.Deal();
+                sut.Deal(new DealContext(deck));
 
                 var actual = sut.GameState.CurrentTurn;
                 actual.TurnNumber.Should().Be(1);
@@ -443,8 +448,9 @@ namespace SheddingCardGames.Tests.Domain
                     .WithPlayer3Hand(player3Hand)
                     .WithStockPile(stockPile)
                     .BuildReadyToDealGame();
+                deck = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand, player3Hand).Build();
 
-                sut.Deal();
+                sut.Deal(new DealContext(deck));
 
                 var actual = sut.GameState.CurrentTurn;
                 actual.TurnNumber.Should().Be(1);

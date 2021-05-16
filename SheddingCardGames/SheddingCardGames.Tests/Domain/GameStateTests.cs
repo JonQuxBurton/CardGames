@@ -2,6 +2,7 @@
 using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
 using Xunit;
+using static SheddingCardGames.Domain.PlayersUtils;
 
 namespace SheddingCardGames.Tests.Domain
 {
@@ -18,10 +19,10 @@ namespace SheddingCardGames.Tests.Domain
 
             private GameState CreateSut(Player playerToPlay)
             {
-                return new GameState
+                var players = Players(sampleData.Player1, sampleData.Player2);
+                return new GameState(players)
                 {
-                    CurrentTable = new Table(new StockPile(new CardCollection()), new DiscardPile(), sampleData.Player1,
-                        sampleData.Player2),
+                    CurrentTable = new Table(new StockPile(new CardCollection()), new DiscardPile(), players),
                     CurrentTurn = new CurrentTurn(1, playerToPlay, Action.Play)
                 };
             }

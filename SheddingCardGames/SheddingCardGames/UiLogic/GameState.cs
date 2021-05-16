@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using SheddingCardGames.Domain;
 using SheddingCardGames.Domain.Events;
@@ -7,7 +8,14 @@ namespace SheddingCardGames.UiLogic
 {
     public class GameState
     {
+        public IImmutableList<Player> Players { get; }
         private readonly List<DomainEvent> events = new List<DomainEvent>();
+
+        public GameState(IImmutableList<Player> players)
+        {
+            Players = players;
+        }
+
         public Table CurrentTable { get; set; }
         public IEnumerable<DomainEvent> Events => events;
 

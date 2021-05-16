@@ -41,11 +41,13 @@ namespace SheddingCardGames.Tests.EndToEnd
             var sampleData = new SampleData();
             var player1 = sampleData.Player1;
             var player2 = sampleData.Player2;
-            
-            sut = CreateSut(player1, player1Hand, player2, player2Hand, discardCard, stockPile);
+            IDeckBuilder deckBuilder = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand);
+            var deck = deckBuilder.Build();
+
+            sut = CreateSut(player1, player2, deck);
             
             sut.ChooseStartingPlayer(new ChooseStartingPlayerContext(player1));
-            sut.Deal();
+            sut.Deal(new DealContext(deck));
 
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(1);
             sut.GameState.CurrentTable.Players[0].Hand.Cards.Should().Equal(player1Hand.Cards);
@@ -248,10 +250,13 @@ namespace SheddingCardGames.Tests.EndToEnd
             var player1 = sampleData.Player1;
             var player2 = sampleData.Player2;
 
-            sut = CreateSut(player1, player1Hand, player2, player2Hand, discardCard, stockPile);
+            IDeckBuilder deckBuilder = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand);
+            var deck = deckBuilder.Build();
+
+            sut = CreateSut(player1, player2, deck);
             
             sut.ChooseStartingPlayer(new ChooseStartingPlayerContext(player2));
-            sut.Deal();
+            sut.Deal(new DealContext(deck));
 
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(1);
             sut.GameState.CurrentTable.Players[0].Hand.Cards.Should().Equal(player1Hand.Cards);
@@ -407,10 +412,10 @@ namespace SheddingCardGames.Tests.EndToEnd
             var rules = new CrazyEightsRules(NumberOfPlayers.Three);
             var shuffler = new DummyShuffler();
 
-            sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), deck, players);
+            sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), players);
             
             sut.ChooseStartingPlayer(new ChooseStartingPlayerContext(player3));
-            sut.Deal();
+            sut.Deal(new DealContext(deck));
 
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(1);
             sut.GameState.CurrentTable.Players[0].Hand.Cards.Should().Equal(player1Hand.Cards);
@@ -513,17 +518,13 @@ namespace SheddingCardGames.Tests.EndToEnd
             VerifyPlayerWon(3, result, 13, Card(9, Spades));
         }
 
-        private Game CreateSut(Player player1, CardCollection player1Hand, Player player2, CardCollection player2Hand, Card discardCard,
-            CardCollection stockPile)
+        private Game CreateSut(Player player1, Player player2, CardCollection deck)
         {
-            IDeckBuilder deckBuilder = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand);
-            var deck = deckBuilder.Build();
-
             var players = new[] {player1, player2};
             var rules = new CrazyEightsRules(NumberOfPlayers.Two);
             var shuffler = new DummyShuffler();
 
-            return new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), deck, players);
+            return new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), players);
         }
 
         private void VerifyPlayerTake(int playerNumber, ActionResult takeResult, int turnNumber,

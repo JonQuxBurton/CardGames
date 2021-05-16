@@ -1,24 +1,21 @@
 using System.Collections.Generic;
-using System.Linq;
 using SheddingCardGames.UiLogic;
+using static SheddingCardGames.Domain.PlayersUtils;
 
 namespace SheddingCardGames.Domain
 {
     public class Game
     {
-        private readonly CardCollection deck;
-
         public readonly Dictionary<int, Player> Players = new Dictionary<int, Player>();
 
-        public Game(Variant variant, CardCollection deck, Player[] withPlayers)
+        public Game(Variant variant, Player[] withPlayers)
         {
             Variant = variant;
-            this.deck = deck;
 
             foreach (var player in withPlayers)
                 Players.Add(player.Number, player);
 
-            GameState = new GameState();
+            GameState = new GameState(Players(withPlayers));
         }
 
         public Variant Variant { get; }
@@ -40,9 +37,9 @@ namespace SheddingCardGames.Domain
             return ProcessCommand(chooseStartingPlayerContext);
         }
 
-        public ActionResult Deal()
+        public ActionResult Deal(DealContext dealContext)
         {
-            return ProcessCommand(new DealContext(deck, Players.Values.ToArray()));
+            return ProcessCommand(dealContext);
         }
 
         public ActionResult Play(PlayContext playContext)

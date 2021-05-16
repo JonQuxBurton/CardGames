@@ -11,7 +11,7 @@ namespace SheddingCardGames.UiLogic
             var rules = new CrazyEightsRules(CrazyEightsRules.NumberOfPlayers.Two);
             var shuffler = new DummyShuffler();
             var variant = new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler));
-            var game = new Game(variant, deck, players);
+            var game = new Game(variant, players);
 
             var random = new Random();
             var firstPlayer = players[random.Next(2)];

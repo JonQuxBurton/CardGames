@@ -11,35 +11,38 @@ namespace SheddingCardGame.Cli
 {
     class Program
     {
+        private static CardCollection deck;
+
         private static Game SetupGame(VariantName variantName)
         {
             var numberOfPlayers = 2;
-            IDeckBuilder deckBuilder = new DeckBuilder();
+            deck = new DeckBuilder().Build();
             ICrazyEightsGameBuilder gameBuilder = new CrazyEightsGameBuilder();
 
-            return gameBuilder.Build(variantName, deckBuilder.Build(), numberOfPlayers);
+            return gameBuilder.Build(variantName, deck, numberOfPlayers);
         }
         
         private static Game SetupMinimalGame(VariantName variantName)
         {
             var numberOfPlayers = 2;
-            IDeckBuilder deckBuilder = new MinimalDeckBuilder(numberOfPlayers);
+            deck = new MinimalDeckBuilder(numberOfPlayers).Build();
             ICrazyEightsGameBuilder gameBuilder = new CrazyEightsGameBuilder();
 
-            return gameBuilder.Build(variantName, deckBuilder.Build(), numberOfPlayers);
+            return gameBuilder.Build(variantName, deck, numberOfPlayers);
         }
         
         private static Game SetupTestGame(VariantName variantName)
         {
             var numberOfPlayers = 2;
-            IDeckBuilder deckBuilder = 
-                new SpecificDeckBuilder(Card(1, Clubs), 
-                new CardCollection(Cards(Card(10, Spades))),
-                new CardCollection(Cards(Card(1, Diamonds), Card(1, Hearts), Card(1, Spades))),
-                new CardCollection(Cards(Card(3, Clubs), Card(5, Clubs), Card(7, Clubs))));
+            deck = 
+                new SpecificDeckBuilder(
+                    Card(1, Clubs), 
+                    new CardCollection(Cards(Card(10, Spades))),
+                    new CardCollection(Cards(Card(1, Diamonds), Card(1, Hearts), Card(1, Spades))),
+                    new CardCollection(Cards(Card(3, Clubs), Card(5, Clubs), Card(7, Clubs)))).Build();
             ICrazyEightsGameBuilder gameBuilder = new TestCrazyEightsGameBuilder(1);
 
-            return gameBuilder.Build(variantName, deckBuilder.Build(), numberOfPlayers);
+            return gameBuilder.Build(variantName, deck, numberOfPlayers);
         }
 
         static void Main(string[] args)
@@ -52,7 +55,7 @@ namespace SheddingCardGame.Cli
 
             Console.WriteLine($"Playing CrazyEights, Variant: {game.Variant.Name}");
 
-            game.Deal();
+            game.Deal(new DealContext(deck));
 
             PreviousTurnResult previousTurnResult = null;
 

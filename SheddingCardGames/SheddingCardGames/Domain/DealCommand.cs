@@ -40,14 +40,13 @@ namespace SheddingCardGames.Domain
 
         private Table Deal(CardCollection cardsToDeal)
         {
-            var playersArray = dealContext.Players ?? dealContext.Players.ToArray();
-            var table = new Table(new StockPile(cardsToDeal), new DiscardPile(), playersArray.ToArray());
+            var table = new Table(new StockPile(cardsToDeal), new DiscardPile(), gameState.Players);
 
             for (var i = 0; i < rules.GetHandSize(); i++)
             {
                 if (table.StockPile.IsEmpty()) break;
 
-                for (var j = 0; j < playersArray.Count(); j++)
+                for (var j = 0; j < gameState.Players.Count(); j++)
                 {
                     var player = table.Players[j];
                     var takenCard = table.MoveCardFromStockPileToPlayer(player);

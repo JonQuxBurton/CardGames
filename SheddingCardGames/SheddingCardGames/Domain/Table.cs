@@ -1,20 +1,19 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace SheddingCardGames.Domain
 {
     public class Table
     {
-        public Table(StockPile stockPile, DiscardPile discardPile, params Player[] players)
+        public Table(StockPile stockPile, DiscardPile discardPile, IImmutableList<Player> players)
         {
-            Players = new ReadOnlyCollection<Player>(players);
+            Players = players;
             StockPile = stockPile;
             DiscardPile = discardPile;
         }
 
-        public ReadOnlyCollection<Player> Players { get; }
+        public IImmutableList<Player> Players { get; }
         public StockPile StockPile { get; set; }
         public DiscardPile DiscardPile { get; set; }
 

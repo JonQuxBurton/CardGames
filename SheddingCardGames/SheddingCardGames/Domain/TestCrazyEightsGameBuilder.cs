@@ -41,7 +41,7 @@ namespace SheddingCardGames.Domain
             else
                 variant = new Variant(VariantName.Basic, new BasicVariantCommandFactory(rules, shuffler));
 
-            var game = new Game(variant, deck, players.ToArray());
+            var game = new Game(variant, players.ToArray());
             var firstPlayer = players[firstPlayerNumber-1];
 
             game.ChooseStartingPlayer(new ChooseStartingPlayerContext(firstPlayer));

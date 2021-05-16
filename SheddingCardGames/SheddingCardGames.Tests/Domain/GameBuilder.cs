@@ -1,12 +1,13 @@
+using System.Collections.Immutable;
 using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
 using static SheddingCardGames.Domain.CardsUtils;
 using static SheddingCardGames.Domain.CrazyEightsRules;
+using static SheddingCardGames.Domain.PlayersUtils;
 using static SheddingCardGames.Domain.Suit;
 
 namespace SheddingCardGames.Tests.Domain
 {
-
     public class GameBuilder
     {
         private Player currentPlayer;
@@ -103,13 +104,13 @@ namespace SheddingCardGames.Tests.Domain
                 rules = new CrazyEightsRules(NumberOfPlayers.Three);
                 var player3 = sampleData.Player3;
                 deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards), player1Hand, player2Hand, player3Hand).Build();
-                game = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), deck, new[] { player1, player2, player3 });
+                game = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), new[] { player1, player2, player3 });
             }
             else
             {
                 rules = new CrazyEightsRules(NumberOfPlayers.Two);
                 deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards), player1Hand, player2Hand).Build();
-                game = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), deck, new[] { player1, player2 });
+                game = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), new[] { player1, player2 });
             }
 
             return game;
@@ -120,13 +121,16 @@ namespace SheddingCardGames.Tests.Domain
             sampleData = new SampleData();
 
             Table expectedTable;
+            IImmutableList<Player> players;
             if (numberOfPlayers > 2)
             {
-                expectedTable = new Table(stockPile, discardPile, sampleData.Player1, sampleData.Player2, sampleData.Player3);
+                players = Players(sampleData.Player1, sampleData.Player2, sampleData.Player3);
+                expectedTable = new Table(stockPile, discardPile, Players(sampleData.Player1, sampleData.Player2, sampleData.Player3));
             }
             else
             {
-                expectedTable = new Table(stockPile, discardPile, sampleData.Player1, sampleData.Player2);
+                players = Players(sampleData.Player1, sampleData.Player2);
+                expectedTable = new Table(stockPile, discardPile, Players(sampleData.Player1, sampleData.Player2));
             }
             var player1 = sampleData.Player1;
             player1.Hand = player1Hand;
@@ -141,7 +145,7 @@ namespace SheddingCardGames.Tests.Domain
 
             var game = BuildGame();
 
-            var gameState = new GameState
+            var gameState = new GameState(players)
             {
                 CurrentTable = expectedTable,
                 PlayerToStart = currentPlayer,
@@ -177,11 +181,23 @@ namespace SheddingCardGames.Tests.Domain
         public Game BuildAtStartGame()
         {
             sampleData = new SampleData();
+            CardCollection deck;
+
+            if (numberOfPlayers > 2)
+            {
+                deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards), player1Hand, player2Hand, player3Hand).Build();
+            }
+            else
+            {
+            
+                deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards), player1Hand, player2Hand).Build();
+            }
+
 
             var game = BuildGame();
 
             game.ChooseStartingPlayer(new ChooseStartingPlayerContext(sampleData.GetPlayer(startingPlayerNumber)));
-            game.Deal();
+            game.Deal(new DealContext(deck));
 
             return game;
         }

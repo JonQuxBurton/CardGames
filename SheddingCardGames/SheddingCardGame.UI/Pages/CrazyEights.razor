@@ -56,7 +56,7 @@
 
             config = new Config();
             var inGameUiBuilder = new InGameUiBuilder(config, context, cardsSpriteSheet);
-            gameController = new BlazorGameController(inGameUiBuilder, game, new ActionResultMessageMapper());
+            gameController = new BlazorGameController(inGameUiBuilder, game, deck, new ActionResultMessageMapper());
             gameController.UiState = new NewUiBuilder(config, gameController).BuildNewUiState();
         }
     }

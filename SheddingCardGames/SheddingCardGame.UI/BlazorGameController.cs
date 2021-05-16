@@ -9,6 +9,7 @@ namespace SheddingCardGame.UI
     {
         private readonly InGameUiBuilder inGameUiBuilder;
         private readonly Game game;
+        private readonly CardCollection deck;
         private readonly ActionResultMessageMapper actionResultMessageMapper;
         public CurrentTurn CurrentTurn => game.GameState.CurrentTurn;
         public PreviousTurnResult PreviousTurnResult => game.GameState.PreviousTurnResult;
@@ -18,16 +19,18 @@ namespace SheddingCardGame.UI
         public readonly Dictionary<LabelNames, LabelComponent> Labels = new Dictionary<LabelNames, LabelComponent>();
         public readonly Dictionary<ButtonNames, ButtonComponent> Buttons = new Dictionary<ButtonNames, ButtonComponent>();
 
-        public BlazorGameController(InGameUiBuilder inGameUiBuilder, Game game, ActionResultMessageMapper actionResultMessageMapper)
+        public BlazorGameController(InGameUiBuilder inGameUiBuilder, Game game, CardCollection deck,
+            ActionResultMessageMapper actionResultMessageMapper)
         {
             this.inGameUiBuilder = inGameUiBuilder;
             this.game = game;
+            this.deck = deck;
             this.actionResultMessageMapper = actionResultMessageMapper;
         }
 
         public async void Deal()
         {
-            game.Deal();
+            game.Deal(new DealContext(deck));
             UiState = await inGameUiBuilder.Build(this, game.GameState);
 
             Labels.Add(LabelNames.Turn, UiState.GameObjects.First(x => x.Tag == LabelNames.Turn.ToString()) as LabelComponent);

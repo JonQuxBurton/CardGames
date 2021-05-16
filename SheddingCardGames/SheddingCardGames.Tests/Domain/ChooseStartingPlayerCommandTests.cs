@@ -4,6 +4,7 @@ using SheddingCardGames.Domain;
 using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
+using static SheddingCardGames.Domain.PlayersUtils;
 
 namespace SheddingCardGames.Tests.Domain
 {
@@ -15,7 +16,8 @@ namespace SheddingCardGames.Tests.Domain
             public void ReturnIsSuccessTrue()
             {
                 var sampleData = new SampleData();
-                var sut = new ChooseStartingPlayerCommand(new ChooseStartingPlayerContext(sampleData.Player1));
+                var initialGameState = new GameState(Players(sampleData.Player1, sampleData.Player2));
+                var sut = new ChooseStartingPlayerCommand(initialGameState, new ChooseStartingPlayerContext(sampleData.Player1));
 
                 var actual = sut.IsValid();
 
@@ -33,7 +35,8 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var sampleData = new SampleData();
                 expectedPlayer = sampleData.Player2;
-                var sut = new ChooseStartingPlayerCommand(new ChooseStartingPlayerContext(expectedPlayer));
+                var initialGameState = new GameState(Players(sampleData.Player1, sampleData.Player2));
+                var sut = new ChooseStartingPlayerCommand(initialGameState, new ChooseStartingPlayerContext(expectedPlayer));
 
                 actual = sut.Execute();
             }

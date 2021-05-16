@@ -3,6 +3,7 @@ using System.Linq;
 using FluentAssertions;
 using SheddingCardGames.Domain;
 using Xunit;
+using static SheddingCardGames.Domain.PlayersUtils;
 
 namespace SheddingCardGames.Tests.Domain
 {
@@ -60,7 +61,7 @@ namespace SheddingCardGames.Tests.Domain
                 expectedPlayer3 = sampleData.Player3;
                 expectedPlayer3.Hand = expectedPlayer3Hand;
 
-                sut = TableCreator.Create(expectedStockPile, new DiscardPile(expectedDiscardPile.Cards), expectedPlayer1, expectedPlayer2, expectedPlayer3);
+                sut = TableCreator.Create(expectedStockPile, new DiscardPile(expectedDiscardPile.Cards), Players(expectedPlayer1, expectedPlayer2, expectedPlayer3));
             }
 
             [Fact]
@@ -135,7 +136,7 @@ namespace SheddingCardGames.Tests.Domain
                 var player3 = sampleData.Player3;
                 player3.Hand = player3Hand;
 
-                sut = TableCreator.Create(stockPile, new DiscardPile(discardPile.Cards), player1, player2, player3);
+                sut = TableCreator.Create(stockPile, new DiscardPile(discardPile.Cards), Players(player1, player2, player3));
             }
 
             [Fact]
@@ -172,7 +173,7 @@ namespace SheddingCardGames.Tests.Domain
                     new Card(1, Suit.Hearts)
                 ));
                 var sampleData = new SampleData();
-                sut = TableCreator.Create(originalStockPile, new DiscardPile(), sampleData.Player1, sampleData.Player2);
+                sut = TableCreator.Create(originalStockPile, new DiscardPile(), Players(sampleData.Player1, sampleData.Player2));
             }
             
             [Fact]
@@ -218,7 +219,7 @@ namespace SheddingCardGames.Tests.Domain
                         new Card(10, Suit.Hearts)
                 );
                 var originalDiscardPile = new CardCollection(new Card(5, Suit.Diamonds));
-                sut = TableCreator.Create(new StockPile(new CardCollection()), new DiscardPile(originalDiscardPile.Cards), player1, sampleData.Player2);
+                sut = TableCreator.Create(new StockPile(new CardCollection()), new DiscardPile(originalDiscardPile.Cards), Players(player1, sampleData.Player2));
             }
             
             [Fact]
@@ -260,7 +261,7 @@ namespace SheddingCardGames.Tests.Domain
                 var originalDiscardPile = new CardCollection(
                     new Card(1, Suit.Diamonds)
                     );
-                sut = TableCreator.Create(new StockPile(new CardCollection()), new DiscardPile(originalDiscardPile.Cards), player1, sampleData.Player2);
+                sut = TableCreator.Create(new StockPile(new CardCollection()), new DiscardPile(originalDiscardPile.Cards), Players(player1, sampleData.Player2));
             }
             
             [Fact]
@@ -308,7 +309,7 @@ namespace SheddingCardGames.Tests.Domain
                     new Card(5, Suit.Diamonds),
                     new Card(10, Suit.Hearts)
                 ));
-                sut = TableCreator.Create(originalStockPile, new DiscardPile(), player1, sampleData.Player2);
+                sut = TableCreator.Create(originalStockPile, new DiscardPile(), Players(player1, sampleData.Player2));
             }
             
             [Fact]
@@ -361,7 +362,7 @@ namespace SheddingCardGames.Tests.Domain
                 );
                 var discardPile = new DiscardPile(originalDiscardPile.Cards);
                 discardPile.TurnUpTopCard();
-                sut = TableCreator.Create(new StockPile(new CardCollection()), discardPile, player1, player2);
+                sut = TableCreator.Create(new StockPile(new CardCollection()), discardPile, Players(player1, player2));
             }
 
             [Fact]

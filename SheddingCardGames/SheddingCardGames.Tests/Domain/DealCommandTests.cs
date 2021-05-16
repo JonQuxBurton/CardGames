@@ -1,10 +1,12 @@
-﻿using System.Linq;
+﻿using System.Collections.Immutable;
+using System.Linq;
 using FluentAssertions;
 using SheddingCardGames.Domain;
 using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CrazyEightsRules;
+using static SheddingCardGames.Domain.PlayersUtils;
 
 namespace SheddingCardGames.Tests.Domain
 {
@@ -19,9 +21,9 @@ namespace SheddingCardGames.Tests.Domain
                 player1.Hand = player1Hand;
 
                 discardPile.TurnUpTopCard();
-                var table = TableCreator.Create(new StockPile(new CardCollection()), discardPile, player1,
-                    sampleData.Player2);
-                var gameState = new GameState
+                var players = Players(player1, sampleData.Player2);
+                var table = TableCreator.Create(new StockPile(new CardCollection()), discardPile, players);
+                var gameState = new GameState(players)
                 {
                     CurrentTable = table,
                     PlayerToStart = player1,
@@ -32,7 +34,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 return new DealCommand(rules, 
                     new DummyShuffler(), 
-                    gameState, new DealContext(deck, new[] {player1, sampleData.Player2}));
+                    gameState, new DealContext(deck));
             }
 
             [Fact]
@@ -57,13 +59,13 @@ namespace SheddingCardGames.Tests.Domain
         {
             private int deckCount;
             private CardCollection player1Hand;
-            private readonly Player[] players;
             private CrazyEightsRules rules;
+            private readonly ImmutableList<Player> players;
 
             public ExecuteShould()
             {
                 var sampleData = new SampleData();
-                players = new[] {sampleData.Player1, sampleData.Player2, sampleData.Player3};
+                players = Players(sampleData.Player1, sampleData.Player2, sampleData.Player3);
 
                 player1Hand = new CardCollection(
                     new Card(1, Suit.Clubs),
@@ -76,9 +78,8 @@ namespace SheddingCardGames.Tests.Domain
 
             private DealCommand CreateSut(Player currentPlayer)
             {
-                var table = TableCreator.Create(new StockPile(new CardCollection()), new DiscardPile(), players[0],
-                    players[1], players[2]);
-                var gameState = new GameState
+                var table = TableCreator.Create(new StockPile(new CardCollection()), new DiscardPile(), players);
+                var gameState = new GameState(players)
                 {
                     CurrentTable = table,
                     PlayerToStart = currentPlayer,
@@ -112,7 +113,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 rules = new CrazyEightsRules(NumberOfPlayers.Three);
 
-                return new DealCommand(rules, new DummyShuffler(), gameState, new DealContext(deck, players));
+                return new DealCommand(rules, new DummyShuffler(), gameState, new DealContext(deck));
             }
 
             [Fact]
@@ -171,7 +172,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Execute();
 
                 actual.CurrentTable.StockPile.Cards.Count().Should()
-                    .Be(deckCount - rules.GetHandSize() * players.Length - 1);
+                    .Be(deckCount - rules.GetHandSize() * players.Count - 1);
                 actual.CurrentTable.DiscardPile.CardToMatch.Should().Be(new Card(9, Suit.Diamonds));
             }
 
@@ -198,26 +199,29 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                var actualEvents = actual.Events;
+                var actualEvents = actual.Events.ToArray();
                 for (var i = 0; i < rules.GetHandSize(); i++)
                 {
-                    var counter1 = i * players.Length;
+                    var counter1 = i * players.Count;
                     actualEvents.ElementAt(counter1).Should().BeOfType<CardMoved>();
                     var domainEvent = actualEvents.ElementAt(counter1) as CardMoved;
+                    if (domainEvent is null) Assert.NotNull(domainEvent);
                     domainEvent.Card.Should().Be(players[0].Hand.Cards.ElementAt(i));
                     domainEvent.FromSource.Should().Be(CardMoveSources.StockPile);
                     domainEvent.ToSource.Should().Be(CardMoveSources.PlayerHand(1));
 
-                    var counter2 = i * players.Length + 1;
+                    var counter2 = i * players.Count + 1;
                     actualEvents.ElementAt(counter2).Should().BeOfType<CardMoved>();
                     domainEvent = actualEvents.ElementAt(counter2) as CardMoved;
+                    if (domainEvent is null) Assert.NotNull(domainEvent);
                     domainEvent.Card.Should().Be(players[1].Hand.Cards.ElementAt(i));
                     domainEvent.FromSource.Should().Be(CardMoveSources.StockPile);
                     domainEvent.ToSource.Should().Be(CardMoveSources.PlayerHand(2));
 
-                    var counter3 = i * players.Length + 2;
+                    var counter3 = i * players.Count + 2;
                     actualEvents.ElementAt(counter3).Should().BeOfType<CardMoved>();
                     domainEvent = actualEvents.ElementAt(counter3) as CardMoved;
+                    if (domainEvent is null) Assert.NotNull(domainEvent);
                     domainEvent.Card.Should().Be(players[2].Hand.Cards.ElementAt(i));
                     domainEvent.FromSource.Should().Be(CardMoveSources.StockPile);
                     domainEvent.ToSource.Should().Be(CardMoveSources.PlayerHand(3));

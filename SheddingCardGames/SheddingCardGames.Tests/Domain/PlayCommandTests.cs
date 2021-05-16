@@ -7,6 +7,7 @@ using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
 using static SheddingCardGames.Domain.CrazyEightsRules.NumberOfPlayers;
+using static SheddingCardGames.Domain.PlayersUtils;
 using static SheddingCardGames.Domain.Suit;
 using Action = SheddingCardGames.Domain.Action;
 
@@ -66,8 +67,9 @@ namespace SheddingCardGames.Tests.Domain
                     executingPlayer = player2;
 
                 discardPile.TurnUpTopCard();
-                var table = TableCreator.Create(new StockPile(new CardCollection()), discardPile, player1, player2);
-                var gameState = new GameState
+                var players = Players(sampleData.Player1, sampleData.Player2);
+                var table = TableCreator.Create(new StockPile(new CardCollection()), discardPile, players);
+                var gameState = new GameState(players)
                 {
                     CurrentTable = table,
                     PlayerToStart = player1,

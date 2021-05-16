@@ -16,7 +16,7 @@ namespace SheddingCardGames.Domain
         public GameCommand Create(GameState gameState, ICommandContext context)
         {
             if (context is ChooseStartingPlayerContext chooseStartingPlayerContext)
-                return new ChooseStartingPlayerCommand(chooseStartingPlayerContext);
+                return new ChooseStartingPlayerCommand(gameState, chooseStartingPlayerContext);
 
             if (context is DealContext dealContext)
                 return new DealCommand(rules, shuffler, gameState, dealContext);
