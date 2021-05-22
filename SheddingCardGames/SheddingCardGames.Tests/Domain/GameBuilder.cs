@@ -8,6 +8,147 @@ using static SheddingCardGames.Domain.Suit;
 
 namespace SheddingCardGames.Tests.Domain
 {
+    public class AtStartGameBuilder
+    {
+        private readonly Game game;
+        private CardCollection deck;
+        private int startingPlayerNumber = 1;
+        private CardCollection player1Hand = new CardCollection();
+        private CardCollection player2Hand = new CardCollection();
+        private CardCollection player3Hand = new CardCollection();
+        private StockPile stockPile = new StockPile(new CardCollection());
+        private int numberOfPlayers = 2;
+        private DiscardPile discardPile = new DiscardPile(Cards(Card(1, Clubs)));
+
+        public AtStartGameBuilder(Game game)
+        {
+            this.game = game;
+        }
+
+        public AtStartGameBuilder WithPlayer1Hand(CardCollection hand)
+        {
+            player1Hand = hand;
+            return this;
+        }
+
+        public AtStartGameBuilder WithPlayer2Hand(CardCollection hand)
+        {
+            player2Hand = hand;
+            return this;
+        }
+        public AtStartGameBuilder WithPlayer3Hand(CardCollection hand)
+        {
+            numberOfPlayers = 3;
+            player3Hand = hand;
+            return this;
+        }
+
+        public AtStartGameBuilder WithDiscardCard(Card card)
+        {
+            discardPile = new DiscardPile(Cards(card));
+            discardPile.TurnUpTopCard();
+            return this;
+        }
+
+        public AtStartGameBuilder WithStockPile(CardCollection withStockPile)
+        {
+            stockPile = new StockPile(withStockPile);
+            return this;
+        }
+        public AtStartGameBuilder WithStartingPlayer(int withPlayerNumber)
+        {
+            startingPlayerNumber = withPlayerNumber;
+            return this;
+        }
+
+        public Game Build()
+        {
+            if (numberOfPlayers > 2)
+            {
+                deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards), player1Hand, player2Hand, player3Hand).Build();
+            }
+            else
+            {
+
+                deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards), player1Hand, player2Hand).Build();
+            }
+
+
+            var startingPlayer = game.GetPlayer(startingPlayerNumber);
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext(startingPlayer));
+            game.Deal(new DealContext(deck));
+
+            return game;
+        }
+    }
+
+    public class ReadyToDealGameBuilder
+    {
+        private readonly Game game;
+        private CardCollection deck;
+        private int startingPlayerNumber = 1;
+        private CardCollection player1Hand = new CardCollection();
+        private CardCollection player2Hand = new CardCollection();
+        private CardCollection player3Hand = new CardCollection();
+        private StockPile stockPile = new StockPile(new CardCollection());
+        private int numberOfPlayers = 2;
+        private DiscardPile discardPile = new DiscardPile(Cards(Card(1, Clubs)));
+
+        public ReadyToDealGameBuilder(Game game)
+        {
+            this.game = game;
+        }
+
+        public ReadyToDealGameBuilder WithPlayer1Hand(CardCollection hand)
+        {
+            player1Hand = hand;
+            return this;
+        }
+
+        public ReadyToDealGameBuilder WithPlayer2Hand(CardCollection hand)
+        {
+            player2Hand = hand;
+            return this;
+        }
+        public ReadyToDealGameBuilder WithPlayer3Hand(CardCollection hand)
+        {
+            numberOfPlayers = 3;
+            player3Hand = hand;
+            return this;
+        }
+
+        public ReadyToDealGameBuilder WithDiscardCard(Card card)
+        {
+            discardPile = new DiscardPile(Cards(card));
+            discardPile.TurnUpTopCard();
+            return this;
+        }
+
+        public ReadyToDealGameBuilder WithStockPile(CardCollection withStockPile)
+        {
+            stockPile = new StockPile(withStockPile);
+            return this;
+        }
+        public ReadyToDealGameBuilder WithStartingPlayer(int withPlayerNumber)
+        {
+            startingPlayerNumber = withPlayerNumber;
+            return this;
+        }
+
+        public Game Build()
+        {
+            game.GetPlayer(1).Hand = player1Hand;
+            game.GetPlayer(2).Hand = player2Hand;
+            
+            if (numberOfPlayers > 2) 
+                game.GetPlayer(3).Hand = player3Hand;
+            
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext(game.GetPlayer(startingPlayerNumber)));
+
+            return game;
+        }
+    }
+
     public class GameBuilder
     {
         private Player currentPlayer;
@@ -22,6 +163,11 @@ namespace SheddingCardGames.Tests.Domain
         private int numberOfPlayers = 2;
         private SampleData sampleData;
         private DiscardPile discardPile = new DiscardPile(Cards(Card(1, Clubs)));
+
+        public GameBuilder()
+        {
+            sampleData = new SampleData();
+        }
 
         public GameBuilder WithCurrentPlayer(Player withCurrentPlayer)
         {
@@ -78,6 +224,12 @@ namespace SheddingCardGames.Tests.Domain
             return this;
         }
 
+        public GameBuilder WithNumberOfPlayers(int withNumberOfPlayers)
+        {
+            numberOfPlayers = withNumberOfPlayers;
+            return this;
+        }
+
         public GameBuilder WithStartingPlayer(int withPlayerNumber)
         {
             startingPlayerNumber = withPlayerNumber;
@@ -90,13 +242,12 @@ namespace SheddingCardGames.Tests.Domain
             return this;
         }
 
-        private Game BuildGame()
+        public Game Build()
         {
             var player1 = sampleData.Player1;
             var player2 = sampleData.Player2;
 
             IRules rules;
-            CardCollection deck;
             Game game;
 
             if (numberOfPlayers > 2)
@@ -116,7 +267,22 @@ namespace SheddingCardGames.Tests.Domain
 
         public Game BuildInProgressGame()
         {
-            sampleData = new SampleData();
+            //sampleData = new SampleData();
+
+            var player1 = sampleData.Player1;
+            player1.Hand = player1Hand;
+            var player2 = sampleData.Player2;
+            player2.Hand = player2Hand;
+
+            if (numberOfPlayers > 2)
+            {
+                var player3 = sampleData.Player3;
+                player3.Hand = player3Hand;
+            }
+
+            var game = Build();
+
+            //
 
             Table expectedTable;
             IImmutableList<Player> players;
@@ -130,18 +296,6 @@ namespace SheddingCardGames.Tests.Domain
                 players = Players(sampleData.Player1, sampleData.Player2);
                 expectedTable = new Table(stockPile, discardPile, Players(sampleData.Player1, sampleData.Player2));
             }
-            var player1 = sampleData.Player1;
-            player1.Hand = player1Hand;
-            var player2 = sampleData.Player2;
-            player2.Hand = player2Hand;
-
-            if (numberOfPlayers > 2)
-            {
-                var player3 = sampleData.Player3;
-                player3.Hand = player3Hand;
-            }
-
-            var game = BuildGame();
 
             var gameState = new GameState(players)
             {
@@ -157,7 +311,7 @@ namespace SheddingCardGames.Tests.Domain
 
         public Game BuildReadyToDealGame()
         {
-            sampleData = new SampleData();
+            //sampleData = new SampleData();
             var player1 = sampleData.Player1;
             player1.Hand = player1Hand;
             var player2 = sampleData.Player2;
@@ -169,35 +323,38 @@ namespace SheddingCardGames.Tests.Domain
                 player3.Hand = player3Hand;
             }
 
-            var game = BuildGame();
+            var game = Build();
             
+            //
+
             game.ChooseStartingPlayer(new ChooseStartingPlayerContext(sampleData.GetPlayer(startingPlayerNumber)));
 
             return game;
         }
 
-        public Game BuildAtStartGame()
-        {
-            sampleData = new SampleData();
-            CardCollection deck;
+        //public Game BuildAtStartGame()
+        //{
+        //    sampleData = new SampleData();
+        //    CardCollection deck;
 
-            if (numberOfPlayers > 2)
-            {
-                deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards), player1Hand, player2Hand, player3Hand).Build();
-            }
-            else
-            {
+        //    if (numberOfPlayers > 2)
+        //    {
+        //        deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards), player1Hand, player2Hand, player3Hand).Build();
+        //    }
+        //    else
+        //    {
             
-                deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards), player1Hand, player2Hand).Build();
-            }
+        //        deck = new SpecificDeckBuilder(discardPile.AllCards, new CardCollection(stockPile.Cards), player1Hand, player2Hand).Build();
+        //    }
 
+        //    var game = BuildGame();
 
-            var game = BuildGame();
+        //    //
 
-            game.ChooseStartingPlayer(new ChooseStartingPlayerContext(sampleData.GetPlayer(startingPlayerNumber)));
-            game.Deal(new DealContext(deck));
+        //    game.ChooseStartingPlayer(new ChooseStartingPlayerContext(sampleData.GetPlayer(startingPlayerNumber)));
+        //    game.Deal(new DealContext(deck));
 
-            return game;
-        }
+        //    return game;
+        //}
     }
 }
