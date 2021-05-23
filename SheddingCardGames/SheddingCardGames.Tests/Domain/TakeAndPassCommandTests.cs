@@ -11,7 +11,7 @@ using static SheddingCardGames.Domain.Suit;
 
 namespace SheddingCardGames.Tests.Domain
 {
-    namespace TakeCommandTests
+    namespace TakeAndPassCommandTests
     {
         public class TakeCommandBuilder
         {
@@ -66,7 +66,7 @@ namespace SheddingCardGames.Tests.Domain
                 return this;
             }
             
-            public TakeCommand Build()
+            public TakeAndPassCommand Build()
             {
                 var sampleData = new SampleData();
                 var player1 = sampleData.Player1;
@@ -95,7 +95,7 @@ namespace SheddingCardGames.Tests.Domain
                 if (selectedSuit.HasValue)
                     gameState.PreviousTurnResult = new PreviousTurnResult(false, null, selectedSuit);
 
-                return new TakeCommand(new CrazyEightsRules(NumberOfPlayers.Two), new DummyShuffler(), gameState, new TakeContext(executingPlayer));
+                return new TakeAndPassCommand(new CrazyEightsRules(NumberOfPlayers.Two), new DummyShuffler(), gameState, new TakeContext(executingPlayer));
             }
         }
 

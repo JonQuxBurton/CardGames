@@ -67,7 +67,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var actual = sut.Create(gameState, new TakeContext(sampleData.Player1));
 
-                actual.Should().BeOfType<TakeCommand>();
+                actual.Should().BeOfType<TakeAndPassCommand>();
             }
 
             [Fact]

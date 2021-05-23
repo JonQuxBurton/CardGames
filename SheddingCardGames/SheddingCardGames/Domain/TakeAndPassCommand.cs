@@ -4,7 +4,7 @@ using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGames.Domain
 {
-    public class TakeCommand : GameCommand
+    public class TakeAndPassCommand : GameCommand
     {
         private readonly GameState gameState;
         private readonly TakeContext takeContext;
@@ -12,7 +12,7 @@ namespace SheddingCardGames.Domain
         private readonly IShuffler shuffler;
         private readonly TurnBuilder turnBuilder;
 
-        public TakeCommand(IRules rules, IShuffler shuffler, GameState gameState, TakeContext takeContext)
+        public TakeAndPassCommand(IRules rules, IShuffler shuffler, GameState gameState, TakeContext takeContext)
         {
             this.rules = rules;
             this.shuffler = shuffler;
