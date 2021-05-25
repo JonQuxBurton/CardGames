@@ -11,9 +11,9 @@ using static SheddingCardGames.Domain.Suit;
 
 namespace SheddingCardGames.Tests.Domain
 {
-    namespace TakeAndPassCommandTests
+    namespace TakeCommandTests
     {
-        public class TakeAndPassCommandBuilder
+        public class TakeCommandBuilder
         {
             private readonly int turnNumber = 1;
             private DiscardPile discardPile = new DiscardPile();
@@ -24,49 +24,49 @@ namespace SheddingCardGames.Tests.Domain
             private CardCollection stockPile = new CardCollection();
             private Suit? selectedSuit;
 
-            public TakeAndPassCommandBuilder WithExecutingPlayer(int withExecutingPlayerNumber)
+            public TakeCommandBuilder WithExecutingPlayer(int withExecutingPlayerNumber)
             {
                 executingPlayerNumber = withExecutingPlayerNumber;
                 return this;
             }
 
-            public TakeAndPassCommandBuilder WithPlayerToPlayNumber(int withPlayerToPlayNumber)
+            public TakeCommandBuilder WithPlayerToPlayNumber(int withPlayerToPlayNumber)
             {
                 playerToPlayNumber = withPlayerToPlayNumber;
                 return this;
             }
 
-            public TakeAndPassCommandBuilder WithPlayer1Hand(CardCollection withPlayer1Hand)
+            public TakeCommandBuilder WithPlayer1Hand(CardCollection withPlayer1Hand)
             {
                 player1Hand = withPlayer1Hand;
                 return this;
             }
 
-            public TakeAndPassCommandBuilder WithPlayer2Hand(CardCollection withPlayer2Hand)
+            public TakeCommandBuilder WithPlayer2Hand(CardCollection withPlayer2Hand)
             {
                 player2Hand = withPlayer2Hand;
                 return this;
             }
 
-            public TakeAndPassCommandBuilder WithDiscardPile(DiscardPile withDiscardPile)
+            public TakeCommandBuilder WithDiscardPile(DiscardPile withDiscardPile)
             {
                 discardPile = withDiscardPile;
                 return this;
             }
 
-            public TakeAndPassCommandBuilder WithStockPile(CardCollection withStockPile)
+            public TakeCommandBuilder WithStockPile(CardCollection withStockPile)
             {
                 stockPile = withStockPile;
                 return this;
             }
 
-            public TakeAndPassCommandBuilder WithSelectedSuit(Suit withSelectedSuit)
+            public TakeCommandBuilder WithSelectedSuit(Suit withSelectedSuit)
             {
                 selectedSuit = withSelectedSuit;
                 return this;
             }
             
-            public TakeAndPassCommand Build()
+            public TakeCommand Build()
             {
                 var sampleData = new SampleData();
                 var player1 = sampleData.Player1;
@@ -95,7 +95,7 @@ namespace SheddingCardGames.Tests.Domain
                 if (selectedSuit.HasValue)
                     gameState.PreviousTurnResult = new PreviousTurnResult(false, null, selectedSuit);
 
-                return new TakeAndPassCommand(new CrazyEightsRules(NumberOfPlayers.Two), new DummyShuffler(), gameState, new TakeContext(executingPlayer));
+                return new TakeCommand(new CrazyEightsRules(NumberOfPlayers.Two), new DummyShuffler(), gameState, new TakeContext(executingPlayer));
             }
         }
 
@@ -108,7 +108,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardPile = new DiscardPile(new CardCollection(
                     Card(2, Hearts)
                 ));
-                var sut = new TakeAndPassCommandBuilder()
+                var sut = new TakeCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithDiscardPile(discardPile)
                     .Build();
@@ -126,7 +126,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardPile = new DiscardPile(new CardCollection(
                     Card(2, Clubs)
                 ));
-                var sut = new TakeAndPassCommandBuilder()
+                var sut = new TakeCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithDiscardPile(discardPile)
                     .Build();
@@ -144,7 +144,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardPile = new DiscardPile(new CardCollection(
                     Card(2, Clubs)
                 ));
-                var sut = new TakeAndPassCommandBuilder()
+                var sut = new TakeCommandBuilder()
                     .WithExecutingPlayer(2)
                     .WithPlayerToPlayNumber(1)
                     .WithPlayer1Hand(player1Hand)
@@ -174,7 +174,7 @@ namespace SheddingCardGames.Tests.Domain
                 var stockPile = new CardCollection(
                     takenCard
                 );
-                var sut = new TakeAndPassCommandBuilder()
+                var sut = new TakeCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithStockPile(stockPile)
@@ -203,11 +203,11 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void CreateNewTurn()
+            public void CreateNewTurnWithSamePlayerToPlay()
             {
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(2);
-                actualTurn.PlayerToPlay.Number.Should().Be(2);
+                actualTurn.PlayerToPlay.Number.Should().Be(1);
                 actualTurn.NextAction.Should().Be(Action.Play);
 
                 var actualPreviousTurnResult = actual.PreviousTurnResult;
@@ -218,7 +218,7 @@ namespace SheddingCardGames.Tests.Domain
             }
             
             [Fact]
-            public void CreateNewTurn_WithSelectedSuitPreserved()
+            public void CreateNewTurn_WithSelectedSuitPreserved_WhenCardTakenIsNotPlayable()
             {
                 var expectedSelectedSuit = Spades;
                 takenCard = new Card(1, Hearts);
@@ -230,7 +230,7 @@ namespace SheddingCardGames.Tests.Domain
                 var stockPile = new CardCollection(
                     takenCard
                 );
-                var sut = new TakeAndPassCommandBuilder()
+                var sut = new TakeCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithStockPile(stockPile)
@@ -242,14 +242,43 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(2);
-                actualTurn.PlayerToPlay.Number.Should().Be(2);
-                actualTurn.NextAction.Should().Be(Action.Play);
+                actualTurn.PlayerToPlay.Number.Should().Be(1);
+                actualTurn.NextAction.Should().Be(Action.Take);
 
                 var actualPreviousTurnResult = actual.PreviousTurnResult;
                 actualPreviousTurnResult.HasWinner.Should().BeFalse();
                 actualPreviousTurnResult.Winner.Should().BeNull();
                 actualPreviousTurnResult.SelectedSuit.Should().Be(expectedSelectedSuit);
                 actualPreviousTurnResult.TakenCard.Should().Be(takenCard);
+            }
+
+            [Fact]
+            public void CreateNewTurn_WithSelectedSuitPreserved_WhenCardTakenIsPlayable()
+            {
+                var expectedSelectedSuit = Spades;
+                takenCard = new Card(10, Spades);
+                var player1Hand = new CardCollection(Card(1, Clubs));
+                var player2Hand = new CardCollection(Card(2, Clubs));
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(2, Hearts)
+                ));
+                var stockPile = new CardCollection(
+                    takenCard
+                );
+                var sut = new TakeCommandBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithStockPile(stockPile)
+                    .WithDiscardPile(discardPile)
+                    .WithSelectedSuit(expectedSelectedSuit)
+                    .Build();
+
+                actual = sut.Execute();
+
+                var actualTurn = actual.CurrentTurn;
+                actualTurn.TurnNumber.Should().Be(2);
+                actualTurn.PlayerToPlay.Number.Should().Be(1);
+                actualTurn.NextAction.Should().Be(Action.Play);
             }
         }
 
@@ -268,7 +297,7 @@ namespace SheddingCardGames.Tests.Domain
                 var stockPile = new CardCollection(
                     takenCard
                 );
-                var sut = new TakeAndPassCommandBuilder()
+                var sut = new TakeCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithStockPile(stockPile)
                     .WithDiscardPile(discardPile)
