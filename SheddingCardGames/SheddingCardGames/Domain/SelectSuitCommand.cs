@@ -9,12 +9,12 @@ namespace SheddingCardGames.Domain
         private readonly SelectSuitContext selectSuitContext;
         private readonly TurnBuilder turnBuilder;
 
-        public SelectSuitCommand(IRules rules, GameState gameState, SelectSuitContext selectSuitContext)
+        public SelectSuitCommand(CrazyEightsRules crazyEightsRules, GameState gameState, SelectSuitContext selectSuitContext)
         {
             this.gameState = gameState;
             this.selectSuitContext = selectSuitContext;
 
-            turnBuilder = new TurnBuilder(rules);
+            turnBuilder = new TurnBuilder(crazyEightsRules);
         }
 
         public override ActionResult IsValid()

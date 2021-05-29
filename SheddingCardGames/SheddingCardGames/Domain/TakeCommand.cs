@@ -8,23 +8,23 @@ namespace SheddingCardGames.Domain
     {
         private readonly GameState gameState;
         private readonly TakeContext takeContext;
-        private readonly IRules rules;
+        private readonly CrazyEightsRules crazyEightsRules;
         private readonly IShuffler shuffler;
         private readonly TurnBuilder turnBuilder;
 
-        public TakeCommand(IRules rules, IShuffler shuffler, GameState gameState, TakeContext takeContext)
+        public TakeCommand(CrazyEightsRules crazyEightsRules, IShuffler shuffler, GameState gameState, TakeContext takeContext)
         {
-            this.rules = rules;
+            this.crazyEightsRules = crazyEightsRules;
             this.shuffler = shuffler;
             this.gameState = gameState;
             this.takeContext = takeContext;
 
-            turnBuilder = new TurnBuilder(rules);
+            turnBuilder = new TurnBuilder(crazyEightsRules);
         }
 
         public override ActionResult IsValid()
         {
-            var validPlays = rules.HasValidPlay(gameState.CurrentCardToMatch,
+            var validPlays = crazyEightsRules.HasValidPlay(gameState.CurrentCardToMatch,
                     takeContext.ExecutingPlayer.Hand,
                     gameState.CurrentSelectedSuit, 
                     gameState.AnyPlaysOrTakes);
@@ -48,7 +48,7 @@ namespace SheddingCardGames.Domain
             if (gameState.CurrentTable.StockPile.IsEmpty())
                 MoveDiscardPileToStockPile();
             
-            if (gameState.CurrentTurn.PreviousActions.Count == rules.NumberOfTakesBeforePass - 1)
+            if (gameState.CurrentTurn.PreviousActions.Count == crazyEightsRules.NumberOfTakesBeforePass - 1)
                 gameState.CurrentTurn = turnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, gameState.CurrentSelectedSuit, takenCard);
             else
                 gameState.CurrentTurn = turnBuilder.AddTakenCard(gameState, takenCard);

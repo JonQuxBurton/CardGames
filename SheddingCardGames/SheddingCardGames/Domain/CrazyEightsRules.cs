@@ -1,10 +1,9 @@
 using System.Collections.Immutable;
 using System.Linq;
-using static SheddingCardGames.Domain.CardsUtils;
 
 namespace SheddingCardGames.Domain
 {
-    public class CrazyEightsRules : IRules
+    public abstract class CrazyEightsRules
     {
         public enum NumberOfPlayers
         {
@@ -13,27 +12,17 @@ namespace SheddingCardGames.Domain
             Four = 4
         }
 
-        private readonly int numberOfPlayers;
+        protected readonly int numberOfPlayers;
 
-        public CrazyEightsRules(NumberOfPlayers numberOfPlayers)
+        protected CrazyEightsRules(NumberOfPlayers numberOfPlayers)
         {
             this.numberOfPlayers = (int)numberOfPlayers;
         }
-        
-        public int GetHandSize()
-        {
-            if (numberOfPlayers==2)
-                return 7;
-
-            return 5;
-        }
-
-        public int NumberOfTakesBeforePass { get; } = 3;
 
         public bool HasValidPlay(Card discardCard, CardCollection hand, Suit? selectedSuit,
             bool anyPlaysOrTakes)
         {
-            return hand.Cards.Any(x => IsValidPlay(Cards(x), discardCard, selectedSuit, anyPlaysOrTakes));
+            return hand.Cards.Any(x => IsValidPlay(CardsUtils.Cards(x), discardCard, selectedSuit, anyPlaysOrTakes));
         }
 
         public bool IsValidPlay(IImmutableList<Card> cardsPlayed, Card discardCard, Suit? selectedSuit,
@@ -44,7 +33,15 @@ namespace SheddingCardGames.Domain
 
             return cardsPlayed.All(x => IsCardValid(x, discardCard, selectedSuit));
         }
-        
+
+        public int GetHandSize()
+        {
+            if (numberOfPlayers == 2)
+                return 7;
+
+            return 5;
+        }
+
         private static bool IsCardValid(Card cardPlayed, Card discardCard, Suit? selectedSuit)
         {
             if (cardPlayed.Rank == 8)
@@ -58,8 +55,10 @@ namespace SheddingCardGames.Domain
 
             if (selectedSuit == null && discardCard.Suit == cardPlayed.Suit)
                 return true;
-            
+
             return false;
         }
+
+        public abstract int NumberOfTakesBeforePass { get; }
     }
 }

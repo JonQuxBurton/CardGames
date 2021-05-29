@@ -36,10 +36,11 @@ namespace SheddingCardGame.Cli
             var numberOfPlayers = 2;
             deck = 
                 new SpecificDeckBuilder(
-                    Card(1, Clubs), 
-                    new CardCollection(Cards(Card(10, Spades))),
-                    new CardCollection(Cards(Card(1, Diamonds), Card(1, Hearts), Card(1, Spades))),
-                    new CardCollection(Cards(Card(3, Clubs), Card(5, Clubs), Card(7, Clubs)))).Build();
+                    Card(9, Hearts), 
+                    new CardCollection(Cards(Card(10, Spades), Card(11, Spades), Card(12, Spades), Card(13, Spades))),
+                    new CardCollection(Cards(Card(1, Clubs), Card(2, Clubs), Card(3, Clubs), Card(4, Clubs), Card(5, Clubs), Card(6, Clubs), Card(7, Clubs))),
+                    new CardCollection(Cards(Card(9, Diamonds), Card(2, Diamonds), Card(3, Diamonds), Card(4, Diamonds), Card(5, Diamonds), Card(6, Diamonds), Card(7, Diamonds))))
+                    .Build();
             ICrazyEightsGameBuilder gameBuilder = new TestCrazyEightsGameBuilder(1);
 
             return gameBuilder.Build(variantName, numberOfPlayers);

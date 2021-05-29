@@ -409,7 +409,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             var deck = deckBuilder.Build();
 
             var players = new[] { player1, player2, player3 };
-            var rules = new CrazyEightsRules(NumberOfPlayers.Three);
+            var rules = new BasicVariantRules(NumberOfPlayers.Three);
             var shuffler = new DummyShuffler();
 
             sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), players);
@@ -521,7 +521,7 @@ namespace SheddingCardGames.Tests.EndToEnd
         private Game CreateSut(Player player1, Player player2, CardCollection deck)
         {
             var players = new[] {player1, player2};
-            var rules = new CrazyEightsRules(NumberOfPlayers.Two);
+            var rules = new BasicVariantRules(NumberOfPlayers.Two);
             var shuffler = new DummyShuffler();
 
             return new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), players);

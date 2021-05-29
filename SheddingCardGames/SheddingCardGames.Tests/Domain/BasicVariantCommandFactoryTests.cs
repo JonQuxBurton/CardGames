@@ -1,5 +1,4 @@
-﻿using System.Collections.Immutable;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Moq;
 using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
@@ -18,13 +17,12 @@ namespace SheddingCardGames.Tests.Domain
             private readonly SampleData sampleData;
             private readonly BasicVariantCommandFactory sut;
             private readonly GameState gameState;
-            private readonly ImmutableList<Player> players;
 
             public CreateShould()
             {
                 sampleData = new SampleData();
-                sut = new BasicVariantCommandFactory(new CrazyEightsRules(NumberOfPlayers.Two), new DummyShuffler());
-                players = Players(sampleData.Player1, sampleData.Player2);
+                sut = new BasicVariantCommandFactory(new BasicVariantRules(NumberOfPlayers.Two), new DummyShuffler());
+                var players = Players(sampleData.Player1, sampleData.Player2);
                 gameState = new GameState(players);
             }
 

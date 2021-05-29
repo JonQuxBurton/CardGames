@@ -7,16 +7,16 @@ using static SheddingCardGames.Domain.CrazyEightsRules;
 
 namespace SheddingCardGames.Tests.Domain
 {
-    namespace CrazyEightsRulesTests
+    namespace BasicVariantRulesTests
     {
         public class IsValidPlayShould
         {
             private readonly CardParser cardParser = new CardParser();
-            private readonly CrazyEightsRules sut;
+            private readonly BasicVariantRules sut;
 
             public IsValidPlayShould()
             {
-                sut = new CrazyEightsRules(NumberOfPlayers.Two);
+                sut = new BasicVariantRules(NumberOfPlayers.Two);
             }
 
             [Fact]
@@ -175,7 +175,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void Return7_WhenNumberOfPlayersIs2()
             {
-                var sut = new CrazyEightsRules(NumberOfPlayers.Two);
+                var sut = new BasicVariantRules(NumberOfPlayers.Two);
 
                 var actual = sut.GetHandSize();
 
@@ -185,7 +185,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void Return5_WhenNumberOfPlayersIs3OrMore()
             {
-                var sut = new CrazyEightsRules(NumberOfPlayers.Three);
+                var sut = new BasicVariantRules(NumberOfPlayers.Three);
 
                 var actual = sut.GetHandSize();
 

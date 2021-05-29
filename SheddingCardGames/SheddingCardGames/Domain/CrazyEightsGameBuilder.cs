@@ -11,19 +11,19 @@ namespace SheddingCardGames.Domain
         public Game Build(VariantName variantNameName, int numberOfPlayers)
         {
             var players = new List<Player> {new Player(1, "Alice"), new Player(2, "Bob")};
-            var rules = new CrazyEightsRules(NumberOfPlayers.Two);
+            var rules = new BasicVariantRules(NumberOfPlayers.Two);
             var random = new Random();
 
             if (numberOfPlayers > 2)
             {
                 players.Add(new Player(3, "Carol"));
-                rules = new CrazyEightsRules(NumberOfPlayers.Two);
+                rules = new BasicVariantRules(NumberOfPlayers.Two);
             }
             
             if (numberOfPlayers > 3)
             {
                 players.Add(new Player(4, "Dan"));
-                rules = new CrazyEightsRules(NumberOfPlayers.Four);
+                rules = new BasicVariantRules(NumberOfPlayers.Four);
             }
 
             var shuffler = new Shuffler();

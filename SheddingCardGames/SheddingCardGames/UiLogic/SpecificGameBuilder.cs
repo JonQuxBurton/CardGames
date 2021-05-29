@@ -8,7 +8,7 @@ namespace SheddingCardGames.UiLogic
         public Game Build()
         {
             var players = new[] {new Player(1, "Alice"), new Player(2,"Bob")};
-            var rules = new CrazyEightsRules(CrazyEightsRules.NumberOfPlayers.Two);
+            var rules = new BasicVariantRules(BasicVariantRules.NumberOfPlayers.Two);
             var shuffler = new DummyShuffler();
             var variant = new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler));
             var game = new Game(variant, players);

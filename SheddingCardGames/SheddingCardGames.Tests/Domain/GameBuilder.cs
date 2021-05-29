@@ -1,5 +1,6 @@
 using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
+using static SheddingCardGames.Domain.BasicVariantRules;
 using static SheddingCardGames.Domain.CrazyEightsRules;
 
 namespace SheddingCardGames.Tests.Domain
@@ -32,22 +33,22 @@ namespace SheddingCardGames.Tests.Domain
             var player1 = sampleData.Player1;
             var player2 = sampleData.Player2;
 
-            IRules rules;
+            CrazyEightsRules crazyEightsRules;
             Game game;
 
             if (numberOfPlayers > 2)
             {
-                rules = new CrazyEightsRules(NumberOfPlayers.Three);
+                crazyEightsRules = new BasicVariantRules(NumberOfPlayers.Three);
                 var player3 = sampleData.Player3;
                 game = new Game(
-                    new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)),
+                    new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(crazyEightsRules, shuffler)),
                     new[] {player1, player2, player3});
             }
             else
             {
-                rules = new CrazyEightsRules(NumberOfPlayers.Two);
+                crazyEightsRules = new BasicVariantRules(NumberOfPlayers.Two);
                 game = new Game(
-                    new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)),
+                    new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(crazyEightsRules, shuffler)),
                     new[] {player1, player2});
             }
 

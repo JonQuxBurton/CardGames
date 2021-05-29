@@ -5,6 +5,7 @@ using SheddingCardGames.Domain;
 using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
+using static SheddingCardGames.Domain.BasicVariantRules;
 using static SheddingCardGames.Domain.CrazyEightsRules;
 using static SheddingCardGames.Domain.PlayersUtils;
 
@@ -30,7 +31,7 @@ namespace SheddingCardGames.Tests.Domain
                 };
 
                 var deck = new CardCollectionBuilder().Build();
-                var rules = new CrazyEightsRules(NumberOfPlayers.Two);
+                var rules = new BasicVariantRules(NumberOfPlayers.Two);
 
                 return new DealCommand(rules, 
                     new DummyShuffler(), 
@@ -59,7 +60,7 @@ namespace SheddingCardGames.Tests.Domain
         {
             private int deckCount;
             private CardCollection player1Hand;
-            private CrazyEightsRules rules;
+            private BasicVariantRules basicVariantRules;
             private readonly ImmutableList<Player> players;
 
             public ExecuteShould()
@@ -111,9 +112,9 @@ namespace SheddingCardGames.Tests.Domain
                     new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand, player3Hand).Build();
                 deckCount = deck.Count();
 
-                rules = new CrazyEightsRules(NumberOfPlayers.Three);
+                basicVariantRules = new BasicVariantRules(NumberOfPlayers.Three);
 
-                return new DealCommand(rules, new DummyShuffler(), gameState, new DealContext(deck));
+                return new DealCommand(basicVariantRules, new DummyShuffler(), gameState, new DealContext(deck));
             }
 
             [Fact]
@@ -172,7 +173,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Execute();
 
                 actual.CurrentTable.StockPile.Cards.Count().Should()
-                    .Be(deckCount - rules.GetHandSize() * players.Count - 1);
+                    .Be(deckCount - basicVariantRules.GetHandSize() * players.Count - 1);
                 actual.CurrentTable.DiscardPile.CardToMatch.Should().Be(new Card(9, Suit.Diamonds));
             }
 
@@ -200,7 +201,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Execute();
 
                 var actualEvents = actual.Events.ToArray();
-                for (var i = 0; i < rules.GetHandSize(); i++)
+                for (var i = 0; i < basicVariantRules.GetHandSize(); i++)
                 {
                     var counter1 = i * players.Count;
                     actualEvents.ElementAt(counter1).Should().BeOfType<CardMoved>();

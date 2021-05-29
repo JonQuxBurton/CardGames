@@ -5,9 +5,11 @@ using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
+using static SheddingCardGames.Domain.BasicVariantRules;
 using static SheddingCardGames.Domain.CrazyEightsRules;
 using static SheddingCardGames.Domain.PlayersUtils;
 using static SheddingCardGames.Domain.Suit;
+// ReSharper disable InconsistentNaming
 
 namespace SheddingCardGames.Tests.Domain
 {
@@ -23,6 +25,7 @@ namespace SheddingCardGames.Tests.Domain
             private int playerToPlayNumber = 1;
             private CardCollection stockPile = new CardCollection();
             private Suit? selectedSuit;
+            private CrazyEightsRules rules = new BasicVariantRules(NumberOfPlayers.Two);
 
             public TakeCommandBuilder WithExecutingPlayer(int withExecutingPlayerNumber)
             {
@@ -66,6 +69,12 @@ namespace SheddingCardGames.Tests.Domain
                 return this;
             }
             
+            public TakeCommandBuilder WithRules(CrazyEightsRules withRules)
+            {
+                rules = withRules;
+                return this;
+            }
+
             public TakeCommand Build()
             {
                 var sampleData = new SampleData();
@@ -92,7 +101,7 @@ namespace SheddingCardGames.Tests.Domain
                     CurrentTurn = new CurrentTurn(turnNumber, playerToPlay, Action.Play, null, selectedSuit)
                 };
 
-                return new TakeCommand(new CrazyEightsRules(NumberOfPlayers.Two), new DummyShuffler(), gameState, new TakeContext(executingPlayer));
+                return new TakeCommand(rules, new DummyShuffler(), gameState, new TakeContext(executingPlayer));
             }
         }
 
@@ -155,12 +164,12 @@ namespace SheddingCardGames.Tests.Domain
             }
         }
 
-        public class ExecuteShould
+        public class Execute_WhenBasicVariant_Should
         {
             private GameState actual;
             private Card takenCard;
 
-            public ExecuteShould()
+            public Execute_WhenBasicVariant_Should()
             {
                 takenCard = Card(1, Hearts);
                 var player1Hand = new CardCollection(Card(1, Clubs));
@@ -176,6 +185,138 @@ namespace SheddingCardGames.Tests.Domain
                     .WithPlayer2Hand(player2Hand)
                     .WithStockPile(stockPile)
                     .WithDiscardPile(discardPile)
+                    .Build();
+
+                actual = sut.Execute();
+            }
+
+            [Fact]
+            public void ReturnGameStateWithUpdatedTable()
+            {
+                actual.CurrentTable.StockPile.Cards.Should().NotContain(takenCard);
+                actual.CurrentTable.Players[0].Hand.Cards.Should().Contain(takenCard);
+            }
+
+            [Fact]
+            public void AddTakenEvent()
+            {
+                actual.Events.First().Should().BeOfType<Taken>();
+                var actualEvent = actual.Events.First() as Taken;
+                if (actualEvent == null) Assert.NotNull(actualEvent);
+                actualEvent.Number.Should().Be(1);
+                actualEvent.PlayerNumber.Should().Be(1);
+                actualEvent.Card.Should().Be(takenCard);
+            }
+
+            [Fact]
+            public void CreateNewTurn()
+            {
+                var actualTurn = actual.CurrentTurn;
+                actualTurn.TurnNumber.Should().Be(2);
+                actualTurn.PlayerToPlay.Number.Should().Be(2);
+
+                actualTurn.HasWinner.Should().BeFalse();
+                actualTurn.Winner.Should().BeNull();
+            }
+
+            [Fact]
+            public void UpdateCurrentTurnWithTakenCard()
+            {
+                actual.CurrentTurn.TakenCard.Should().Be(takenCard);
+            }
+            
+            [Fact]
+            public void UpdateCurrentTurnWithCurrentActionPlay()
+            {
+                actual.CurrentTurn.CurrentAction.Should().Be(Action.Play);
+            }
+            
+            [Fact]
+            public void CreateNewTurn_WithSelectedSuitPreserved_WhenCardTakenIsNotPlayable()
+            {
+                var expectedSelectedSuit = Spades;
+                takenCard = Card(1, Spades);
+                var player1Hand = new CardCollection(Card(1, Clubs));
+                var player2Hand = new CardCollection(Card(1, Diamonds));
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(2, Hearts)
+                ));
+                var stockPile = new CardCollection(
+                    takenCard
+                );
+                var sut = new TakeCommandBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithStockPile(stockPile)
+                    .WithDiscardPile(discardPile)
+                    .WithSelectedSuit(expectedSelectedSuit)
+                    .Build();
+
+                actual = sut.Execute();
+
+                var actualTurn = actual.CurrentTurn;
+                actualTurn.TurnNumber.Should().Be(2);
+                actualTurn.PlayerToPlay.Number.Should().Be(2);
+                actualTurn.CurrentAction.Should().Be(Action.Take);
+
+                actualTurn.HasWinner.Should().BeFalse();
+                actualTurn.Winner.Should().BeNull();
+                actualTurn.SelectedSuit.Should().Be(expectedSelectedSuit);
+                actualTurn.TakenCard.Should().Be(takenCard);
+            }
+
+            [Fact]
+            public void CreateTurn_WithSelectedSuitPreserved_WhenCardTakenIsPlayable()
+            {
+                var expectedSelectedSuit = Spades;
+                var player1Hand = new CardCollection(Card(1, Clubs));
+                var player2Hand = new CardCollection(Card(2, Diamonds));
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(2, Hearts)
+                ));
+                var stockPile = new CardCollection(
+                    Card(1, Spades)
+                );
+                var sut = new TakeCommandBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithStockPile(stockPile)
+                    .WithDiscardPile(discardPile)
+                    .WithSelectedSuit(expectedSelectedSuit)
+                    .Build();
+
+                actual = sut.Execute();
+
+                var actualTurn = actual.CurrentTurn;
+                actualTurn.TurnNumber.Should().Be(2);
+                actualTurn.PlayerToPlay.Number.Should().Be(2);
+                actualTurn.CurrentAction.Should().Be(Action.Play);
+                actualTurn.SelectedSuit.Should().Be(expectedSelectedSuit);
+            }
+        }
+
+        public class Execute_WhenOlsenOlsenVariant_Should
+        {
+            private GameState actual;
+            private Card takenCard;
+
+            public Execute_WhenOlsenOlsenVariant_Should()
+            {
+                takenCard = Card(1, Hearts);
+                var player1Hand = new CardCollection(Card(1, Clubs));
+                var player2Hand = new CardCollection(Card(2, Clubs));
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(2, Hearts)
+                ));
+                var stockPile = new CardCollection(
+                    takenCard
+                );
+                var sut = new TakeCommandBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithStockPile(stockPile)
+                    .WithDiscardPile(discardPile)
+                    .WithRules(new OlsenOlsenVariantRules(OlsenOlsenVariantRules.NumberOfPlayers.Two))
                     .Build();
 
                 actual = sut.Execute();
@@ -246,6 +387,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithPlayer2Hand(player2Hand)
                     .WithStockPile(stockPile)
                     .WithDiscardPile(discardPile)
+                    .WithRules(new OlsenOlsenVariantRules(OlsenOlsenVariantRules.NumberOfPlayers.Two))
                     .Build();
 
                 sut.Execute();
@@ -273,6 +415,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithStockPile(stockPile)
                     .WithDiscardPile(discardPile)
                     .WithSelectedSuit(expectedSelectedSuit)
+                    .WithRules(new OlsenOlsenVariantRules(OlsenOlsenVariantRules.NumberOfPlayers.Two))
                     .Build();
 
                 actual = sut.Execute();
@@ -306,6 +449,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithPlayer2Hand(player2Hand)
                     .WithStockPile(stockPile)
                     .WithDiscardPile(discardPile)
+                    .WithRules(new OlsenOlsenVariantRules(OlsenOlsenVariantRules.NumberOfPlayers.Two))
                     .Build();
 
                 sut.Execute();
@@ -340,6 +484,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithStockPile(stockPile)
                     .WithDiscardPile(discardPile)
                     .WithSelectedSuit(expectedSelectedSuit)
+                    .WithRules(new OlsenOlsenVariantRules(OlsenOlsenVariantRules.NumberOfPlayers.Two))
                     .Build();
 
                 actual = sut.Execute();

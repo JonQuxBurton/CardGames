@@ -7,6 +7,7 @@ using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
+using static SheddingCardGames.Domain.BasicVariantRules;
 using static SheddingCardGames.Domain.CrazyEightsRules;
 using static SheddingCardGames.Domain.PlayersUtils;
 using static SheddingCardGames.Domain.Suit;
@@ -21,7 +22,7 @@ namespace SheddingCardGames.Tests.Domain
             public void CreateGameAtNewState()
             {
                 var sampleData = new SampleData();
-                var rules = new CrazyEightsRules(NumberOfPlayers.Two);
+                var rules = new BasicVariantRules(NumberOfPlayers.Two);
                 
                 var sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new [] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
 
@@ -39,7 +40,7 @@ namespace SheddingCardGames.Tests.Domain
             public InitialiseShould()
             {
                 var sampleData1 = new SampleData();
-                var rules = new CrazyEightsRules(NumberOfPlayers.Two);
+                var rules = new BasicVariantRules(NumberOfPlayers.Two);
                 players = Players(sampleData1.Player1, sampleData1.Player2);
                 sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())),
                     players.ToArray());
@@ -69,7 +70,7 @@ namespace SheddingCardGames.Tests.Domain
                 player2 = sampleData.Player2;
                 var player3 = sampleData.Player3;
 
-                var rules = new CrazyEightsRules(NumberOfPlayers.Two);
+                var rules = new BasicVariantRules(NumberOfPlayers.Two);
                 sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new[] { player1, player2, player3 });
             }
 

@@ -8,18 +8,18 @@ namespace SheddingCardGames.Domain
     {
         private readonly GameState gameState;
         private readonly DealContext dealContext;
-        private readonly IRules rules;
+        private readonly CrazyEightsRules crazyEightsRules;
         private readonly IShuffler shuffler;
         private readonly TurnBuilder turnBuilder;
 
-        public DealCommand(IRules rules, IShuffler shuffler, GameState gameState, DealContext dealContext)
+        public DealCommand(CrazyEightsRules crazyEightsRules, IShuffler shuffler, GameState gameState, DealContext dealContext)
         {
             this.shuffler = shuffler;
-            this.rules = rules;
+            this.crazyEightsRules = crazyEightsRules;
             this.gameState = gameState;
             this.dealContext = dealContext;
 
-            turnBuilder = new TurnBuilder(rules);
+            turnBuilder = new TurnBuilder(crazyEightsRules);
         }
 
         public override ActionResult IsValid()
@@ -42,7 +42,7 @@ namespace SheddingCardGames.Domain
         {
             var table = new Table(new StockPile(cardsToDeal), new DiscardPile(), gameState.Players);
 
-            for (var i = 0; i < rules.GetHandSize(); i++)
+            for (var i = 0; i < crazyEightsRules.GetHandSize(); i++)
             {
                 if (table.StockPile.IsEmpty()) break;
 

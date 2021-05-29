@@ -5,16 +5,16 @@ namespace SheddingCardGames.Domain
 {
     public class TurnBuilder
     {
-        private readonly IRules rules;
+        private readonly CrazyEightsRules crazyEightsRules;
 
-        public TurnBuilder(IRules rules)
+        public TurnBuilder(CrazyEightsRules crazyEightsRules)
         {
-            this.rules = rules;
+            this.crazyEightsRules = crazyEightsRules;
         }
 
         public CurrentTurn BuildFirstTurn(GameState gameState, Player nextPlayer)
         {
-            var hasValidPlays = rules.HasValidPlay(gameState.CurrentCardToMatch, nextPlayer.Hand, null, gameState.AnyPlaysOrTakes);
+            var hasValidPlays = crazyEightsRules.HasValidPlay(gameState.CurrentCardToMatch, nextPlayer.Hand, null, gameState.AnyPlaysOrTakes);
 
             return new CurrentTurn(1,
                 nextPlayer,
@@ -25,7 +25,7 @@ namespace SheddingCardGames.Domain
         {
             var nextTurnNumber = gameState.CurrentTurnNumber + 1;
 
-            var hasValidPlays = rules.HasValidPlay(gameState.CurrentCardToMatch, nextPlayer.Hand, selectedSuit, gameState.AnyPlaysOrTakes);
+            var hasValidPlays = crazyEightsRules.HasValidPlay(gameState.CurrentCardToMatch, nextPlayer.Hand, selectedSuit, gameState.AnyPlaysOrTakes);
 
             return new CurrentTurn(nextTurnNumber,
                 nextPlayer,
@@ -36,7 +36,7 @@ namespace SheddingCardGames.Domain
 
         public CurrentTurn AddTakenCard(GameState gameState, Card takenCard)
         {
-            var hasValidPlays = rules.HasValidPlay(gameState.CurrentCardToMatch, gameState.CurrentPlayerToPlay.Hand, gameState.CurrentSelectedSuit, gameState.AnyPlaysOrTakes);
+            var hasValidPlays = crazyEightsRules.HasValidPlay(gameState.CurrentCardToMatch, gameState.CurrentPlayerToPlay.Hand, gameState.CurrentSelectedSuit, gameState.AnyPlaysOrTakes);
             
             return new CurrentTurn(gameState.CurrentTurnNumber,
                 gameState.CurrentPlayerToPlay,

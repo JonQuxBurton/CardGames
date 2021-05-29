@@ -4,12 +4,12 @@ namespace SheddingCardGames.Domain
 {
     public class OlsenOlsenVariantCommandFactory : ICommandFactory
     {
-        private readonly IRules rules;
+        private readonly CrazyEightsRules crazyEightsRules;
         private readonly IShuffler shuffler;
 
-        public OlsenOlsenVariantCommandFactory(IRules rules, IShuffler shuffler)
+        public OlsenOlsenVariantCommandFactory(CrazyEightsRules crazyEightsRules, IShuffler shuffler)
         {
-            this.rules = rules;
+            this.crazyEightsRules = crazyEightsRules;
             this.shuffler = shuffler;
         }
 
@@ -19,16 +19,16 @@ namespace SheddingCardGames.Domain
                 return new ChooseStartingPlayerCommand(gameState, chooseStartingPlayerContext);
 
             if (context is DealContext dealContext)
-                return new DealCommand(rules, shuffler, gameState, dealContext);
+                return new DealCommand(crazyEightsRules, shuffler, gameState, dealContext);
 
             if (context is PlayContext playContext)
-                return new PlayCommand(rules, gameState, playContext);
+                return new PlayCommand(crazyEightsRules, gameState, playContext);
 
             if (context is SelectSuitContext selectSuitContext)
-                return new SelectSuitCommand(rules, gameState, selectSuitContext);
+                return new SelectSuitCommand(crazyEightsRules, gameState, selectSuitContext);
 
             if (context is TakeContext takeContext)
-                return new TakeAndPassCommand(rules, shuffler, gameState, takeContext);
+                return new TakeCommand(crazyEightsRules, shuffler, gameState, takeContext);
 
             return null;
         }

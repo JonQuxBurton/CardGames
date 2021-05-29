@@ -8,16 +8,16 @@ namespace SheddingCardGames.Domain
     {
         private readonly GameState gameState;
         private readonly PlayContext playContext;
-        private readonly IRules rules;
+        private readonly CrazyEightsRules crazyEightsRules;
         private readonly TurnBuilder turnBuilder;
 
-        public PlayCommand(IRules rules, GameState gameState, PlayContext playContext)
+        public PlayCommand(CrazyEightsRules crazyEightsRules, GameState gameState, PlayContext playContext)
         {
-            this.rules = rules;
+            this.crazyEightsRules = crazyEightsRules;
             this.gameState = gameState;
             this.playContext = playContext;
 
-            turnBuilder = new TurnBuilder(rules);
+            turnBuilder = new TurnBuilder(crazyEightsRules);
         }
 
         public override ActionResult IsValid()
@@ -60,7 +60,7 @@ namespace SheddingCardGames.Domain
 
         private bool IsValidPlay()
         {
-            return rules.IsValidPlay(playContext.CardsPlayed, gameState.CurrentCardToMatch,
+            return crazyEightsRules.IsValidPlay(playContext.CardsPlayed, gameState.CurrentCardToMatch,
                 gameState.CurrentSelectedSuit, gameState.AnyPlaysOrTakes);
         }
 

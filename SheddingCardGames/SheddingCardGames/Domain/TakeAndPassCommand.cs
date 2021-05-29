@@ -8,23 +8,23 @@ namespace SheddingCardGames.Domain
     {
         private readonly GameState gameState;
         private readonly TakeContext takeContext;
-        private readonly IRules rules;
+        private readonly CrazyEightsRules crazyEightsRules;
         private readonly IShuffler shuffler;
         private readonly TurnBuilder turnBuilder;
 
-        public TakeAndPassCommand(IRules rules, IShuffler shuffler, GameState gameState, TakeContext takeContext)
+        public TakeAndPassCommand(CrazyEightsRules crazyEightsRules, IShuffler shuffler, GameState gameState, TakeContext takeContext)
         {
-            this.rules = rules;
+            this.crazyEightsRules = crazyEightsRules;
             this.shuffler = shuffler;
             this.gameState = gameState;
             this.takeContext = takeContext;
 
-            turnBuilder = new TurnBuilder(rules);
+            turnBuilder = new TurnBuilder(crazyEightsRules);
         }
 
         public override ActionResult IsValid()
         {
-            var validPlays = rules.HasValidPlay(gameState.CurrentCardToMatch,
+            var validPlays = crazyEightsRules.HasValidPlay(gameState.CurrentCardToMatch,
                     takeContext.ExecutingPlayer.Hand,
                     gameState.CurrentSelectedSuit, 
                     gameState.AnyPlaysOrTakes);

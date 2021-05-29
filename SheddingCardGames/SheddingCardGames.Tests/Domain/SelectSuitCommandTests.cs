@@ -7,7 +7,7 @@ using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
-using static SheddingCardGames.Domain.CrazyEightsRules.NumberOfPlayers;
+using static SheddingCardGames.Domain.BasicVariantRules.NumberOfPlayers;
 using static SheddingCardGames.Domain.PlayersUtils;
 using static SheddingCardGames.Domain.Suit;
 
@@ -96,7 +96,7 @@ namespace SheddingCardGames.Tests.Domain
                         ImmutableList.Create(previousActions.ToArray()))
                 };
 
-                return new SelectSuitCommand(new CrazyEightsRules(Two), gameState,
+                return new SelectSuitCommand(new BasicVariantRules(Two), gameState,
                     new SelectSuitContext(executingPlayer, selectedSuit));
             }
         }

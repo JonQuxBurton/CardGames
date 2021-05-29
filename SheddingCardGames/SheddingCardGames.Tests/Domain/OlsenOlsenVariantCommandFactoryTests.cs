@@ -1,11 +1,10 @@
-﻿using System.Collections.Immutable;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Moq;
 using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
-using static SheddingCardGames.Domain.CrazyEightsRules.NumberOfPlayers;
+using static SheddingCardGames.Domain.OlsenOlsenVariantRules.NumberOfPlayers;
 using static SheddingCardGames.Domain.PlayersUtils;
 using static SheddingCardGames.Domain.Suit;
 
@@ -18,14 +17,13 @@ namespace SheddingCardGames.Tests.Domain
             private readonly SampleData sampleData;
             private readonly OlsenOlsenVariantCommandFactory sut;
             private readonly GameState gameState;
-            private readonly ImmutableList<Player> players;
 
             public CreateShould()
             {
                 sampleData = new SampleData();
-                players = Players(sampleData.Player1, sampleData.Player2);
+                var players = Players(sampleData.Player1, sampleData.Player2);
                 gameState = new GameState(players);
-                sut = new OlsenOlsenVariantCommandFactory(new CrazyEightsRules(Two), new DummyShuffler());
+                sut = new OlsenOlsenVariantCommandFactory(new OlsenOlsenVariantRules(Two), new DummyShuffler());
             }
 
             [Fact]
@@ -67,7 +65,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var actual = sut.Create(gameState, new TakeContext(sampleData.Player1));
 
-                actual.Should().BeOfType<TakeAndPassCommand>();
+                actual.Should().BeOfType<TakeCommand>();
             }
 
             [Fact]
