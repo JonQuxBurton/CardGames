@@ -28,7 +28,7 @@ namespace SheddingCardGames.Domain
                 return new SelectSuitCommand(crazyEightsRules, gameState, selectSuitContext);
 
             if (context is TakeContext takeContext)
-                return new TakeAndPassCommand(crazyEightsRules, shuffler, gameState, takeContext);
+                return new TakeCommand(crazyEightsRules, shuffler, gameState, takeContext);
 
             return null;
         }
