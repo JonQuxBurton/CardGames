@@ -6,7 +6,6 @@ namespace SheddingCardGames.Domain
         {
         }
 
-
         public override int NumberOfTakesBeforePass { get; } = 3;
     }
 }

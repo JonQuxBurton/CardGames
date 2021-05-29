@@ -19,18 +19,28 @@ namespace SheddingCardGame.Cli
             deck = new DeckBuilder().Build();
             ICrazyEightsGameBuilder gameBuilder = new CrazyEightsGameBuilder();
 
-            return gameBuilder.Build(variantName, numberOfPlayers);
+            var game = gameBuilder.Build(new Shuffler(), variantName, numberOfPlayers);
+
+            var random = new Random();
+            var startingPlayer = game.Players[random.Next(numberOfPlayers)];
+            
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext(startingPlayer));
+
+            return game;
         }
-        
+
         private static Game SetupMinimalGame(VariantName variantName)
         {
             var numberOfPlayers = 2;
             deck = new MinimalDeckBuilder(numberOfPlayers).Build();
             ICrazyEightsGameBuilder gameBuilder = new CrazyEightsGameBuilder();
 
-            return gameBuilder.Build(variantName,  numberOfPlayers);
+            var game = gameBuilder.Build(new DummyShuffler(), variantName,  numberOfPlayers);
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext(game.Players.First().Value));
+
+            return game;
         }
-        
+
         private static Game SetupTestGame(VariantName variantName)
         {
             var numberOfPlayers = 2;
@@ -41,9 +51,12 @@ namespace SheddingCardGame.Cli
                     new CardCollection(Cards(Card(1, Clubs), Card(2, Clubs), Card(3, Clubs), Card(4, Clubs), Card(5, Clubs), Card(6, Clubs), Card(7, Clubs))),
                     new CardCollection(Cards(Card(9, Diamonds), Card(2, Diamonds), Card(3, Diamonds), Card(4, Diamonds), Card(5, Diamonds), Card(6, Diamonds), Card(7, Diamonds))))
                     .Build();
-            ICrazyEightsGameBuilder gameBuilder = new TestCrazyEightsGameBuilder(1);
+            ICrazyEightsGameBuilder gameBuilder = new CrazyEightsGameBuilder();
 
-            return gameBuilder.Build(variantName, numberOfPlayers);
+            var game = gameBuilder.Build(new DummyShuffler(), variantName, numberOfPlayers);
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext(game.Players.First().Value));
+
+            return game;
         }
 
         static void Main(string[] args)

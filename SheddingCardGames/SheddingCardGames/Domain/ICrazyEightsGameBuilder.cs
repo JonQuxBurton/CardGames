@@ -2,6 +2,6 @@ namespace SheddingCardGames.Domain
 {
     public interface ICrazyEightsGameBuilder
     {
-        Game Build(VariantName variantNameName, int numberOfPlayers);
+        Game Build(IShuffler shuffler, VariantName variantNameName, int numberOfPlayers);
     }
 }
