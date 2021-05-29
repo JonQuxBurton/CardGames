@@ -48,10 +48,8 @@ namespace SheddingCardGames.Domain
             if (gameState.CurrentTable.StockPile.IsEmpty())
                 MoveDiscardPileToStockPile();
 
-            var selectedSuit = gameState.CurrentSelectedSuit;
-            gameState.CurrentTurn =
-                turnBuilder.BuildNextTurn(gameState, gameState.CurrentPlayerToPlay, selectedSuit, takenCard);
-
+            gameState.CurrentTurn = turnBuilder.AddTakenCard(gameState, takenCard);
+            
             return gameState;
         }
 

@@ -34,6 +34,19 @@ namespace SheddingCardGames.Domain
                 selectedSuit);
         }
 
+        public CurrentTurn AddTakenCard(GameState gameState, Card takenCard)
+        {
+            var hasValidPlays = rules.HasValidPlay(gameState.CurrentCardToMatch, gameState.CurrentPlayerToPlay.Hand, gameState.CurrentSelectedSuit, gameState.AnyPlaysOrTakes);
+            
+            return new CurrentTurn(gameState.CurrentTurnNumber,
+                gameState.CurrentPlayerToPlay,
+                GetNextAction(hasValidPlays),
+                takenCard,
+                gameState.CurrentSelectedSuit,
+                null,
+                ImmutableList.Create(Action.Take));
+        }
+
         public CurrentTurn BuildCrazyEightTurn(GameState gameState)
         {
             return new CurrentTurn(gameState.CurrentTurnNumber,

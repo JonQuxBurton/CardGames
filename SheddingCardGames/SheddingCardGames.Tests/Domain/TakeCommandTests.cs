@@ -200,21 +200,37 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void CreateNewTurnWithSamePlayerToPlay()
+            public void NotCreateNewTurn()
             {
                 var actualTurn = actual.CurrentTurn;
-                actualTurn.TurnNumber.Should().Be(2);
+                actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(1);
-                actualTurn.CurrentAction.Should().Be(Action.Play);
-
+                
                 actualTurn.HasWinner.Should().BeFalse();
                 actualTurn.Winner.Should().BeNull();
                 actualTurn.SelectedSuit.Should().BeNull();
-                actualTurn.TakenCard.Should().Be(takenCard);
             }
             
             [Fact]
-            public void CreateNewTurn_WithSelectedSuitPreserved_WhenCardTakenIsNotPlayable()
+            public void UpdateCurrentTurnWithTakenCard()
+            {
+                actual.CurrentTurn.TakenCard.Should().Be(takenCard);
+            }
+            
+            [Fact]
+            public void UpdateCurrentTurnWithCurrentActionPlay()
+            {
+                actual.CurrentTurn.CurrentAction.Should().Be(Action.Play);
+            }
+            
+            [Fact]
+            public void UpdateCurrentTurnWithPreviousActionTake()
+            {
+                actual.CurrentTurn.PreviousActions.Should().Equal(Action.Take);
+            }
+
+            [Fact]
+            public void UpdateTurn_WithSelectedSuitPreserved_WhenCardTakenIsNotPlayable()
             {
                 var expectedSelectedSuit = Spades;
                 takenCard = new Card(1, Hearts);
@@ -237,7 +253,7 @@ namespace SheddingCardGames.Tests.Domain
                 actual = sut.Execute();
 
                 var actualTurn = actual.CurrentTurn;
-                actualTurn.TurnNumber.Should().Be(2);
+                actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(1);
                 actualTurn.CurrentAction.Should().Be(Action.Take);
 
@@ -248,7 +264,7 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void CreateNewTurn_WithSelectedSuitPreserved_WhenCardTakenIsPlayable()
+            public void UpdateTurn_WithSelectedSuitPreserved_WhenCardTakenIsPlayable()
             {
                 var expectedSelectedSuit = Spades;
                 takenCard = new Card(10, Spades);
@@ -271,7 +287,7 @@ namespace SheddingCardGames.Tests.Domain
                 actual = sut.Execute();
 
                 var actualTurn = actual.CurrentTurn;
-                actualTurn.TurnNumber.Should().Be(2);
+                actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(1);
                 actualTurn.CurrentAction.Should().Be(Action.Play);
                 actualTurn.SelectedSuit.Should().Be(expectedSelectedSuit);

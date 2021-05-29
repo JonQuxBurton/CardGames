@@ -211,6 +211,8 @@ namespace SheddingCardGames.Tests.Domain
                 actualTurn.Winner.Should().BeNull();
                 actualTurn.SelectedSuit.Should().BeNull();
                 actualTurn.TakenCard.Should().Be(takenCard);
+
+                actualTurn.PreviousActions.Should().BeEmpty();
             }
             
             [Fact]
@@ -245,6 +247,8 @@ namespace SheddingCardGames.Tests.Domain
                 actualTurn.Winner.Should().BeNull();
                 actualTurn.SelectedSuit.Should().Be(expectedSelectedSuit);
                 actualTurn.TakenCard.Should().Be(takenCard);
+
+                actualTurn.PreviousActions.Should().BeEmpty();
             }
         }
 
