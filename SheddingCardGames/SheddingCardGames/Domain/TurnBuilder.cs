@@ -44,7 +44,7 @@ namespace SheddingCardGames.Domain
                 takenCard,
                 gameState.CurrentSelectedSuit,
                 null,
-                ImmutableList.Create(Action.Take));
+                gameState.CurrentTurn.PreviousActions.Add(Action.Take));
         }
 
         public CurrentTurn BuildCrazyEightTurn(GameState gameState)

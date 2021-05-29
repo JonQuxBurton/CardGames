@@ -19,11 +19,11 @@ Take
 SelectSuit
 
 ## Events
-Play
-Take
-SelectSuit
-Pass
-TurnEnd
+Played
+Taken
+SelectedSuit
+Passed
+TurnEnded
 Won
 
 ## Scenarios

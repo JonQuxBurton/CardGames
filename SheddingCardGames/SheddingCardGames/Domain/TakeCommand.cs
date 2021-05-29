@@ -47,8 +47,11 @@ namespace SheddingCardGames.Domain
 
             if (gameState.CurrentTable.StockPile.IsEmpty())
                 MoveDiscardPileToStockPile();
-
-            gameState.CurrentTurn = turnBuilder.AddTakenCard(gameState, takenCard);
+            
+            if (gameState.CurrentTurn.PreviousActions.Count == rules.NumberOfTakesBeforePass - 1)
+                gameState.CurrentTurn = turnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, gameState.CurrentSelectedSuit, takenCard);
+            else
+                gameState.CurrentTurn = turnBuilder.AddTakenCard(gameState, takenCard);
             
             return gameState;
         }

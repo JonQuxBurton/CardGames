@@ -28,6 +28,8 @@ namespace SheddingCardGames.Domain
             return 5;
         }
 
+        public int NumberOfTakesBeforePass { get; } = 3;
+
         public bool HasValidPlay(Card discardCard, CardCollection hand, Suit? selectedSuit,
             bool anyPlaysOrTakes)
         {

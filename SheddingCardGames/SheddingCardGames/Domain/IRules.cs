@@ -9,5 +9,6 @@ namespace SheddingCardGames.Domain
         bool IsValidPlay(IImmutableList<Card> cardsPlayed, Card discardCard, Suit? selectedSuit,
             bool anyPlaysOrTakes);
         int GetHandSize();
+        int NumberOfTakesBeforePass { get; }
     }
 }

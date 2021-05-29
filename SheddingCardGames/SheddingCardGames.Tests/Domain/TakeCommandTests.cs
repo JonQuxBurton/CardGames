@@ -230,6 +230,31 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
+            public void UpdateCurrentTurnWithPreviousActionTakeTwice()
+            {
+                var player1Hand = new CardCollection(Card(1, Clubs));
+                var player2Hand = new CardCollection(Card(2, Clubs));
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(2, Hearts)
+                ));
+                var stockPile = new CardCollection(
+                    new Card(3, Spades),
+                    new Card(4, Spades)
+                );
+                var sut = new TakeCommandBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithStockPile(stockPile)
+                    .WithDiscardPile(discardPile)
+                    .Build();
+
+                sut.Execute();
+                actual = sut.Execute();
+
+                actual.CurrentTurn.PreviousActions.Should().Equal(Action.Take, Action.Take);
+            }
+
+            [Fact]
             public void UpdateTurn_WithSelectedSuitPreserved_WhenCardTakenIsNotPlayable()
             {
                 var expectedSelectedSuit = Spades;
@@ -261,6 +286,39 @@ namespace SheddingCardGames.Tests.Domain
                 actualTurn.Winner.Should().BeNull();
                 actualTurn.SelectedSuit.Should().Be(expectedSelectedSuit);
                 actualTurn.TakenCard.Should().Be(takenCard);
+            }
+
+            [Fact]
+            public void PassWhenTakenThreeTimes()
+            {
+                var player1Hand = new CardCollection(Card(1, Clubs));
+                var player2Hand = new CardCollection(Card(2, Clubs));
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(2, Hearts)
+                ));
+                var stockPile = new CardCollection(
+                    Card(3, Spades),
+                    Card(4, Spades),
+                    Card(5, Spades)
+                );
+                var sut = new TakeCommandBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithStockPile(stockPile)
+                    .WithDiscardPile(discardPile)
+                    .Build();
+
+                sut.Execute();
+                sut.Execute();
+                actual = sut.Execute();
+
+                var actualTurn = actual.CurrentTurn;
+                actualTurn.TurnNumber.Should().Be(2);
+                actualTurn.PlayerToPlay.Number.Should().Be(2);
+
+                actualTurn.HasWinner.Should().BeFalse();
+                actualTurn.Winner.Should().BeNull();
+                actualTurn.TakenCard.Should().Be(Card(5, Spades));
             }
 
             [Fact]
