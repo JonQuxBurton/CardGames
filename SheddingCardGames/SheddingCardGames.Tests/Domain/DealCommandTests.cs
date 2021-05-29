@@ -238,9 +238,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(1);
-                actualTurn.NextAction.Should().Be(Action.Play);
-
-                actual.PreviousTurnResult.Should().BeNull();
+                actualTurn.CurrentAction.Should().Be(Action.Play);
             }
 
             [Fact]
@@ -253,9 +251,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(2);
-                actualTurn.NextAction.Should().Be(Action.Play);
-
-                actual.PreviousTurnResult.Should().BeNull();
+                actualTurn.CurrentAction.Should().Be(Action.Play);
             }
 
             [Fact]
@@ -268,9 +264,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(3);
-                actualTurn.NextAction.Should().Be(Action.Play);
-
-                actual.PreviousTurnResult.Should().BeNull();
+                actualTurn.CurrentAction.Should().Be(Action.Play);
             }
 
             [Fact]
@@ -290,21 +284,9 @@ namespace SheddingCardGames.Tests.Domain
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(1);
-                actualTurn.NextAction.Should().Be(Action.Take);
-
-                actual.PreviousTurnResult.Should().BeNull();
+                actualTurn.CurrentAction.Should().Be(Action.Take);
             }
-
-            [Fact]
-            public void ReturnGameStatePreviousTurnResultNull()
-            {
-                var sut = CreateSut(players[0]);
-
-                var actual = sut.Execute();
-
-                actual.PreviousTurnResult.Should().BeNull();
-            }
-
+            
             [Fact]
             public void ReturnGameStateWithCurrentGamePhaseReadyToInGame()
             {

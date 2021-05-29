@@ -48,12 +48,6 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnGameStatePreviousTurnResultNull()
-            {
-                actual.PreviousTurnResult.Should().BeNull();
-            }
-            
-            [Fact]
             public void ReturnGameStateWithCurrentTurnNull()
             {
                 actual.CurrentTurn.Should().BeNull();

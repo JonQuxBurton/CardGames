@@ -36,7 +36,6 @@ namespace SheddingCardGames.Domain
             gameState.AddEvent(new SuitSelected(gameState.NextEventNumber,
                 selectSuitContext.ExecutingPlayer.Number, selectSuitContext.SelectedSuit));
 
-            gameState.PreviousTurnResult = new PreviousTurnResult(false, null, selectSuitContext.SelectedSuit);
             gameState.CurrentTurn = turnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, selectSuitContext.SelectedSuit);
 
             return gameState;

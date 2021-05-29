@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using FluentAssertions;
 using SheddingCardGames.Domain;
 using SheddingCardGames.Domain.Events;
@@ -21,9 +23,9 @@ namespace SheddingCardGames.Tests.Domain
             private int executingPlayerNumber = 1;
             private CardCollection player2Hand = new CardCollection();
             private int playerToPlayNumber = 1;
-            private PreviousTurnResult previousTurnResult;
             private Suit selectedSuit;
             private readonly int turnNumber = 1;
+            private readonly List<Action> previousActions = new List<Action>();
 
             public SelectSuitCommandBuilder WithExecutingPlayer(int withExecutingPlayerNumber)
             {
@@ -57,7 +59,7 @@ namespace SheddingCardGames.Tests.Domain
 
             public SelectSuitCommand BuildWithPlay()
             {
-                previousTurnResult = new PreviousTurnResult(false);
+                previousActions.Add(Action.Play);
 
                 return Build();
             }
@@ -90,8 +92,8 @@ namespace SheddingCardGames.Tests.Domain
                 {
                     CurrentTable = table,
                     PlayerToStart = player1,
-                    CurrentTurn = new CurrentTurn(turnNumber, playerToPlay, Action.Play),
-                    PreviousTurnResult = previousTurnResult
+                    CurrentTurn = new CurrentTurn(turnNumber, playerToPlay, Action.Play, null, null, null,
+                        ImmutableList.Create(previousActions.ToArray()))
                 };
 
                 return new SelectSuitCommand(new CrazyEightsRules(Two), gameState,
@@ -177,7 +179,6 @@ namespace SheddingCardGames.Tests.Domain
         public class ExecuteShould
         {
             private readonly Suit expectedSelectedSuit;
-            private GameState actual;
             private readonly SelectSuitCommand sut;
 
             public ExecuteShould()
@@ -197,7 +198,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void AddSuitSelectedEvent()
             {
-                actual = sut.Execute();
+                var actual = sut.Execute();
 
                 actual.Events.First().Should().BeOfType<SuitSelected>();
                 var actualEvent = actual.Events.First() as SuitSelected;
@@ -210,7 +211,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void AddSuitSelectedToGameState()
             {
-                actual = sut.Execute();
+                var actual = sut.Execute();
 
                 actual.CurrentSelectedSuit.Should().Be(expectedSelectedSuit);
             }
@@ -218,18 +219,17 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void CreateNewTurn_WithNextActionPlay()
             {
-                actual = sut.Execute();
+                var actual = sut.Execute();
 
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(2);
                 actualTurn.PlayerToPlay.Number.Should().Be(2);
-                actualTurn.NextAction.Should().Be(Action.Play);
+                actualTurn.CurrentAction.Should().Be(Action.Play);
 
-                var actualPreviousTurnResult = actual.PreviousTurnResult;
-                actualPreviousTurnResult.HasWinner.Should().BeFalse();
-                actualPreviousTurnResult.Winner.Should().BeNull();
-                actualPreviousTurnResult.SelectedSuit.Should().Be(expectedSelectedSuit);
-                actualPreviousTurnResult.TakenCard.Should().BeNull();
+                actualTurn.HasWinner.Should().BeFalse();
+                actualTurn.Winner.Should().BeNull();
+                actualTurn.SelectedSuit.Should().Be(expectedSelectedSuit);
+                actualTurn.TakenCard.Should().BeNull();
             }
 
             [Fact]
@@ -251,13 +251,12 @@ namespace SheddingCardGames.Tests.Domain
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(2);
                 actualTurn.PlayerToPlay.Number.Should().Be(2);
-                actualTurn.NextAction.Should().Be(Action.Take);
+                actualTurn.CurrentAction.Should().Be(Action.Take);
 
-                var actualPreviousTurnResult = actual.PreviousTurnResult;
-                actualPreviousTurnResult.HasWinner.Should().BeFalse();
-                actualPreviousTurnResult.Winner.Should().BeNull();
-                actualPreviousTurnResult.SelectedSuit.Should().Be(selectedSuit);
-                actualPreviousTurnResult.TakenCard.Should().BeNull();
+                actualTurn.HasWinner.Should().BeFalse();
+                actualTurn.Winner.Should().BeNull();
+                actualTurn.SelectedSuit.Should().Be(selectedSuit);
+                actualTurn.TakenCard.Should().BeNull();
             }
         }
     }

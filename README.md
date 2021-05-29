@@ -7,6 +7,46 @@ A simple Card Shedding game developed as TDD and software design practice.
 ## Rules
 https://bicyclecards.com/how-to-play/crazy-eights/
 
+
+## Concepts
+
+Turn
+Action
+
+## Actions
+Play
+Take
+SelectSuit
+
+## Events
+Play
+Take
+SelectSuit
+Pass
+TurnEnd
+Won
+
+## Scenarios
+
+### Basic Variant
+1. PlaySingle not Eight
+1. PlaySingle Eight, SelectSuit
+1. Take
+1. PlaySingle not Eight, Won
+1. PlaySingle Eight, Won
+
+### Olsen Olsen Variant
+1. PlayMultiple not Eight
+1. PlayMultiple Eight, SelectSuit
+1. Take, PlayMultiple
+1. Take, Take, PlayMultiple
+1. Take, Take, Take, Pass
+1. PlayMultiple not Eight, Won
+1. PlayMultiple Eight, Won
+
+
+
+
 ## Design Decisions Log
 
 ##### 31/12/2020
@@ -25,3 +65,4 @@ https://bicyclecards.com/how-to-play/crazy-eights/
 
 ##### 13/01/2021
 [6] Add DiscardPile, StockPile types to make what these can do more explicit. Such as DiscardPile has a CardToMatch and RestOfCards.
+

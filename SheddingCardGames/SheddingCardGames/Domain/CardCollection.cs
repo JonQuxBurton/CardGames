@@ -8,6 +8,8 @@ namespace SheddingCardGames.Domain
     {
         private readonly List<Card> cards;
 
+        public IEnumerator<Card> GetEnumerator => cards.GetEnumerator();
+
         public CardCollection()
         {
             cards = new List<Card>();

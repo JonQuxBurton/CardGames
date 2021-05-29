@@ -21,15 +21,25 @@ namespace SheddingCardGames.UiLogic
 
         public GamePhase CurrentGamePhase { get; set; }
         public CurrentTurn CurrentTurn { get; set; }
-        public PreviousTurnResult PreviousTurnResult { get; set; }
-        public bool AnyPlaysOrTakes => PreviousTurnResult != null;
+        public bool AnyPlaysOrTakes
+        {
+            get
+            {
+                if (CurrentTurn == null)
+                    return false;
+
+                return CurrentTurn.TurnNumber != 1 || CurrentSelectedSuit != null ||
+                       CurrentTurn.PreviousActions.Any();
+            }
+        }
+
         public Player PlayerToStart { get; set; }
 
         public int CurrentTurnNumber => CurrentTurn.TurnNumber;
         public Player CurrentPlayerToPlay => CurrentTurn.PlayerToPlay;
         public int CurrentPlayerToPlayNumber => CurrentTurn.PlayerToPlay.Number;
         public Card CurrentCardToMatch => CurrentTable.DiscardPile.CardToMatch;
-        public Suit? CurrentSelectedSuit => PreviousTurnResult?.SelectedSuit;
+        public Suit? CurrentSelectedSuit => CurrentTurn?.SelectedSuit;
 
         public Player NextPlayer
         {

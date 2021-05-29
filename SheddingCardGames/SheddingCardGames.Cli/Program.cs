@@ -57,20 +57,19 @@ namespace SheddingCardGame.Cli
 
             game.Deal(new DealContext(deck));
 
-            PreviousTurnResult previousTurnResult = null;
+            CurrentTurn currentTurn = null;
 
-            while (previousTurnResult == null || !previousTurnResult.HasWinner)
+            while (currentTurn == null || !currentTurn.HasWinner)
             {
-                var currentTurn = game.GameState.CurrentTurn;
-                previousTurnResult = game.GameState.PreviousTurnResult;
+                currentTurn = game.GameState.CurrentTurn;
                 RenderTurn(currentTurn, game.GameState);
-                if (currentTurn.NextAction == Action.SelectSuit)
+                if (currentTurn.CurrentAction == Action.SelectSuit)
                     SelectSuit(game, currentTurn);
                 else
                     Play(game, currentTurn);
             }
 
-            Console.WriteLine($"{previousTurnResult.Winner.Name} has won!");
+            Console.WriteLine($"{currentTurn.Winner.Name} has won!");
         }
 
         private static void SelectSuit(Game game, CurrentTurn currentTurn)
@@ -107,12 +106,12 @@ namespace SheddingCardGame.Cli
 
         private static void Play(Game game, CurrentTurn currentTurn)
         {
-            if (currentTurn.NextAction == Action.Take)
+            if (currentTurn.CurrentAction == Action.Take)
             {
                 Console.WriteLine($"No valid plays, press any key to Take a card");
                 Console.ReadKey();
                 game.Take(new TakeContext(currentTurn.PlayerToPlay));
-                Console.WriteLine($"Taken: {game.GameState.PreviousTurnResult.TakenCard}");
+                Console.WriteLine($"Taken: {game.GameState.CurrentTurn.TakenCard}");
                 return;
             }
             
@@ -133,10 +132,10 @@ namespace SheddingCardGame.Cli
             Console.WriteLine("--------------------------------------------------");
             Console.WriteLine($"Turn {turn.TurnNumber}");
             Console.WriteLine($"PlayerToPlay: {turn.PlayerToPlay.Name}");
-            Console.WriteLine($"NextAction: {turn.NextAction}");
-            Console.WriteLine($"SelectedSuit: {gameState.PreviousTurnResult?.SelectedSuit}");
+            Console.WriteLine($"NextAction: {turn.CurrentAction}");
+            Console.WriteLine($"SelectedSuit: {gameState.CurrentTurn?.SelectedSuit}");
             Console.WriteLine($"Stock pile: {currentTable.StockPile.Cards.Count()} cards");
-            Console.WriteLine($"Discard pile: {currentTable.DiscardPile.CardToMatch} ({currentTable.DiscardPile.RestOfCards.Cards.Count()} other cards)");
+            Console.WriteLine($"Discard pile: {currentTable.DiscardPile.CardToMatch} ({currentTable.DiscardPile.RestOfCards.Count()} other cards)");
             
             foreach (var player in currentTable.Players)
             {

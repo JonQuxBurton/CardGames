@@ -49,9 +49,8 @@ namespace SheddingCardGames.Domain
                 MoveDiscardPileToStockPile();
 
             var selectedSuit = gameState.CurrentSelectedSuit;
-            gameState.PreviousTurnResult = new PreviousTurnResult(false, null, selectedSuit, takenCard);
             gameState.CurrentTurn =
-                turnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, selectedSuit);
+                turnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, selectedSuit, takenCard);
 
             return gameState;
         }

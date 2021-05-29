@@ -139,7 +139,7 @@
         }
 
         // Update Buttons
-        if (gameController.CurrentTurn.NextAction == Action.SelectSuit)
+        if (gameController.CurrentTurn.CurrentAction == Action.SelectSuit)
         {
             gameController.Buttons[ButtonNames.Clubs].Show();
             gameController.Buttons[ButtonNames.Diamonds].Show();
@@ -156,7 +156,7 @@
 
         var takeButton = gameController.Buttons[ButtonNames.Take];
 
-        if (gameController.CurrentTurn.NextAction == Action.Take)
+        if (gameController.CurrentTurn.CurrentAction == Action.Take)
             takeButton.Show();
         else
             takeButton.Hide();
@@ -166,20 +166,20 @@
         gameController.Labels[LabelNames.Turn].Show($"Turn {gameController.CurrentTurn.TurnNumber}");
 
         var playerToPlayLabel = gameController.Labels[LabelNames.PlayerToPlay];
-        if (gameController.PreviousTurnResult != null && gameController.PreviousTurnResult.HasWinner)
+        if (gameController.CurrentTurn != null && gameController.CurrentTurn.HasWinner)
         {
-            playerToPlayLabel.Show($"{gameController.PreviousTurnResult.Winner.Name} has won!");
+            playerToPlayLabel.Show($"{gameController.CurrentTurn.Winner.Name} has won!");
             return;
         }
 
-        playerToPlayLabel.Label = $"{gameController.CurrentTurn.PlayerToPlay.Name} to {gameController.CurrentTurn.NextAction}";
+        playerToPlayLabel.Label = $"{gameController.CurrentTurn.PlayerToPlay.Name} to {gameController.CurrentTurn.CurrentAction}";
 
         var selectedSuitLabel = gameController.Labels[LabelNames.SelectedSuit];
 
-        if (gameController.PreviousTurnResult?.SelectedSuit == null)
+        if (gameController.CurrentTurn?.SelectedSuit == null)
             selectedSuitLabel.Hide();
         else
-            selectedSuitLabel.Show($"Selected Suit: {gameController.PreviousTurnResult.SelectedSuit}");
+            selectedSuitLabel.Show($"Selected Suit: {gameController.CurrentTurn.SelectedSuit}");
 
         var invalidPlayLabel = gameController.Labels[LabelNames.InvalidPlay];
         if (uiState.HasError)

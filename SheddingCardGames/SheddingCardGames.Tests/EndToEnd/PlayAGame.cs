@@ -116,7 +116,7 @@ namespace SheddingCardGames.Tests.EndToEnd
 
             result.IsSuccess.Should().BeTrue();
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(6);
-            sut.GameState.PreviousTurnResult.SelectedSuit.Should().Be(Spades);
+            sut.GameState.CurrentTurn.SelectedSuit.Should().Be(Spades);
 
             result = sut.Play(new PlayContext(player2, Card(8, Spades)));
             VerifyPlayerPlay(2, result, 6, Card(8, Spades), new[]
@@ -133,7 +133,7 @@ namespace SheddingCardGames.Tests.EndToEnd
 
             result.IsSuccess.Should().BeTrue();
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(7);
-            sut.GameState.PreviousTurnResult.SelectedSuit.Should().Be(Hearts);
+            sut.GameState.CurrentTurn.SelectedSuit.Should().Be(Hearts);
 
             result = sut.Play(new PlayContext(player1, Card(2, Hearts)));
             VerifyPlayerPlay(1, result, 8, Card(2, Hearts), new[]
@@ -532,7 +532,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             Card[] hand)
         {
             takeResult.IsSuccess.Should().BeTrue();
-            sut.GameState.PreviousTurnResult.TakenCard.Should().Be(takenCard);
+            sut.GameState.CurrentTurn.TakenCard.Should().Be(takenCard);
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(turnNumber);
             sut.GameState.CurrentTable.Players[playerNumber-1].Hand.Cards.Should().Equal(hand);
         }
@@ -543,8 +543,8 @@ namespace SheddingCardGames.Tests.EndToEnd
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(turnNumber);
             sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(discardCard);
             sut.GameState.CurrentTable.Players[playerNumber-1].Hand.Cards.Should().BeEmpty();
-            sut.GameState.PreviousTurnResult.HasWinner.Should().BeTrue();
-            sut.GameState.PreviousTurnResult.Winner.Number.Should().Be(playerNumber);
+            sut.GameState.CurrentTurn.HasWinner.Should().BeTrue();
+            sut.GameState.CurrentTurn.Winner.Number.Should().Be(playerNumber);
         }
 
         private void VerifyPlayerPlay(int playerNumber, ActionResult result, int turnNumber, Card discardCard, Card[] hand)
