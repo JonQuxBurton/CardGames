@@ -10,7 +10,7 @@ namespace SheddingCardGames.Domain
         private readonly DealContext dealContext;
         private readonly CrazyEightsRules crazyEightsRules;
         private readonly IShuffler shuffler;
-        private readonly TurnBuilder turnBuilder;
+        private readonly CurrentTurnBuilder currentTurnBuilder;
 
         public DealCommand(CrazyEightsRules crazyEightsRules, IShuffler shuffler, GameState gameState, DealContext dealContext)
         {
@@ -19,7 +19,7 @@ namespace SheddingCardGames.Domain
             this.gameState = gameState;
             this.dealContext = dealContext;
 
-            turnBuilder = new TurnBuilder(crazyEightsRules);
+            currentTurnBuilder = new CurrentTurnBuilder(crazyEightsRules);
         }
 
         public override ActionResult IsValid()
@@ -32,7 +32,7 @@ namespace SheddingCardGames.Domain
             var shuffled = shuffler.Shuffle(dealContext.Deck);
             gameState.CurrentTable = Deal(shuffled);
             gameState.AddEvent(new DealCompleted(gameState.NextEventNumber));
-            gameState.CurrentTurn = turnBuilder.BuildFirstTurn(gameState, gameState.PlayerToStart);
+            gameState.CurrentTurn = currentTurnBuilder.BuildFirstTurn(gameState, gameState.PlayerToStart);
             gameState.CurrentGamePhase = GamePhase.InGame;
             
             return gameState;

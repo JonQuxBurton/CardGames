@@ -7,14 +7,14 @@ namespace SheddingCardGames.Domain
     {
         private readonly GameState gameState;
         private readonly SelectSuitContext selectSuitContext;
-        private readonly TurnBuilder turnBuilder;
+        private readonly CurrentTurnBuilder currentTurnBuilder;
 
         public SelectSuitCommand(CrazyEightsRules crazyEightsRules, GameState gameState, SelectSuitContext selectSuitContext)
         {
             this.gameState = gameState;
             this.selectSuitContext = selectSuitContext;
 
-            turnBuilder = new TurnBuilder(crazyEightsRules);
+            currentTurnBuilder = new CurrentTurnBuilder(crazyEightsRules);
         }
 
         public override ActionResult IsValid()
@@ -36,7 +36,7 @@ namespace SheddingCardGames.Domain
             gameState.AddEvent(new SuitSelected(gameState.NextEventNumber,
                 selectSuitContext.ExecutingPlayer.Number, selectSuitContext.SelectedSuit));
 
-            gameState.CurrentTurn = turnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, selectSuitContext.SelectedSuit);
+            gameState.CurrentTurn = currentTurnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, selectSuitContext.SelectedSuit);
 
             return gameState;
         }

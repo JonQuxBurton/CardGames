@@ -9,7 +9,7 @@ namespace SheddingCardGames.Domain
         private readonly GameState gameState;
         private readonly PlayContext playContext;
         private readonly CrazyEightsRules crazyEightsRules;
-        private readonly TurnBuilder turnBuilder;
+        private readonly CurrentTurnBuilder currentTurnBuilder;
 
         public PlaySingleCommand(CrazyEightsRules crazyEightsRules, GameState gameState, PlayContext playContext)
         {
@@ -17,7 +17,7 @@ namespace SheddingCardGames.Domain
             this.gameState = gameState;
             this.playContext = playContext;
 
-            turnBuilder = new TurnBuilder(crazyEightsRules);
+            currentTurnBuilder = new CurrentTurnBuilder(crazyEightsRules);
         }
 
         public override ActionResult IsValid()
@@ -47,15 +47,15 @@ namespace SheddingCardGames.Domain
             if (HasWon())
             {
                 gameState.AddEvent(new RoundWon(gameState.NextEventNumber, playContext.ExecutingPlayer.Number));
-                gameState.CurrentTurn = turnBuilder.BuildWinningTurn(gameState, playContext.ExecutingPlayer);
+                gameState.CurrentTurn = currentTurnBuilder.BuildWinningTurn(gameState, playContext.ExecutingPlayer);
             }
             else if (playContext.CardsPlayed.First().Rank == 8)
             {
-                gameState.CurrentTurn = turnBuilder.BuildCrazyEightTurn(gameState);
+                gameState.CurrentTurn = currentTurnBuilder.BuildCrazyEightTurn(gameState);
             }
             else
             {
-                gameState.CurrentTurn = turnBuilder.BuildNextTurn(gameState, gameState.NextPlayer);
+                gameState.CurrentTurn = currentTurnBuilder.BuildNextTurn(gameState, gameState.NextPlayer);
             }
 
             return gameState;

@@ -10,7 +10,7 @@ namespace SheddingCardGames.Domain
         private readonly TakeContext takeContext;
         private readonly CrazyEightsRules crazyEightsRules;
         private readonly IShuffler shuffler;
-        private readonly TurnBuilder turnBuilder;
+        private readonly CurrentTurnBuilder currentTurnBuilder;
 
         public TakeAndPassCommand(CrazyEightsRules crazyEightsRules, IShuffler shuffler, GameState gameState, TakeContext takeContext)
         {
@@ -19,7 +19,7 @@ namespace SheddingCardGames.Domain
             this.gameState = gameState;
             this.takeContext = takeContext;
 
-            turnBuilder = new TurnBuilder(crazyEightsRules);
+            currentTurnBuilder = new CurrentTurnBuilder(crazyEightsRules);
         }
 
         public override ActionResult IsValid()
@@ -50,7 +50,7 @@ namespace SheddingCardGames.Domain
 
             var selectedSuit = gameState.CurrentSelectedSuit;
             gameState.CurrentTurn =
-                turnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, selectedSuit, takenCard);
+                currentTurnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, selectedSuit, takenCard);
 
             return gameState;
         }

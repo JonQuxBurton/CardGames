@@ -3,11 +3,11 @@ using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGames.Domain
 {
-    public class TurnBuilder
+    public class CurrentTurnBuilder
     {
         private readonly CrazyEightsRules crazyEightsRules;
 
-        public TurnBuilder(CrazyEightsRules crazyEightsRules)
+        public CurrentTurnBuilder(CrazyEightsRules crazyEightsRules)
         {
             this.crazyEightsRules = crazyEightsRules;
         }
