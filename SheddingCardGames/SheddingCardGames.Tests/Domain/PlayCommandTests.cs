@@ -6,7 +6,7 @@ using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
-using static SheddingCardGames.Domain.BasicVariantRules.NumberOfPlayers;
+using static SheddingCardGames.Domain.CrazyEightsRules.NumberOfPlayers;
 using static SheddingCardGames.Domain.PlayersUtils;
 using static SheddingCardGames.Domain.Suit;
 using Action = SheddingCardGames.Domain.Action;
@@ -23,6 +23,7 @@ namespace SheddingCardGames.Tests.Domain
             private CardCollection player2Hand = new CardCollection();
             private readonly int turnNumber = 1;
             private Suit? selectedSuit;
+            private IImmutableList<Action> previousActions = ImmutableList.Create<Action>();
 
             public PlayCommandBuilder WithExecutingPlayer(int withExecutingPlayerNumber)
             {
@@ -45,6 +46,7 @@ namespace SheddingCardGames.Tests.Domain
             public PlayCommandBuilder WithSelectedSuit(Suit withSelectedSuit)
             {
                 selectedSuit = withSelectedSuit;
+                previousActions = ImmutableList.Create<Action>(Action.Play);
                 return this;
             }
 
@@ -73,7 +75,7 @@ namespace SheddingCardGames.Tests.Domain
                 {
                     CurrentTable = table,
                     PlayerToStart = player1,
-                    CurrentTurn = new CurrentTurn(turnNumber, currentPlayer, Action.Play, null, selectedSuit)
+                    CurrentTurn = new CurrentTurn(turnNumber, currentPlayer, Action.Play, null, selectedSuit, null, previousActions)
                 };
 
                 return new PlayCommand(new BasicVariantRules(Two), gameState,  new PlayContext(executingPlayer, playedCards));

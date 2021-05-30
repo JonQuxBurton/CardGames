@@ -28,8 +28,7 @@ namespace SheddingCardGames.UiLogic
                 if (CurrentTurn == null)
                     return false;
 
-                return CurrentTurn.TurnNumber != 1 || CurrentSelectedSuit != null ||
-                       CurrentTurn.PreviousActions.Any();
+                return CurrentTurn.TurnNumber != 1 || CurrentTurn.PreviousActions.Any();
             }
         }
 
