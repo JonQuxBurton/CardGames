@@ -1591,8 +1591,9 @@ namespace SheddingCardGames.Tests.Domain
                 sut.GameState.CurrentTable.StockPile.Cards.Should().Equal(
                     expectedShuffledStockPile
                 );
-                sut.GameState.Events.Last().Should().BeOfType<Shuffled>();
-                var domainEvent = sut.GameState.Events.Last() as Shuffled;
+                var actualEvent = sut.GameState.Events.LastSkip(2);
+                actualEvent.Should().BeOfType<Shuffled>();
+                var domainEvent = actualEvent as Shuffled;
                 if (domainEvent == null) Assert.NotNull(domainEvent);
                 domainEvent.Target.Should().Be(CardMoveSources.StockPile);
                 domainEvent.StartCards.Cards.Should().Equal(expectedDiscardPileRestOfCards);
@@ -1723,11 +1724,12 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void CreateTakenEvent()
+            public void CreateEvents()
             {
                 var discardCard = Card(10, Hearts);
                 var stockPile = new CardCollection(
-                    Card(9, Hearts)
+                    Card(9, Hearts),
+                    Card(11, Hearts)
                 );
                 var game = new GameBuilder()
                     .WithNumberOfPlayers(3)
@@ -1742,12 +1744,25 @@ namespace SheddingCardGames.Tests.Domain
 
                 sut.Take(new TakeContext(sut.GetPlayer(1)));
 
-                var actualEvent = sut.GameState.Events.LastSkip(1);
+                var actualEvent = sut.GameState.Events.LastSkip(2);
                 actualEvent.Should().BeOfType(typeof(Taken));
                 var domainEvent = actualEvent as Taken;
                 if (domainEvent == null) Assert.NotNull(domainEvent);
                 domainEvent.PlayerNumber.Should().Be(1);
                 domainEvent.Card.Should().Be(stockPile.First());
+                
+                actualEvent = sut.GameState.Events.LastSkip(1);
+                actualEvent.Should().BeOfType(typeof(Passed));
+                var passedEvent = actualEvent as Passed;
+                if (passedEvent == null) Assert.NotNull(passedEvent);
+                passedEvent.PlayerNumber.Should().Be(1);
+                
+                actualEvent = sut.GameState.Events.Last();
+                actualEvent.Should().BeOfType(typeof(TurnEnded));
+                var turnEndedEvent = actualEvent as TurnEnded;
+                if (turnEndedEvent == null) Assert.NotNull(turnEndedEvent);
+                turnEndedEvent.PlayerNumber.Should().Be(1);
+                
             }
         }
 

@@ -5,10 +5,10 @@ using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
-using static SheddingCardGames.Domain.BasicVariantRules;
 using static SheddingCardGames.Domain.CrazyEightsRules;
 using static SheddingCardGames.Domain.PlayersUtils;
 using static SheddingCardGames.Domain.Suit;
+
 // ReSharper disable InconsistentNaming
 
 namespace SheddingCardGames.Tests.Domain
@@ -23,9 +23,9 @@ namespace SheddingCardGames.Tests.Domain
             private CardCollection player1Hand = new CardCollection();
             private CardCollection player2Hand = new CardCollection();
             private int playerToPlayNumber = 1;
-            private CardCollection stockPile = new CardCollection();
-            private Suit? selectedSuit;
             private CrazyEightsRules rules = new BasicVariantRules(NumberOfPlayers.Two);
+            private Suit? selectedSuit;
+            private CardCollection stockPile = new CardCollection();
 
             public TakeCommandBuilder WithExecutingPlayer(int withExecutingPlayerNumber)
             {
@@ -68,7 +68,7 @@ namespace SheddingCardGames.Tests.Domain
                 selectedSuit = withSelectedSuit;
                 return this;
             }
-            
+
             public TakeCommandBuilder WithRules(CrazyEightsRules withRules)
             {
                 rules = withRules;
@@ -178,7 +178,8 @@ namespace SheddingCardGames.Tests.Domain
                     Card(2, Hearts)
                 ));
                 var stockPile = new CardCollection(
-                    takenCard
+                    takenCard,
+                    Card(2, Hearts)
                 );
                 var sut = new TakeCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
@@ -200,12 +201,35 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void AddTakenEvent()
             {
-                actual.Events.First().Should().BeOfType<Taken>();
-                var actualEvent = actual.Events.First() as Taken;
-                if (actualEvent == null) Assert.NotNull(actualEvent);
-                actualEvent.Number.Should().Be(1);
-                actualEvent.PlayerNumber.Should().Be(1);
-                actualEvent.Card.Should().Be(takenCard);
+                var actualEvent = actual.Events.First();
+                actualEvent.Should().BeOfType<Taken>();
+                var domainEvent = actualEvent as Taken;
+                if (domainEvent == null) Assert.NotNull(domainEvent);
+                domainEvent.Number.Should().Be(1);
+                domainEvent.PlayerNumber.Should().Be(1);
+                domainEvent.Card.Should().Be(takenCard);
+            }
+
+            [Fact]
+            public void AddPassedEvent()
+            {
+                var actualEvent = actual.Events.ElementAt(1);
+                actualEvent.Should().BeOfType<Passed>();
+                var domainEvent = actualEvent as Passed;
+                if (domainEvent == null) Assert.NotNull(domainEvent);
+                domainEvent.Number.Should().Be(2);
+                domainEvent.PlayerNumber.Should().Be(1);
+            }
+
+            [Fact]
+            public void AddTurnEndedEvent()
+            {
+                var actualEvent = actual.Events.ElementAt(2);
+                actualEvent.Should().BeOfType<TurnEnded>();
+                var domainEvent = actualEvent as TurnEnded;
+                if (domainEvent == null) Assert.NotNull(domainEvent);
+                domainEvent.Number.Should().Be(3);
+                domainEvent.PlayerNumber.Should().Be(1);
             }
 
             [Fact]
@@ -224,13 +248,13 @@ namespace SheddingCardGames.Tests.Domain
             {
                 actual.CurrentTurn.TakenCard.Should().Be(takenCard);
             }
-            
+
             [Fact]
             public void UpdateCurrentTurnWithCurrentActionPlay()
             {
                 actual.CurrentTurn.CurrentAction.Should().Be(Action.Play);
             }
-            
+
             [Fact]
             public void CreateNewTurn_WithSelectedSuitPreserved_WhenCardTakenIsNotPlayable()
             {
@@ -309,14 +333,15 @@ namespace SheddingCardGames.Tests.Domain
                     Card(2, Hearts)
                 ));
                 var stockPile = new CardCollection(
-                    takenCard
+                    takenCard,
+                    Card(3, Hearts)
                 );
                 var sut = new TakeCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithStockPile(stockPile)
                     .WithDiscardPile(discardPile)
-                    .WithRules(new OlsenOlsenVariantRules(OlsenOlsenVariantRules.NumberOfPlayers.Two))
+                    .WithRules(new OlsenOlsenVariantRules(NumberOfPlayers.Two))
                     .Build();
 
                 actual = sut.Execute();
@@ -332,12 +357,13 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void AddTakenEvent()
             {
-                actual.Events.First().Should().BeOfType<Taken>();
-                var actualEvent = actual.Events.First() as Taken;
-                if (actualEvent == null) Assert.NotNull(actualEvent);
-                actualEvent.Number.Should().Be(1);
-                actualEvent.PlayerNumber.Should().Be(1);
-                actualEvent.Card.Should().Be(takenCard);
+                var actualEvent = actual.Events.Last();
+                actualEvent.Should().BeOfType<Taken>();
+                var domainEvent = actualEvent as Taken;
+                if (domainEvent == null) Assert.NotNull(domainEvent);
+                domainEvent.Number.Should().Be(1);
+                domainEvent.PlayerNumber.Should().Be(1);
+                domainEvent.Card.Should().Be(takenCard);
             }
 
             [Fact]
@@ -346,24 +372,24 @@ namespace SheddingCardGames.Tests.Domain
                 var actualTurn = actual.CurrentTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(1);
-                
+
                 actualTurn.HasWinner.Should().BeFalse();
                 actualTurn.Winner.Should().BeNull();
                 actualTurn.SelectedSuit.Should().BeNull();
             }
-            
+
             [Fact]
             public void UpdateCurrentTurnWithTakenCard()
             {
                 actual.CurrentTurn.TakenCard.Should().Be(takenCard);
             }
-            
+
             [Fact]
             public void UpdateCurrentTurnWithCurrentActionPlay()
             {
                 actual.CurrentTurn.CurrentAction.Should().Be(Action.Play);
             }
-            
+
             [Fact]
             public void UpdateCurrentTurnWithPreviousActionTake()
             {
@@ -387,7 +413,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithPlayer2Hand(player2Hand)
                     .WithStockPile(stockPile)
                     .WithDiscardPile(discardPile)
-                    .WithRules(new OlsenOlsenVariantRules(OlsenOlsenVariantRules.NumberOfPlayers.Two))
+                    .WithRules(new OlsenOlsenVariantRules(NumberOfPlayers.Two))
                     .Build();
 
                 sut.Execute();
@@ -415,7 +441,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithStockPile(stockPile)
                     .WithDiscardPile(discardPile)
                     .WithSelectedSuit(expectedSelectedSuit)
-                    .WithRules(new OlsenOlsenVariantRules(OlsenOlsenVariantRules.NumberOfPlayers.Two))
+                    .WithRules(new OlsenOlsenVariantRules(NumberOfPlayers.Two))
                     .Build();
 
                 actual = sut.Execute();
@@ -429,40 +455,6 @@ namespace SheddingCardGames.Tests.Domain
                 actualTurn.Winner.Should().BeNull();
                 actualTurn.SelectedSuit.Should().Be(expectedSelectedSuit);
                 actualTurn.TakenCard.Should().Be(takenCard);
-            }
-
-            [Fact]
-            public void PassWhenTakenThreeTimes()
-            {
-                var player1Hand = new CardCollection(Card(1, Clubs));
-                var player2Hand = new CardCollection(Card(2, Clubs));
-                var discardPile = new DiscardPile(new CardCollection(
-                    Card(2, Hearts)
-                ));
-                var stockPile = new CardCollection(
-                    Card(3, Spades),
-                    Card(4, Spades),
-                    Card(5, Spades)
-                );
-                var sut = new TakeCommandBuilder()
-                    .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
-                    .WithStockPile(stockPile)
-                    .WithDiscardPile(discardPile)
-                    .WithRules(new OlsenOlsenVariantRules(OlsenOlsenVariantRules.NumberOfPlayers.Two))
-                    .Build();
-
-                sut.Execute();
-                sut.Execute();
-                actual = sut.Execute();
-
-                var actualTurn = actual.CurrentTurn;
-                actualTurn.TurnNumber.Should().Be(2);
-                actualTurn.PlayerToPlay.Number.Should().Be(2);
-
-                actualTurn.HasWinner.Should().BeFalse();
-                actualTurn.Winner.Should().BeNull();
-                actualTurn.TakenCard.Should().Be(Card(5, Spades));
             }
 
             [Fact]
@@ -484,7 +476,7 @@ namespace SheddingCardGames.Tests.Domain
                     .WithStockPile(stockPile)
                     .WithDiscardPile(discardPile)
                     .WithSelectedSuit(expectedSelectedSuit)
-                    .WithRules(new OlsenOlsenVariantRules(OlsenOlsenVariantRules.NumberOfPlayers.Two))
+                    .WithRules(new OlsenOlsenVariantRules(NumberOfPlayers.Two))
                     .Build();
 
                 actual = sut.Execute();
@@ -496,6 +488,72 @@ namespace SheddingCardGames.Tests.Domain
                 actualTurn.SelectedSuit.Should().Be(expectedSelectedSuit);
             }
         }
+
+        public class Execute_WhenOlsenOlsenVariant_AndWhenTakenThreeTimes_Should
+        {
+            private readonly GameState actual;
+
+            public Execute_WhenOlsenOlsenVariant_AndWhenTakenThreeTimes_Should()
+            {
+                var player1Hand = new CardCollection(Card(1, Clubs));
+                var player2Hand = new CardCollection(Card(2, Clubs));
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(2, Hearts)
+                ));
+                var stockPile = new CardCollection(
+                    Card(3, Spades),
+                    Card(4, Spades),
+                    Card(5, Spades),
+                    Card(6, Spades)
+                );
+                var sut = new TakeCommandBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithStockPile(stockPile)
+                    .WithDiscardPile(discardPile)
+                    .WithRules(new OlsenOlsenVariantRules(NumberOfPlayers.Two))
+                    .Build();
+
+                sut.Execute();
+                sut.Execute();
+                actual = sut.Execute();
+            }
+
+            [Fact]
+            public void StartNextTurn()
+            {
+                var actualTurn = actual.CurrentTurn;
+                actualTurn.TurnNumber.Should().Be(2);
+                actualTurn.PlayerToPlay.Number.Should().Be(2);
+
+                actualTurn.HasWinner.Should().BeFalse();
+                actualTurn.Winner.Should().BeNull();
+                actualTurn.TakenCard.Should().Be(Card(5, Spades));
+            }
+
+            [Fact]
+            public void AddPassedEvent()
+            {
+                var actualEvent = actual.Events.ElementAt(3);
+                actualEvent.Should().BeOfType<Passed>();
+                var domainEvent = actualEvent as Passed;
+                if (domainEvent == null) Assert.NotNull(domainEvent);
+                domainEvent.Number.Should().Be(4);
+                domainEvent.PlayerNumber.Should().Be(1);
+            }
+
+            [Fact]
+            public void AddTurnEndedEvent()
+            {
+                var actualEvent = actual.Events.ElementAt(4);
+                actualEvent.Should().BeOfType<TurnEnded>();
+                var domainEvent = actualEvent as TurnEnded;
+                if (domainEvent == null) Assert.NotNull(domainEvent);
+                domainEvent.Number.Should().Be(5);
+                domainEvent.PlayerNumber.Should().Be(1);
+            }
+        }
+
 
         public class ExecuteWhenStockPileExhaustedShould
         {

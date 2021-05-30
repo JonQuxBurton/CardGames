@@ -6,13 +6,14 @@ namespace SheddingCardGames.Domain
 {
     public class TakeCommand : GameCommand
     {
-        private readonly GameState gameState;
-        private readonly TakeContext takeContext;
         private readonly CrazyEightsRules crazyEightsRules;
-        private readonly IShuffler shuffler;
         private readonly CurrentTurnBuilder currentTurnBuilder;
+        private readonly GameState gameState;
+        private readonly IShuffler shuffler;
+        private readonly TakeContext takeContext;
 
-        public TakeCommand(CrazyEightsRules crazyEightsRules, IShuffler shuffler, GameState gameState, TakeContext takeContext)
+        public TakeCommand(CrazyEightsRules crazyEightsRules, IShuffler shuffler, GameState gameState,
+            TakeContext takeContext)
         {
             this.crazyEightsRules = crazyEightsRules;
             this.shuffler = shuffler;
@@ -25,9 +26,9 @@ namespace SheddingCardGames.Domain
         public override ActionResult IsValid()
         {
             var validPlays = crazyEightsRules.HasValidPlay(gameState.CurrentCardToMatch,
-                    takeContext.ExecutingPlayer.Hand,
-                    gameState.CurrentSelectedSuit, 
-                    gameState.AnyPlaysOrTakes);
+                takeContext.ExecutingPlayer.Hand,
+                gameState.CurrentSelectedSuit,
+                gameState.AnyPlaysOrTakes);
 
             if (validPlays)
                 return new ActionResult(false, ActionResultMessageKey.InvalidTake);
@@ -40,19 +41,34 @@ namespace SheddingCardGames.Domain
 
         public override GameState Execute()
         {
-            var takenCard =
-                gameState.CurrentTable.MoveCardFromStockPileToPlayer(gameState.CurrentPlayerToPlay);
+            var currentTable = gameState.CurrentTable;
+
+            var takenCard = currentTable.MoveCardFromStockPileToPlayer(gameState.CurrentPlayerToPlay);
             gameState.AddEvent(new Taken(gameState.NextEventNumber,
                 gameState.CurrentPlayerToPlayNumber, takenCard));
 
-            if (gameState.CurrentTable.StockPile.IsEmpty())
+            if (currentTable.StockPile.IsEmpty())
                 MoveDiscardPileToStockPile();
-            
+
+            CurrentTurn currentTurn;
+
             if (gameState.CurrentTurn.PreviousActions.Count == crazyEightsRules.NumberOfTakesBeforePass - 1)
-                gameState.CurrentTurn = currentTurnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, gameState.CurrentSelectedSuit, takenCard);
+            {
+                gameState.AddEvent(new Passed(gameState.NextEventNumber,
+                    gameState.CurrentPlayerToPlayNumber));
+                gameState.AddEvent(new TurnEnded(gameState.NextEventNumber,
+                    gameState.CurrentPlayerToPlayNumber));
+
+                currentTurn = currentTurnBuilder.BuildNextTurn(gameState, gameState.NextPlayer,
+                    gameState.CurrentSelectedSuit, takenCard);
+            }
             else
-                gameState.CurrentTurn = currentTurnBuilder.AddTakenCard(gameState, takenCard);
-            
+            {
+                currentTurn = currentTurnBuilder.AddTakenCard(gameState, takenCard);
+            }
+
+            gameState.CurrentTurn = currentTurn;
+
             return gameState;
         }
 

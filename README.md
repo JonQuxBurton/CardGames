@@ -19,12 +19,15 @@ Take
 SelectSuit
 
 ## Events
-Played
-Taken
-SelectedSuit
+DealCompleted
 Passed
+Played
+RoundWon
+Shuffled
+StartingPlayerChosen
+SelectedSuit
+Taken
 TurnEnded
-Won
 
 ## Scenarios
 
