@@ -1121,19 +1121,6 @@ namespace SheddingCardGames.Tests.Domain
                 actual.IsSuccess.Should().BeFalse();
                 actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
             }
-
-            [Fact]
-            public void CreateSuitSelectedEvent()
-            {
-                sut.SelectSuit(new SelectSuitContext(sut.GetPlayer(1), Diamonds));
-
-                sut.GameState.Events.Last().Should().BeOfType(typeof(SuitSelected));
-                var domainEvent = sut.GameState.Events.Last() as SuitSelected;
-                if (domainEvent == null) Assert.NotNull(domainEvent);
-                domainEvent.PlayerNumber.Should().Be(1);
-                domainEvent.Suit.Should().Be(Diamonds);
-            }
-
         }
 
         public class PlayWhenSelectedSuitShould

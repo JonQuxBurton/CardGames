@@ -7,7 +7,7 @@ using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
-using static SheddingCardGames.Domain.BasicVariantRules.NumberOfPlayers;
+using static SheddingCardGames.Domain.CrazyEightsRules.NumberOfPlayers;
 using static SheddingCardGames.Domain.PlayersUtils;
 using static SheddingCardGames.Domain.Suit;
 
@@ -196,16 +196,24 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void AddSuitSelectedEvent()
+            public void AddSuitSelectedEventAndTurnEndedEvent()
             {
                 var actual = sut.Execute();
 
-                actual.Events.First().Should().BeOfType<SuitSelected>();
-                var actualEvent = actual.Events.First() as SuitSelected;
-                if (actualEvent == null) Assert.NotNull(actualEvent);
-                actualEvent.Number.Should().Be(1);
-                actualEvent.PlayerNumber.Should().Be(1);
-                actualEvent.Suit.Should().Be(expectedSelectedSuit);
+                var actualEvent = actual.Events.First();
+                actualEvent.Should().BeOfType<SuitSelected>();
+                var suitSelectedEvent = actualEvent as SuitSelected;
+                if (suitSelectedEvent == null) Assert.NotNull(suitSelectedEvent);
+                suitSelectedEvent.Number.Should().Be(1);
+                suitSelectedEvent.PlayerNumber.Should().Be(1);
+                suitSelectedEvent.Suit.Should().Be(expectedSelectedSuit);
+                
+                actualEvent = actual.Events.Last();
+                actualEvent.Should().BeOfType<TurnEnded>();
+                var turnEndedEvent = actualEvent as TurnEnded;
+                if (turnEndedEvent == null) Assert.NotNull(turnEndedEvent);
+                turnEndedEvent.Number.Should().Be(2);
+                turnEndedEvent.PlayerNumber.Should().Be(1);
             }
 
             [Fact]

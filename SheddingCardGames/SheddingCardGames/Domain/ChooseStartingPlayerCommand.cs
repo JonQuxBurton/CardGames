@@ -22,8 +22,8 @@ namespace SheddingCardGames.Domain
         public override GameState Execute()
         {
             gameState.PlayerToStart = chooseStartingPlayerContext.ChosenPlayer;
-            gameState.AddEvent(new StartingPlayerChosen(1, chooseStartingPlayerContext.ChosenPlayer));
             gameState.CurrentGamePhase = GamePhase.ReadyToDeal;
+            gameState.AddEvent(new StartingPlayerChosen(1, chooseStartingPlayerContext.ChosenPlayer));
 
             return gameState;
         }

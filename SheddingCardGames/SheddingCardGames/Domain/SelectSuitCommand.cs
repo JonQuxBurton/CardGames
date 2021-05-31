@@ -33,10 +33,10 @@ namespace SheddingCardGames.Domain
 
         public override GameState Execute()
         {
+            gameState.CurrentTurn = currentTurnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, selectSuitContext.SelectedSuit);
             gameState.AddEvent(new SuitSelected(gameState.NextEventNumber,
                 selectSuitContext.ExecutingPlayer.Number, selectSuitContext.SelectedSuit));
-
-            gameState.CurrentTurn = currentTurnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, selectSuitContext.SelectedSuit);
+            gameState.AddEvent(new TurnEnded(gameState.NextEventNumber, selectSuitContext.ExecutingPlayer.Number));
 
             return gameState;
         }
