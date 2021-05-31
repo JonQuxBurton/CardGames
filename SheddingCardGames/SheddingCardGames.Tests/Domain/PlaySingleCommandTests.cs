@@ -391,7 +391,7 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void AddPlayedEvent()
+            public void AddPlayedEventAndTurnEndedEvent()
             {
                 var cardsPlayed = Cards(
                     Card(1, Clubs),
@@ -413,12 +413,20 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                actual.Events.Last().Should().BeOfType<Played>();
-                var actualEvent = actual.Events.Last() as Played;
-                if (actualEvent == null) Assert.NotNull(actualEvent);
-                actualEvent.Number.Should().Be(1);
-                actualEvent.PlayerNumber.Should().Be(1);
-                actualEvent.Cards.Should().Equal(cardsPlayed);
+                var actualEvent = actual.Events.LastSkip(1);
+                actualEvent.Should().BeOfType<Played>();
+                var playedEvent = actualEvent as Played;
+                if (playedEvent == null) Assert.NotNull(playedEvent);
+                playedEvent.Number.Should().Be(1);
+                playedEvent.PlayerNumber.Should().Be(1);
+                playedEvent.Cards.Should().Equal(cardsPlayed);
+
+                actualEvent = actual.Events.Last();
+                actualEvent.Should().BeOfType<TurnEnded>();
+                var turnEndedEvent = actualEvent as TurnEnded;
+                if (turnEndedEvent == null) Assert.NotNull(turnEndedEvent);
+                turnEndedEvent.Number.Should().Be(2);
+                turnEndedEvent.PlayerNumber.Should().Be(1);
             }
 
             [Fact]
@@ -526,6 +534,12 @@ namespace SheddingCardGames.Tests.Domain
                 actualTurn.TakenCard.Should().BeNull();
 
                 actualTurn.PreviousActions.Should().Equal(Action.Play);
+
+                var actualEvent = actual.Events.Last();
+                actualEvent.Should().BeOfType<RoundWon>();
+                var domainEvent = actualEvent as RoundWon;
+                if (domainEvent == null) Assert.NotNull(domainEvent);
+                domainEvent.PlayerNumber.Should().Be(1);
             }
 
             [Fact]
@@ -560,6 +574,12 @@ namespace SheddingCardGames.Tests.Domain
                 actualTurn.PreviousActions.Should().Equal(Action.Play);
 
                 actual.CurrentTable.DiscardPile.CardToMatch.Should().Be(cardsPlayed.First());
+
+                var actualEvent = actual.Events.Last();
+                actualEvent.Should().BeOfType<Played>();
+                var domainEvent = actualEvent as Played;
+                if (domainEvent == null) Assert.NotNull(domainEvent);
+                domainEvent.PlayerNumber.Should().Be(1);
             }
         }
     }

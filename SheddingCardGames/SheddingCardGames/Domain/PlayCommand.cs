@@ -43,8 +43,8 @@ namespace SheddingCardGames.Domain
 
             if (HasWon())
             {
-                gameState.AddEvent(new RoundWon(gameState.NextEventNumber, playContext.ExecutingPlayer.Number));
                 gameState.CurrentTurn = currentTurnBuilder.BuildWinningTurn(gameState, playContext.ExecutingPlayer);
+                gameState.AddEvent(new RoundWon(gameState.NextEventNumber, playContext.ExecutingPlayer.Number));
             }
             else if (playContext.CardsPlayed.First().Rank == 8)
             {
@@ -53,6 +53,7 @@ namespace SheddingCardGames.Domain
             else
             {
                 gameState.CurrentTurn = currentTurnBuilder.BuildNextTurn(gameState, gameState.NextPlayer);
+                gameState.AddEvent(new TurnEnded(gameState.NextEventNumber, playContext.ExecutingPlayer.Number));
             }
 
             return gameState;

@@ -748,31 +748,6 @@ namespace SheddingCardGames.Tests.Domain
                 sut.GameState.CurrentTable.Players[2].Hand.Cards.Should().NotContain(playedCard3);
                 sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(playedCard3);
             }
-
-            [Fact]
-            public void CreatePlayedEvent()
-            {
-                var discardCard = Card(10, Clubs);
-                var playedCard = Card(1, Clubs);
-                player1Hand.AddAtStart(playedCard);
-                var game = new GameBuilder()
-                    .WithNumberOfPlayers(3)
-                    .Build();
-                sut = new AtStartGameBuilder(game)
-                    .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
-                    .WithPlayer3Hand(player3Hand)
-                    .WithDiscardCard(discardCard)
-                    .Build();
-
-                sut.Play(new PlayContext(sut.GetPlayer(1), playedCard));
-
-                sut.GameState.Events.Last().Should().BeOfType(typeof(Played));
-                var played = sut.GameState.Events.Last() as Played;
-                if (played == null) Assert.NotNull(played);
-                played.PlayerNumber.Should().Be(1);
-                played.Cards.Should().Equal(playedCard);
-            }
         }
 
         public class PlayWhenPlayingEightShould
