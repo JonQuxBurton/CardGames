@@ -14,7 +14,7 @@
 
 <img @ref="cardsSpriteSheet" hidden src="assets/Cards.png" />
 
-<div id="canvasContainer" style="position: fixed; opacity: 1; background-color: black; width: 100%; height: 100%">
+<div id="canvasContainer" style="position: fixed; opacity: 1; background-color: black; width: 100%; height: 100%" oncontextmenu="return false;">
     <BECanvas Width="1200" Height="800" @ref="canvas"></BECanvas>
 </div>
 
@@ -26,7 +26,8 @@
     private BlazorGameController gameController;
     private CardCollection deck;
     readonly GameTime gameTime = new GameTime();
-    IGameObject gameObjectMouseDown;
+    IGameObject gameObjectLeftMouseButtonDown;
+    IGameObject gameObjectRightMouseButtonDown;
 
     private int screenWidth = 1200;
     private int screenHeight = 800;
@@ -42,13 +43,13 @@
             await JsRuntime.InvokeAsync<object>("initGame", DotNetObjectReference.Create(this));
 
             IDeckBuilder deckBuilder;
-            deckBuilder = new SpecificDeckBuilder(new Card(1, Suit.Hearts),
-                new CardCollection(new Card(1, Suit.Spades)), 
-                new CardCollection(new Card(8, Suit.Hearts), new Card(1, Suit.Clubs), new Card(2, Suit.Clubs), new Card(3, Suit.Clubs), new Card(4, Suit.Clubs), new Card(5, Suit.Clubs), new Card(6, Suit.Clubs), new Card(7, Suit.Clubs)), 
-                new CardCollection(new Card(8, Suit.Spades), new Card(1, Suit.Diamonds), new Card(2, Suit.Diamonds), new Card(3, Suit.Diamonds), new Card(4, Suit.Diamonds), new Card(5, Suit.Diamonds), new Card(6, Suit.Diamonds), new Card(7, Suit.Diamonds)));
+            //deckBuilder = new SpecificDeckBuilder(new Card(1, Suit.Hearts),
+            //    new CardCollection(new Card(1, Suit.Spades)), 
+            //    new CardCollection(new Card(8, Suit.Hearts), new Card(1, Suit.Clubs), new Card(2, Suit.Clubs), new Card(3, Suit.Clubs), new Card(4, Suit.Clubs), new Card(5, Suit.Clubs), new Card(6, Suit.Clubs), new Card(7, Suit.Clubs)), 
+            //    new CardCollection(new Card(8, Suit.Spades), new Card(1, Suit.Diamonds), new Card(2, Suit.Diamonds), new Card(3, Suit.Diamonds), new Card(4, Suit.Diamonds), new Card(5, Suit.Diamonds), new Card(6, Suit.Diamonds), new Card(7, Suit.Diamonds)));
 
             //deckBuilder = new MinimalDeckBuilder();
-            //deckBuilder = new DeckBuilder();
+            deckBuilder = new DeckBuilder();
             deck = deckBuilder.Build();
 
             var numberOfPlayers = 2;
@@ -70,14 +71,27 @@
     {
         var uiState = gameController.UiState;
 
-        if (gameObjectMouseDown != null)
+        if (gameObjectLeftMouseButtonDown != null)
         {
             if (InputSystem.Instance.GetButtonState(MouseButtons.Left) == ButtonStates.Up)
             {
-                if (gameObjectMouseDown.IsHit(InputSystem.Instance.MouseCoords))
+                if (gameObjectLeftMouseButtonDown.IsHit(InputSystem.Instance.MouseCoords))
                 {
-                    await gameObjectMouseDown.Update(new InputState(true, InputSystem.Instance.MouseCoords));
-                    gameObjectMouseDown = null;
+                    await gameObjectLeftMouseButtonDown.Update(new InputState(true, false, InputSystem.Instance.MouseCoords));
+                    gameObjectLeftMouseButtonDown = null;
+                    gameObjectRightMouseButtonDown = null;
+                }
+            }
+        }
+        else if (gameObjectRightMouseButtonDown != null)
+        {
+            if (InputSystem.Instance.GetButtonState(MouseButtons.Right) == ButtonStates.Up)
+            {
+                if (gameObjectRightMouseButtonDown.IsHit(InputSystem.Instance.MouseCoords))
+                {
+                    await gameObjectRightMouseButtonDown.Update(new InputState(false, true, InputSystem.Instance.MouseCoords));
+                    gameObjectLeftMouseButtonDown = null;
+                    gameObjectRightMouseButtonDown = null;
                 }
             }
         }
@@ -85,7 +99,7 @@
         {
             foreach (var gameObject in uiState.GameObjects.Where(x => x.IsVisible))
             {
-                await gameObject.Update(new InputState(false, InputSystem.Instance.MouseCoords));
+                await gameObject.Update(new InputState(false, false, InputSystem.Instance.MouseCoords));
             }
 
             if (InputSystem.Instance.GetButtonState(MouseButtons.Left) == ButtonStates.Down)
@@ -94,7 +108,18 @@
                 {
                     if (gameObject.IsHit(InputSystem.Instance.MouseCoords))
                     {
-                        gameObjectMouseDown = gameObject;
+                        gameObjectLeftMouseButtonDown = gameObject;
+                    }
+                }
+            }
+            
+            if (InputSystem.Instance.GetButtonState(MouseButtons.Right) == ButtonStates.Down)
+            {
+                foreach (var gameObject in uiState.GameObjects.Where(x => x.IsVisible))
+                {
+                    if (gameObject.IsHit(InputSystem.Instance.MouseCoords))
+                    {
+                        gameObjectRightMouseButtonDown = gameObject;
                     }
                 }
             }

@@ -25,6 +25,7 @@ namespace SheddingCardGame.UI
             var component = new CardComponent(config, card,
                 new Sprite(cardsSpriteSheet, new Size(config.CardWidth, config.CardHeight), new Point(cursor.X, cursor.Y)), false);
             component.OnClick = () => gameController.Play(component);
+            component.OnRightClick = () => gameController.SelectCard(component);
             uiState.CardGameObjects.Add(card, component);
             uiState.GameObjects.Add(component);
             cursor.NextRow();

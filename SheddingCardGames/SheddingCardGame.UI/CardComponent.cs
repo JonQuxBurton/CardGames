@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.Threading.Tasks;
 using Blazor.Extensions.Canvas.Canvas2D;
 using SheddingCardGames.Domain;
@@ -11,9 +12,11 @@ namespace SheddingCardGame.UI
         public Card Card { get; }
         public Sprite Sprite { get; }
         public System.Action OnClick { get; set; }
+        public System.Action OnRightClick { get; set; }
 
         private Rectangle boundingBox;
         private bool isActive;
+        private bool isSelected;
 
         public CardComponent(Config config, Card card, Sprite sprite, bool isVisible, bool isTurned = false)
         {
@@ -54,8 +57,12 @@ namespace SheddingCardGame.UI
             if (boundingBox.Contains(inputState.MouseCoords))
             {
                 isActive = true;
-                if (inputState.IsMouseClicked)
+                if (inputState.IsLeftMouseButtonClicked)
                     OnClick?.Invoke();
+                else if (inputState.IsRightMouseButtonClicked)
+                    OnRightClick?.Invoke();
+                
+                //isSelected = !isSelected;
             }
             else
                 isActive = false;
@@ -87,7 +94,19 @@ namespace SheddingCardGame.UI
                 await context.SetStrokeStyleAsync(config.HighlightColour);
                 await context.SetLineWidthAsync(config.HighlightWidth);
                 await context.StrokeRectAsync(boundingBox.X, boundingBox.Y, boundingBox.Width, boundingBox.Height);
+            } 
+            else if (isSelected)
+            {
+                await context.BeginPathAsync();
+                await context.SetStrokeStyleAsync(config.SelectedColour);
+                await context.SetLineWidthAsync(config.HighlightWidth);
+                await context.StrokeRectAsync(boundingBox.X, boundingBox.Y, boundingBox.Width, boundingBox.Height);
             }
+        }
+
+        public void ToggleSelected()
+        {
+            isSelected = !isSelected;
         }
 
         private (int X, int Y) GetFrameCoords(Card card)

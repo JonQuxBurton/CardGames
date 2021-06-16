@@ -4,12 +4,14 @@ namespace SheddingCardGame.UI
 {
     public class InputState
     {
-        public bool IsMouseClicked { get; }
+        public bool IsLeftMouseButtonClicked { get; }
+        public bool IsRightMouseButtonClicked { get; }
         public Point MouseCoords { get; }
 
-        public InputState(bool isMouseClicked, Point mouseCoords)
+        public InputState(bool isLeftMouseButtonClicked, bool isRightMouseButtonClicked, Point mouseCoords)
         {
-            IsMouseClicked = isMouseClicked;
+            IsLeftMouseButtonClicked = isLeftMouseButtonClicked;
+            IsRightMouseButtonClicked = isRightMouseButtonClicked;
             MouseCoords = mouseCoords;
         }
     }

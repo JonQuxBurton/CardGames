@@ -19,6 +19,7 @@ namespace SheddingCardGame.UI
         public int ButtonBorderWidth { get; set; } = 2;
         public int ButtonPadding { get; set; } = 5;
         public string HighlightColour { get; set; } = "rgb(255,0,0)";
+        public string SelectedColour { get; set; } = "rgb(255,255,0)";
         public int HighlightWidth { get; set; } = 4;
 
         public Point ScreenCentre => new Point(ScreenWidth / 2, ScreenHeight / 2);

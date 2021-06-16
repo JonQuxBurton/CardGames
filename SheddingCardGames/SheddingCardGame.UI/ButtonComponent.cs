@@ -35,7 +35,7 @@ namespace SheddingCardGame.UI
             else
                 isActive = false;
 
-            if (inputState.IsMouseClicked)
+            if (inputState.IsLeftMouseButtonClicked)
                 ButtonAction();
             
             return new ValueTask();

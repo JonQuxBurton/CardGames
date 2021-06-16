@@ -50,8 +50,18 @@ namespace SheddingCardGame.UI
             if (!cardComponent.IsTurnedUp)
                 return false;
 
-            var actionResult = game.Play(new PlayContext(CurrentTurn.PlayerToPlay, CardsUtils.Cards(cardComponent.Card)));
+            ActionResult actionResult;
 
+            if (selectedCards.Any())
+            {
+                actionResult = game.Play(new PlayContext(CurrentTurn.PlayerToPlay, CardsUtils.Cards(selectedCards.Select(x => x.Card).ToArray())));
+                selectedCards.Clear();
+            }
+            else
+            {
+                actionResult = game.Play(new PlayContext(CurrentTurn.PlayerToPlay, CardsUtils.Cards(cardComponent.Card)));
+            }
+            
             if (actionResult.IsSuccess)
             {
                 BringToTop(cardComponent);
@@ -110,6 +120,24 @@ namespace SheddingCardGame.UI
             }
 
             return actionResult;
+        }
+
+        private readonly List<CardComponent> selectedCards = new List<CardComponent>();
+
+        public void SelectCard(CardComponent cardComponent)
+        {
+            if (game.GameState.CurrentTurn.CurrentAction != Action.Play)
+                return;
+
+            if (!game.GameState.CurrentPlayerToPlay.Hand.Cards.Contains(cardComponent.Card))
+                return;
+
+            if (selectedCards.Contains(cardComponent))
+                selectedCards.Remove(cardComponent);
+            else
+                selectedCards.Add(cardComponent);
+
+            cardComponent.ToggleSelected();
         }
 
         private void BringToTop(CardComponent cardComponent)
