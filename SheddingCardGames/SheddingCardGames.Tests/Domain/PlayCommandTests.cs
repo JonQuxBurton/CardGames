@@ -91,13 +91,11 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var cardsPlayed = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection(cardsPlayed);
-                var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
                     Card(2, Clubs)
                 ));
                 var sut = new PlayCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
                     .WithDiscardPile(discardPile)
                     .Build(cardsPlayed);
 
@@ -112,37 +110,8 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var cardsPlayed = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection();
-                var player2Hand = new CardCollection();
                 var sut = new PlayCommandBuilder()
                     .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
-                    .Build(cardsPlayed);
-
-                var actual = sut.IsValid();
-
-                actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.CardIsNotInPlayersHand);
-            }
-
-            [Theory]
-            [InlineData("2|Hearts", "2|Clubs", "2|Diamonds")]
-            [InlineData("2|Clubs", "2|Hearts", "2|Diamonds")]
-            [InlineData("2|Clubs", "2|Diamonds", "2|Hearts")]
-            public void ReturnIsSuccessFalseWhenAnyCardIsNotInPlayersHand(params string[] playedCardsData)
-            {
-                var cardsPlayed = Cards(cardParser.Parse(playedCardsData));
-                var player1Hand = new CardCollection(
-                    Card(2, Clubs),
-                    Card(2, Diamonds)
-                    );
-                var player2Hand = new CardCollection();
-                var discardPile = new DiscardPile(
-                    new[] { Card(1, Clubs) }
-                );
-                var sut = new PlayCommandBuilder()
-                    .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
-                    .WithDiscardPile(discardPile)
                     .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
@@ -180,38 +149,12 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var cardsPlayed = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection(cardsPlayed);
-                var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
                     Card(2, Spades)
                 ));
                 var sut = new PlayCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
-                    .Build(cardsPlayed);
-
-                var actual = sut.IsValid();
-
-                actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.InvalidPlay);
-            }
-
-            [Theory]
-            [InlineData("2|Clubs", "2|Diamonds", "10|Hearts")]
-            [InlineData("2|Clubs", "10|Hearts", "2|Diamonds")]
-            [InlineData("10|Hearts", "2|Clubs", "2|Diamonds")]
-            public void ReturnIsSuccessFalseForInvalidPlayWheMultipleCardsPlayed(params string[] playedCardsData)
-            {
-                var cardsPlayed = Cards(cardParser.Parse(playedCardsData));
-                var player1Hand = new CardCollection(cardsPlayed);
-                var player2Hand = new CardCollection();
-                var discardPile = new DiscardPile(new CardCollection(
-                    Card(2, Spades)
-                ));
-                var sut = new PlayCommandBuilder()
-                    .WithDiscardPile(discardPile)
-                    .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
                     .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
@@ -225,7 +168,6 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var cardPlayed = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection(cardPlayed);
-                var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
                     Card(1, Spades)
                 ));
@@ -233,7 +175,6 @@ namespace SheddingCardGames.Tests.Domain
                 var sut = new PlayCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
                     .Build(cardPlayed);
 
                 var actual = sut.IsValid();
@@ -245,7 +186,6 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var playedCards = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection(playedCards);
-                var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
                     Card(8, Spades)
                 ));
@@ -253,7 +193,6 @@ namespace SheddingCardGames.Tests.Domain
                 var sut = new PlayCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
                     .Build(playedCards);
 
                 var actual = sut.IsValid();
@@ -266,7 +205,6 @@ namespace SheddingCardGames.Tests.Domain
                 var selectedSuit = Hearts;
                 var playedCards = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection(playedCards);
-                var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
                     Card(8, Spades)
                 ));
@@ -274,7 +212,6 @@ namespace SheddingCardGames.Tests.Domain
                 var sut = new PlayCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
                     .WithSelectedSuit(selectedSuit)
                     .Build(playedCards);
 
@@ -284,31 +221,10 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnIsSuccessTrueForValidPlayWithMatchingRank()
-            {
-                var cardsPlayed = Cards(Card(1, Clubs), Card(1, Diamonds), Card(1, Hearts));
-                var player1Hand = new CardCollection(cardsPlayed);
-                var player2Hand = new CardCollection();
-                var discardPile = new DiscardPile(new CardCollection(
-                    Card(1, Spades)
-                ));
-
-                var sut = new PlayCommandBuilder()
-                    .WithDiscardPile(discardPile)
-                    .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
-                    .Build(cardsPlayed);
-
-                var actual = sut.IsValid();
-                actual.IsSuccess.Should().BeTrue();
-            }
-
-            [Fact]
             public void ReturnIsSuccessTrueForValidPlayWithRank8()
             {
                 var cardsPlayed = Cards(Card(8, Clubs));
                 var player1Hand = new CardCollection(cardsPlayed);
-                var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
                     Card(1, Spades)
                 ));
@@ -316,7 +232,6 @@ namespace SheddingCardGames.Tests.Domain
                 var sut = new PlayCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
                     .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
@@ -329,7 +244,6 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var cardsPlayed = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection(cardsPlayed);
-                var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
                     Card(8, Spades)
                 ));
@@ -337,7 +251,6 @@ namespace SheddingCardGames.Tests.Domain
                 var sut = new PlayCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
                     .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
@@ -349,20 +262,136 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var cardsPlayed = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection(cardsPlayed);
-                var player2Hand = new CardCollection();
                 var discardPile = new DiscardPile(new CardCollection(
                     Card(7, Spades)
                 ));
                 var sut = new PlayCommandBuilder()
                     .WithDiscardPile(discardPile)
                     .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
                     .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
 
                 actual.IsSuccess.Should().BeFalse();
                 actual.MessageKey.Should().Be(ActionResultMessageKey.InvalidPlay);
+            }
+        }
+        
+        public class IsValid_WhenMultipleCardsPlayed_Should
+        {
+            private readonly CardParser cardParser = new CardParser();
+
+            [Theory]
+            [InlineData("2|Hearts", "2|Clubs", "2|Diamonds")]
+            [InlineData("2|Clubs", "2|Hearts", "2|Diamonds")]
+            [InlineData("2|Clubs", "2|Diamonds", "2|Hearts")]
+            public void ReturnIsSuccessFalse_WhenAnyCardIsNotInPlayersHand(params string[] playedCardsData)
+            {
+                var cardsPlayed = Cards(cardParser.Parse(playedCardsData));
+                var player1Hand = new CardCollection(
+                    Card(2, Clubs),
+                    Card(2, Diamonds)
+                    );
+                var discardPile = new DiscardPile(
+                    new[] { Card(1, Clubs) }
+                );
+                var sut = new PlayCommandBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithDiscardPile(discardPile)
+                    .Build(cardsPlayed);
+
+                var actual = sut.IsValid();
+
+                actual.IsSuccess.Should().BeFalse();
+                actual.MessageKey.Should().Be(ActionResultMessageKey.CardIsNotInPlayersHand);
+            }
+            
+            [Theory]
+            [InlineData("2|Clubs", "2|Diamonds", "10|Hearts")]
+            [InlineData("2|Clubs", "10|Hearts", "2|Diamonds")]
+            [InlineData("10|Hearts", "2|Clubs", "2|Diamonds")]
+            [InlineData("2|Clubs", "2|Diamonds", "10|Spades")]
+            public void ReturnIsSuccessFalse_ForInvalidPlay(params string[] playedCardsData)
+            {
+                var cardsPlayed = Cards(cardParser.Parse(playedCardsData));
+                var player1Hand = new CardCollection(cardsPlayed);
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(2, Spades)
+                ));
+                var sut = new PlayCommandBuilder()
+                    .WithDiscardPile(discardPile)
+                    .WithPlayer1Hand(player1Hand)
+                    .Build(cardsPlayed);
+
+                var actual = sut.IsValid();
+
+                actual.IsSuccess.Should().BeFalse();
+                actual.MessageKey.Should().Be(ActionResultMessageKey.InvalidPlay);
+            }
+
+            [Theory]
+            [InlineData("1|Clubs", "1|Diamonds")]
+            [InlineData("1|Clubs", "1|Diamonds", "1|Hearts")]
+            [InlineData("1|Clubs", "1|Diamonds", "1|Hearts", "1|Spades")]
+            public void ReturnIsSuccessTrue_ForValidPlayWithMatchingRank(params string[] playedCardsData)
+            {
+                var cardsPlayed = Cards(cardParser.Parse(playedCardsData));
+                var player1Hand = new CardCollection(cardsPlayed);
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(1, Spades)
+                ));
+
+                var sut = new PlayCommandBuilder()
+                    .WithDiscardPile(discardPile)
+                    .WithPlayer1Hand(player1Hand)
+                    .Build(cardsPlayed);
+
+                var actual = sut.IsValid();
+                actual.IsSuccess.Should().BeTrue();
+            }
+            
+            [Theory]
+            [InlineData("1|Clubs", "1|Diamonds")]
+            [InlineData("1|Clubs", "1|Diamonds", "1|Hearts")]
+            [InlineData("1|Clubs", "1|Diamonds", "1|Hearts", "1|Spades")]
+            public void ReturnIsSuccessTrue_ForAnyCardsWithMatchingRank_WhenFirstTurn_AndDiscardCardIs8(params string[] playedCardsData)
+            {
+                var cardsPlayed = Cards(cardParser.Parse(playedCardsData));
+                var player1Hand = new CardCollection(cardsPlayed);
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(8, Spades)
+                ));
+
+                var sut = new PlayCommandBuilder()
+                    .WithDiscardPile(discardPile)
+                    .WithPlayer1Hand(player1Hand)
+                    .Build(cardsPlayed);
+
+                var actual = sut.IsValid();
+                actual.IsSuccess.Should().BeTrue();
+            }
+
+            [Theory]
+            [InlineData("1|Clubs", "2|Spades")]
+            [InlineData("1|Clubs", "8|Clubs")]
+            [InlineData("1|Clubs", "1|Diamonds", "2|Spades")]
+            [InlineData("1|Clubs", "1|Diamonds", "1|Hearts", "2|Spades")]
+            [InlineData("1|Clubs", "1|Diamonds", "1|Hearts", "1|Spades", "2|Spades")]
+            public void ReturnIsSuccessFalse_WhenAnyCardsDoesNotMatchRankOfFirstCard_WhenFirstTurn_AndDiscardCardIs8(params string[] playedCardsData)
+            {
+                var cardsPlayed = Cards(cardParser.Parse(playedCardsData));
+                var player1Hand = new CardCollection(cardsPlayed);
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(8, Spades)
+                ));
+
+                var sut = new PlayCommandBuilder()
+                    .WithDiscardPile(discardPile)
+                    .WithPlayer1Hand(player1Hand)
+                    .Build(cardsPlayed);
+
+                var actual = sut.IsValid();
+                actual.IsSuccess.Should().BeFalse();
             }
         }
 

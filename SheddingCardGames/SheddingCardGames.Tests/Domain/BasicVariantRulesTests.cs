@@ -25,7 +25,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardCard = Card(10, Clubs);
                 var cardPlayed = Card(1, Clubs);
 
-                var actual = sut.IsValidPlay(Cards(cardPlayed), discardCard, null, true);
+                var actual = sut.IsValidPlay(new IsValidPlayContext(Cards(cardPlayed), discardCard, null, true));
 
                 actual.Should().BeTrue();
             }
@@ -36,7 +36,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardCard = Card(10, Clubs);
                 var cardPlayed = Card(10, Hearts);
 
-                var actual = sut.IsValidPlay(Cards(cardPlayed), discardCard, null, true);
+                var actual = sut.IsValidPlay(new IsValidPlayContext(Cards(cardPlayed), discardCard, null, true));
 
                 actual.Should().BeTrue();
             }
@@ -49,7 +49,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardCard = Card(10, Clubs);
                 var cardsPlayed = Cards(cardParser.Parse(cardsPlayedData));
 
-                var actual = sut.IsValidPlay(cardsPlayed, discardCard, null, true);
+                var actual = sut.IsValidPlay(new IsValidPlayContext(cardsPlayed, discardCard, null, true));
 
                 actual.Should().BeTrue();
             }
@@ -60,7 +60,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardCard = Card(10, Hearts);
                 var cardPlayed = Card(8, Clubs);
 
-                var actual = sut.IsValidPlay(Cards(cardPlayed), discardCard, null, true);
+                var actual = sut.IsValidPlay(new IsValidPlayContext(Cards(cardPlayed), discardCard, null, true));
 
                 actual.Should().BeTrue();
             }
@@ -73,7 +73,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardCard = Card(10, Hearts);
                 var cardsPlayed = Cards(cardParser.Parse(cardsPlayedData));
 
-                var actual = sut.IsValidPlay(cardsPlayed, discardCard, null, true);
+                var actual = sut.IsValidPlay(new IsValidPlayContext(cardsPlayed, discardCard, null, true));
 
                 actual.Should().BeTrue();
             }
@@ -84,7 +84,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardCard = Card(8, Clubs);
                 var cardPlayed = Card(1, Hearts);
 
-                var actual = sut.IsValidPlay(Cards(cardPlayed), discardCard, Hearts, true);
+                var actual = sut.IsValidPlay(new IsValidPlayContext(Cards(cardPlayed), discardCard, Hearts, true));
 
                 actual.Should().BeTrue();
             }
@@ -95,7 +95,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardCard = Card(8, Hearts);
                 var cardPlayed = Card(1, Clubs);
 
-                var actual = sut.IsValidPlay(Cards(cardPlayed), discardCard, null, false);
+                var actual = sut.IsValidPlay(new IsValidPlayContext(Cards(cardPlayed), discardCard, null, false));
 
                 actual.Should().BeTrue();
             }
@@ -107,7 +107,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardCard = Card(8, Hearts);
                 var cardsPlayed = Cards(cardParser.Parse(cardsPlayedData));
 
-                var actual = sut.IsValidPlay(cardsPlayed, discardCard, null, false);
+                var actual = sut.IsValidPlay(new IsValidPlayContext(cardsPlayed, discardCard, null, false));
 
                 actual.Should().BeTrue();
             }
@@ -118,7 +118,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardCard = Card(8, Hearts);
                 var playedCard = Card(1, Clubs);
 
-                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, null, true);
+                var actual = sut.IsValidPlay(new IsValidPlayContext(Cards(playedCard), discardCard, null, true));
 
                 actual.Should().BeFalse();
             }
@@ -129,7 +129,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardCard = Card(7, Hearts);
                 var playedCard = Card(1, Clubs);
 
-                var actual = sut.IsValidPlay(Cards(playedCard), discardCard, null, false);
+                var actual = sut.IsValidPlay(new IsValidPlayContext(Cards(playedCard), discardCard, null, false));
 
                 actual.Should().BeFalse();
             }
@@ -140,7 +140,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardCard = Card(1, Clubs);
                 var cardPlayed = Card(10, Hearts);
 
-                var actual = sut.IsValidPlay(Cards(cardPlayed), discardCard, null, true);
+                var actual = sut.IsValidPlay(new IsValidPlayContext(Cards(cardPlayed), discardCard, null, true));
 
                 actual.Should().BeFalse();
             }
@@ -153,7 +153,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardCard = Card(1, Clubs);
                 var cardsPlayed = Cards(cardParser.Parse(cardsPlayedData));
 
-                var actual = sut.IsValidPlay(cardsPlayed, discardCard, null, true);
+                var actual = sut.IsValidPlay(new IsValidPlayContext(cardsPlayed, discardCard, null, true));
 
                 actual.Should().BeFalse();
             }
@@ -164,7 +164,7 @@ namespace SheddingCardGames.Tests.Domain
                 var discardCard = Card(8, Clubs);
                 var cardPlayed = Card(1, Clubs);
 
-                var actual = sut.IsValidPlay(Cards(cardPlayed), discardCard, Hearts, true);
+                var actual = sut.IsValidPlay(new IsValidPlayContext(Cards(cardPlayed), discardCard, Hearts, true));
 
                 actual.Should().BeFalse();
             }

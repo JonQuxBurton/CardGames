@@ -61,8 +61,7 @@ namespace SheddingCardGames.Domain
 
         private bool IsValidPlay()
         {
-            return crazyEightsRules.IsValidPlay(playContext.CardsPlayed, gameState.CurrentCardToMatch,
-                gameState.CurrentSelectedSuit, gameState.AnyPlaysOrTakes);
+            return crazyEightsRules.IsValidPlay(new IsValidPlayContext(playContext.CardsPlayed, gameState.CurrentCardToMatch, gameState.CurrentSelectedSuit, gameState.AnyPlaysOrTakes));
         }
 
         private bool HasWon()

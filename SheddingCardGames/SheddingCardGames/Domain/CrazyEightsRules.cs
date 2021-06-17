@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Linq;
 
 namespace SheddingCardGames.Domain
@@ -22,16 +21,28 @@ namespace SheddingCardGames.Domain
         public bool HasValidPlay(Card discardCard, CardCollection hand, Suit? selectedSuit,
             bool anyPlaysOrTakes)
         {
-            return hand.Cards.Any(x => IsValidPlay(CardsUtils.Cards(x), discardCard, selectedSuit, anyPlaysOrTakes));
+            return hand.Cards.Any(x => IsValidPlay(new IsValidPlayContext(CardsUtils.Cards(x), discardCard, selectedSuit, anyPlaysOrTakes)));
         }
 
-        public bool IsValidPlay(IImmutableList<Card> cardsPlayed, Card discardCard, Suit? selectedSuit,
-            bool anyPlaysOrTakes)
+        public bool IsValidPlay(IsValidPlayContext isValidPlayContext)
         {
-            if (!anyPlaysOrTakes && discardCard.Rank == 8)
+            return IsFirstCardValid(isValidPlayContext) &&
+                   AreRestOfCardsValid(isValidPlayContext);
+        }
+
+        private static bool IsFirstCardValid(IsValidPlayContext isValidPlayContext)
+        {
+            if (!isValidPlayContext.AnyPlaysOrTakes && isValidPlayContext.DiscardCard.Rank == 8)
                 return true;
 
-            return cardsPlayed.All(x => IsCardValid(x, discardCard, selectedSuit));
+            return IsCardValid(isValidPlayContext.FirstCardPlayed, 
+                isValidPlayContext);
+        }
+
+        private static bool AreRestOfCardsValid(IsValidPlayContext isValidPlayContext)
+        {
+            return isValidPlayContext.IsSingleCardPlayed || 
+                   isValidPlayContext.RestOfCards.All(x => x.Rank == isValidPlayContext.FirstCardPlayed.Rank);
         }
 
         public int GetHandSize()
@@ -42,18 +53,18 @@ namespace SheddingCardGames.Domain
             return 5;
         }
 
-        private static bool IsCardValid(Card cardPlayed, Card discardCard, Suit? selectedSuit)
+        private static bool IsCardValid(Card cardPlayed, IsValidPlayContext isValidPlayContext)
         {
             if (cardPlayed.Rank == 8)
                 return true;
 
-            if (discardCard.Rank == cardPlayed.Rank)
+            if (isValidPlayContext.DiscardCard.Rank == cardPlayed.Rank)
                 return true;
 
-            if (selectedSuit != null && selectedSuit == cardPlayed.Suit)
+            if (isValidPlayContext.SelectedSuit != null && isValidPlayContext.SelectedSuit == cardPlayed.Suit)
                 return true;
 
-            if (selectedSuit == null && discardCard.Suit == cardPlayed.Suit)
+            if (isValidPlayContext.SelectedSuit == null && isValidPlayContext.DiscardCard.Suit == cardPlayed.Suit)
                 return true;
 
             return false;
