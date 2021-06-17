@@ -57,7 +57,7 @@
             //var game = new SpecificGameBuilder(). Build(deck);
 
             var random = new Random();
-            var startingPlayer = game.Players[random.Next(numberOfPlayers)];
+            var startingPlayer = game.Players[random.Next(1, numberOfPlayers + 1)];
             game.ChooseStartingPlayer(new ChooseStartingPlayerContext(startingPlayer));
 
             config = new Config();
