@@ -333,6 +333,7 @@ namespace SheddingCardGames.Tests.Domain
             [InlineData("1|Clubs", "1|Diamonds")]
             [InlineData("1|Clubs", "1|Diamonds", "1|Hearts")]
             [InlineData("1|Clubs", "1|Diamonds", "1|Hearts", "1|Spades")]
+            [InlineData("10|Spades", "10|Clubs")]
             public void ReturnIsSuccessTrue_ForValidPlayWithMatchingRank(params string[] playedCardsData)
             {
                 var cardsPlayed = Cards(cardParser.Parse(playedCardsData));
