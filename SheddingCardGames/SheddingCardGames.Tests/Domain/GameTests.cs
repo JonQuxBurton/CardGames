@@ -489,7 +489,7 @@ namespace SheddingCardGames.Tests.Domain
 
             public PlayWhenValidShould()
             {
-                new CardCollectionBuilder().Build();
+                new DeckBuilder().Build();
 
                 player1Hand = new CardCollection(
                     Card(2, Clubs),

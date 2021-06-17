@@ -74,9 +74,9 @@ namespace SheddingCardGame.UI
         
         public async ValueTask Render(Canvas2DContext context)
         {
-            var frameCoords = GetFrameCoords(Card);
-            var frameX = frameCoords.X * config.SpriteSheetCardWidth;
-            var frameY = frameCoords.Y * config.SpriteSheetCardHeight;
+            var (frameCoordsX, frameCoordsY) = GetFrameCoords(Card);
+            var frameX = frameCoordsX * config.SpriteSheetCardWidth;
+            var frameY = frameCoordsY * config.SpriteSheetCardHeight;
 
             var spriteX = GetX();
             var spriteY = GetY();

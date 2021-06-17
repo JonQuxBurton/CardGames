@@ -84,8 +84,6 @@ namespace SheddingCardGames.Tests.Domain
 
         public class IsValidShould
         {
-            private readonly CardParser cardParser = new CardParser();
-
             [Fact]
             public void ReturnIsSuccessTrueWhenValid()
             {

@@ -19,7 +19,7 @@
 </div>
 
 @code {
-    BECanvasComponent canvas = null;
+    BECanvasComponent canvas;
     Canvas2DContext context;
     ElementReference cardsSpriteSheet;
 
@@ -67,7 +67,7 @@
         }
     }
 
-    private async ValueTask Update(int screenWidth, int screenHeight)
+    private async ValueTask Update()
     {
         var uiState = gameController.UiState;
 
@@ -218,7 +218,7 @@
             invalidPlayLabel.Hide();
     }
 
-    private async ValueTask Render(int screenWidth, int screenHeight)
+    private async ValueTask Render()
     {
         await context.SetFillStyleAsync(config.BackgroundColour);
         await context.FillRectAsync(0, 0, screenWidth, screenHeight);
@@ -233,25 +233,25 @@
     {
         gameTime.TotalTime = timeStamp;
 
-        await Update(screenWidth, screenHeight);
-        await Render(screenWidth, screenHeight);
+        await Update();
+        await Render();
     }
 
     [JSInvokable]
-    public async ValueTask OnMouseMove(int mouseX, int mouseY)
+    public void OnMouseMove(int mouseX, int mouseY)
     {
         InputSystem.Instance.MouseCoords.X = mouseX;
         InputSystem.Instance.MouseCoords.Y = mouseY;
     }
 
     [JSInvokable]
-    public async ValueTask OnMouseDown(MouseButtons button)
+    public void OnMouseDown(MouseButtons button)
     {
         InputSystem.Instance.SetButtonState(button, ButtonStates.Down);
     }
 
     [JSInvokable]
-    public async ValueTask OnMouseUp(MouseButtons button)
+    public void OnMouseUp(MouseButtons button)
     {
         InputSystem.Instance.SetButtonState(button, ButtonStates.Up);
     }

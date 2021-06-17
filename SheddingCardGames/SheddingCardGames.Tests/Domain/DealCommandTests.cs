@@ -30,7 +30,7 @@ namespace SheddingCardGames.Tests.Domain
                     PlayerToStart = player1,
                 };
 
-                var deck = new CardCollectionBuilder().Build();
+                var deck = new DeckBuilder().Build();
                 var rules = new BasicVariantRules(NumberOfPlayers.Two);
 
                 return new DealCommand(rules, 
