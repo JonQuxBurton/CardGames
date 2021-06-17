@@ -28,7 +28,7 @@ A CLI app to try out the game. Located in the project SheddingCardGame.Cli. Play
 
 ## UI
 
-An experimental Blazor app, in the project SheddingCardGame.UI. Play cards by clicking on them.
+An experimental Blazor app, in the project SheddingCardGame.UI. Play cards by clicking on them. To select multiple cards right click on them, then left on to play them all.
 
 ![UI.png](docs/UI.png)
 
