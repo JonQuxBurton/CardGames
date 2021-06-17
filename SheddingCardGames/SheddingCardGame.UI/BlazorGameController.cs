@@ -105,7 +105,7 @@ namespace SheddingCardGame.UI
             {
                 var errorMessage = actionResultMessageMapper.ToString(actionResult.MessageKey);
                 if (actionResult.MessageKey == ActionResultMessageKey.InvalidPlay)
-                    errorMessage = errorMessage.Replace("{Card}", cardComponent.Card.ToString());
+                    errorMessage = errorMessage.Replace("{Cards}", string.Join(", ", cardsToPlay.Select(x => x.Card)));
 
                 UiState.HasError = true;
                 UiState.ErrorMessage = errorMessage;

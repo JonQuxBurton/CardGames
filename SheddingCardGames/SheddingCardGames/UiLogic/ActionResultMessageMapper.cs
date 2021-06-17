@@ -12,7 +12,7 @@ namespace SheddingCardGames.UiLogic
             errorMessages = new Dictionary<ActionResultMessageKey, string>
             {
                 {ActionResultMessageKey.CardIsNotInPlayersHand, "Card is not in the current Players hand"},
-                {ActionResultMessageKey.InvalidPlay, "You cannot play the Card: {Card}"},
+                {ActionResultMessageKey.InvalidPlay, "You cannot play the Cards: {Cards}"},
                 {ActionResultMessageKey.NotPlayersTurn, "It is not this Player's turn"},
                 {ActionResultMessageKey.InvalidTake, "You cannot Take a Card at this time"}
             };
