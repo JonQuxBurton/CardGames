@@ -80,7 +80,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.ChooseStartingPlayer(new ChooseStartingPlayerContext(player1));
 
                 actual.IsSuccess.Should().BeTrue();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.Success);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.Success);
             }
 
             [Fact]
@@ -168,7 +168,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Deal(new DealContext(deck));
 
                 actual.IsSuccess.Should().BeTrue();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.Success);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.Success);
             }
 
             [Fact]
@@ -532,7 +532,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Play(new PlayContext(sut.GetPlayer(1), playedCard));
 
                 actual.IsSuccess.Should().BeTrue();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.Success);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.Success);
             }
 
             [Fact]
@@ -554,7 +554,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Play(new PlayContext(sut.GetPlayer(1), playedCard));
 
                 actual.IsSuccess.Should().BeTrue();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.Success);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.Success);
             }
 
             [Fact]
@@ -576,7 +576,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Play(new PlayContext(sut.GetPlayer(1), playedCard));
 
                 actual.IsSuccess.Should().BeTrue();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.Success);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.Success);
             }
 
             [Fact]
@@ -794,7 +794,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Play(new PlayContext(sut.GetPlayer(1), Card(8, Clubs)));
 
                 actual.IsSuccess.Should().BeTrue();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.Success);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.Success);
             }
 
             [Fact]
@@ -958,7 +958,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Play(new PlayContext(sut.GetPlayer(1), Card(1, Hearts)));
 
                 actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.CardIsNotInPlayersHand);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.CardIsNotInPlayersHand);
             }
 
             [Fact]
@@ -968,7 +968,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Play(new PlayContext(sut.GetPlayer(2), Card(1, Hearts)));
 
                 actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.CardIsNotInPlayersHand);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.CardIsNotInPlayersHand);
             }
 
             [Fact]
@@ -979,7 +979,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Play(new PlayContext(sut.GetPlayer(3), Card(1, Hearts)));
 
                 actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.CardIsNotInPlayersHand);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.CardIsNotInPlayersHand);
             }
 
             [Fact]
@@ -989,7 +989,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Play(new PlayContext(sut.GetPlayer(1), Card(7, Diamonds)));
 
                 actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.NotPlayersTurn);
             }
 
             [Fact]
@@ -998,7 +998,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Play(new PlayContext(sut.GetPlayer(2), Card(10, Diamonds)));
 
                 actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.NotPlayersTurn);
             }
 
             [Fact]
@@ -1007,7 +1007,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Play(new PlayContext(sut.GetPlayer(3), Card(10, Spades)));
 
                 actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.NotPlayersTurn);
             }
 
             [Fact]
@@ -1016,7 +1016,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Play(new PlayContext(sut.GetPlayer(1), playedCard));
 
                 actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.InvalidPlay);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.InvalidPlay);
             }
 
             [Fact]
@@ -1110,7 +1110,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.SelectSuit(new SelectSuitContext(sut.GetPlayer(1), Diamonds));
 
                 actual.IsSuccess.Should().BeTrue();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.Success);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.Success);
             }
 
             [Fact]
@@ -1119,7 +1119,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.SelectSuit(new SelectSuitContext(sut.GetPlayer(2), Diamonds));
 
                 actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.NotPlayersTurn);
             }
         }
 
@@ -1304,7 +1304,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Take(new TakeContext(sut.GetPlayer(1)));
 
                 actual.IsSuccess.Should().BeTrue();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.Success);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.Success);
                 sut.GameState.CurrentTurn.TakenCard.Should().Be(new Card(1, Hearts));
             }
 
@@ -1338,7 +1338,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Take(new TakeContext(sut.GetPlayer(2)));
 
                 actual.IsSuccess.Should().BeTrue();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.Success);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.Success);
                 sut.GameState.CurrentTurn.TakenCard.Should().Be(Card(1, Hearts));
             }
 
@@ -1584,7 +1584,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Take(new TakeContext(sut.GetPlayer(1)));
 
                 actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.NotPlayersTurn);
             }
             
             [Fact]
@@ -1609,7 +1609,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Take(new TakeContext(sut.GetPlayer(2)));
 
                 actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.NotPlayersTurn);
             }
 
             [Fact]
@@ -1634,7 +1634,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Take(new TakeContext(sut.GetPlayer(3)));
 
                 actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.NotPlayersTurn);
             }
             
             [Fact]
@@ -1658,7 +1658,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Take(new TakeContext(sut.GetPlayer(1)));
 
                 actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.InvalidTake);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.InvalidTake);
             }
 
             [Fact]
@@ -1682,7 +1682,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.Take(new TakeContext(sut.GetPlayer(1)));
 
                 actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.InvalidTake);
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.InvalidTake);
             }
 
             [Fact]

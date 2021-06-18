@@ -5,21 +5,21 @@ namespace SheddingCardGames.UiLogic
 {
     public class ActionResultMessageMapper
     {
-        private readonly Dictionary<ActionResultMessageKey, string> errorMessages;
+        private readonly Dictionary<CommandExecutionResultMessageKey, string> errorMessages;
 
         public ActionResultMessageMapper()
         {
-            errorMessages = new Dictionary<ActionResultMessageKey, string>
+            errorMessages = new Dictionary<CommandExecutionResultMessageKey, string>
             {
-                {ActionResultMessageKey.CardIsNotInPlayersHand, "Card is not in the current Players hand"},
-                {ActionResultMessageKey.InvalidPlay, "You cannot play the Cards: {Cards}"},
-                {ActionResultMessageKey.NotPlayersTurn, "It is not this Player's turn"},
-                {ActionResultMessageKey.InvalidTake, "You cannot Take a Card at this time"}
+                {CommandExecutionResultMessageKey.CardIsNotInPlayersHand, "Card is not in the current Players hand"},
+                {CommandExecutionResultMessageKey.InvalidPlay, "You cannot play the Cards: {Cards}"},
+                {CommandExecutionResultMessageKey.NotPlayersTurn, "It is not this Player's turn"},
+                {CommandExecutionResultMessageKey.InvalidTake, "You cannot Take a Card at this time"}
             };
 
         }
 
-        public string ToString(ActionResultMessageKey key)
+        public string ToString(CommandExecutionResultMessageKey key)
         {
             return errorMessages[key];
         }

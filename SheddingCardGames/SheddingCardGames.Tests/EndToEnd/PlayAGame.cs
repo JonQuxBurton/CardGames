@@ -527,7 +527,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             return new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), players);
         }
 
-        private void VerifyPlayerTake(int playerNumber, ActionResult takeResult, int turnNumber,
+        private void VerifyPlayerTake(int playerNumber, CommandExecutionResult takeResult, int turnNumber,
             Card takenCard,
             Card[] hand)
         {
@@ -537,7 +537,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             sut.GameState.CurrentTable.Players[playerNumber-1].Hand.Cards.Should().Equal(hand);
         }
 
-        private void VerifyPlayerWon(int playerNumber, ActionResult result, int turnNumber, Card discardCard)
+        private void VerifyPlayerWon(int playerNumber, CommandExecutionResult result, int turnNumber, Card discardCard)
         {
             result.IsSuccess.Should().BeTrue();
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(turnNumber);
@@ -547,7 +547,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             sut.GameState.CurrentTurn.Winner.Number.Should().Be(playerNumber);
         }
 
-        private void VerifyPlayerPlay(int playerNumber, ActionResult result, int turnNumber, Card discardCard, Card[] hand)
+        private void VerifyPlayerPlay(int playerNumber, CommandExecutionResult result, int turnNumber, Card discardCard, Card[] hand)
         {
             result.IsSuccess.Should().BeTrue();
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(turnNumber);

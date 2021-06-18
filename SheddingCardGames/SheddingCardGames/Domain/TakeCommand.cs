@@ -23,7 +23,7 @@ namespace SheddingCardGames.Domain
             currentTurnBuilder = new CurrentTurnBuilder(crazyEightsRules);
         }
 
-        public override ActionResult IsValid()
+        public override IsValidResult IsValid()
         {
             var validPlays = crazyEightsRules.HasValidPlay(gameState.CurrentCardToMatch,
                 takeContext.ExecutingPlayer.Hand,
@@ -31,12 +31,12 @@ namespace SheddingCardGames.Domain
                 gameState.AnyPlaysOrTakes);
 
             if (validPlays)
-                return new ActionResult(false, ActionResultMessageKey.InvalidTake);
+                return new IsValidResult(false, CommandExecutionResultMessageKey.InvalidTake);
 
             if (gameState.CurrentPlayerToPlayNumber != takeContext.ExecutingPlayer.Number)
-                return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
+                return new IsValidResult(false, CommandExecutionResultMessageKey.NotPlayersTurn);
 
-            return new ActionResult(true, ActionResultMessageKey.Success);
+            return new IsValidResult(true, CommandExecutionResultMessageKey.Success);
         }
 
         public override GameState Execute()

@@ -17,18 +17,18 @@ namespace SheddingCardGames.Domain
             currentTurnBuilder = new CurrentTurnBuilder(crazyEightsRules);
         }
 
-        public override ActionResult IsValid()
+        public override IsValidResult IsValid()
         {
             if (gameState.CurrentPlayerToPlayNumber != selectSuitContext.ExecutingPlayer.Number)
-                return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
+                return new IsValidResult(false, CommandExecutionResultMessageKey.NotPlayersTurn);
 
             if (!gameState.AnyPlaysOrTakes)
-                return new ActionResult(false, ActionResultMessageKey.InvalidPlay);
+                return new IsValidResult(false, CommandExecutionResultMessageKey.InvalidPlay);
 
             if (gameState.CurrentCardToMatch.Rank != 8)
-                return new ActionResult(false, ActionResultMessageKey.InvalidPlay);
+                return new IsValidResult(false, CommandExecutionResultMessageKey.InvalidPlay);
 
-            return new ActionResult(true, ActionResultMessageKey.Success);
+            return new IsValidResult(true, CommandExecutionResultMessageKey.Success);
         }
 
         public override GameState Execute()

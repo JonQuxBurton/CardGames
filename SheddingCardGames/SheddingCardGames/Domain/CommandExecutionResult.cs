@@ -1,15 +1,15 @@
 namespace SheddingCardGames.Domain
 {
-    public class ActionResult
+    public class CommandExecutionResult
     {
-        public ActionResult(bool isSuccess, ActionResultMessageKey messageKey)
+        public CommandExecutionResult(bool isSuccess, CommandExecutionResultMessageKey messageKey)
         {
             IsSuccess = isSuccess;
             MessageKey = messageKey;
         }
 
         public bool IsSuccess { get; }
-        public ActionResultMessageKey MessageKey { get; }
+        public CommandExecutionResultMessageKey MessageKey { get; }
 
         public override string ToString()
         {

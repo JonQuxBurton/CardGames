@@ -22,9 +22,9 @@ namespace SheddingCardGames.Domain
             currentTurnBuilder = new CurrentTurnBuilder(crazyEightsRules);
         }
 
-        public override ActionResult IsValid()
+        public override IsValidResult IsValid()
         {
-            return new ActionResult(true, ActionResultMessageKey.Success);
+            return new IsValidResult(true, CommandExecutionResultMessageKey.Success);
         }
 
         public override GameState Execute()

@@ -20,18 +20,18 @@ namespace SheddingCardGames.Domain
             currentTurnBuilder = new CurrentTurnBuilder(crazyEightsRules);
         }
 
-        public override ActionResult IsValid()
+        public override IsValidResult IsValid()
         {
             if (playContext.ExecutingPlayer.Number != gameState.CurrentPlayerToPlayNumber)
-                return new ActionResult(false, ActionResultMessageKey.NotPlayersTurn);
+                return new IsValidResult(false, CommandExecutionResultMessageKey.NotPlayersTurn);
 
             if (!playContext.ExecutingPlayer.Hand.ContainsAll(playContext.CardsPlayed))
-                return new ActionResult(false, ActionResultMessageKey.CardIsNotInPlayersHand);
+                return new IsValidResult(false, CommandExecutionResultMessageKey.CardIsNotInPlayersHand);
 
             if (!IsValidPlay())
-                return new ActionResult(false, ActionResultMessageKey.InvalidPlay);
+                return new IsValidResult(false, CommandExecutionResultMessageKey.InvalidPlay);
 
-            return new ActionResult(true, ActionResultMessageKey.Success);
+            return new IsValidResult(true, CommandExecutionResultMessageKey.Success);
         }
 
         public override GameState Execute()

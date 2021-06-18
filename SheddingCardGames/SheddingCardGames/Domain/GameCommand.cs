@@ -4,7 +4,7 @@ namespace SheddingCardGames.Domain
 {
     public abstract class GameCommand
     {
-        public abstract ActionResult IsValid();
+        public abstract IsValidResult IsValid();
         public abstract GameState Execute();
     }
 }

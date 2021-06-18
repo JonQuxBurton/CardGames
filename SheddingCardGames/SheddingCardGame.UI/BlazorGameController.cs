@@ -104,7 +104,7 @@ namespace SheddingCardGame.UI
             else
             {
                 var errorMessage = actionResultMessageMapper.ToString(actionResult.MessageKey);
-                if (actionResult.MessageKey == ActionResultMessageKey.InvalidPlay)
+                if (actionResult.MessageKey == CommandExecutionResultMessageKey.InvalidPlay)
                     errorMessage = errorMessage.Replace("{Cards}", string.Join(", ", cardsToPlay.Select(x => x.Card)));
 
                 UiState.HasError = true;
@@ -141,7 +141,7 @@ namespace SheddingCardGame.UI
             isProcessing = false;
         }
 
-        public ActionResult Take()
+        public CommandExecutionResult Take()
         {
             isProcessing = true;
 

@@ -99,8 +99,8 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.IsValid();
 
-                actual.IsSuccess.Should().BeTrue();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.Success);
+                actual.IsValid.Should().BeTrue();
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.Success);
             }
 
             [Fact]
@@ -114,8 +114,8 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.IsValid();
 
-                actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.CardIsNotInPlayersHand);
+                actual.IsValid.Should().BeFalse();
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.CardIsNotInPlayersHand);
             }
 
             [Fact]
@@ -138,8 +138,8 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.IsValid();
 
-                actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.NotPlayersTurn);
+                actual.IsValid.Should().BeFalse();
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.NotPlayersTurn);
             }
 
             [Fact]
@@ -157,8 +157,8 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.IsValid();
 
-                actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.InvalidPlay);
+                actual.IsValid.Should().BeFalse();
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.InvalidPlay);
             }
 
             [Fact]
@@ -176,7 +176,7 @@ namespace SheddingCardGames.Tests.Domain
                     .Build(cardPlayed);
 
                 var actual = sut.IsValid();
-                actual.IsSuccess.Should().BeTrue();
+                actual.IsValid.Should().BeTrue();
             }
 
             [Fact]
@@ -194,7 +194,7 @@ namespace SheddingCardGames.Tests.Domain
                     .Build(playedCards);
 
                 var actual = sut.IsValid();
-                actual.IsSuccess.Should().BeTrue();
+                actual.IsValid.Should().BeTrue();
             }
 
             [Fact]
@@ -215,7 +215,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.IsValid();
 
-                actual.IsSuccess.Should().BeFalse();
+                actual.IsValid.Should().BeFalse();
             }
 
             [Fact]
@@ -234,7 +234,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.IsValid();
 
-                actual.IsSuccess.Should().BeTrue();
+                actual.IsValid.Should().BeTrue();
             }
 
             [Fact]
@@ -252,7 +252,7 @@ namespace SheddingCardGames.Tests.Domain
                     .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
-                actual.IsSuccess.Should().BeTrue();
+                actual.IsValid.Should().BeTrue();
             }
 
             [Fact]
@@ -270,8 +270,8 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.IsValid();
 
-                actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.InvalidPlay);
+                actual.IsValid.Should().BeFalse();
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.InvalidPlay);
             }
         }
         
@@ -300,8 +300,8 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.IsValid();
 
-                actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.CardIsNotInPlayersHand);
+                actual.IsValid.Should().BeFalse();
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.CardIsNotInPlayersHand);
             }
             
             [Theory]
@@ -323,14 +323,13 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.IsValid();
 
-                actual.IsSuccess.Should().BeFalse();
-                actual.MessageKey.Should().Be(ActionResultMessageKey.InvalidPlay);
+                actual.IsValid.Should().BeFalse();
+                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.InvalidPlay);
             }
 
             [Theory]
             [InlineData("1|Clubs", "1|Diamonds")]
             [InlineData("1|Clubs", "1|Diamonds", "1|Hearts")]
-            [InlineData("1|Clubs", "1|Diamonds", "1|Hearts", "1|Spades")]
             [InlineData("10|Spades", "10|Clubs")]
             public void ReturnIsSuccessTrue_ForValidPlayWithMatchingRank(params string[] playedCardsData)
             {
@@ -346,7 +345,7 @@ namespace SheddingCardGames.Tests.Domain
                     .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
-                actual.IsSuccess.Should().BeTrue();
+                actual.IsValid.Should().BeTrue();
             }
             
             [Theory]
@@ -367,7 +366,7 @@ namespace SheddingCardGames.Tests.Domain
                     .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
-                actual.IsSuccess.Should().BeTrue();
+                actual.IsValid.Should().BeTrue();
             }
 
             [Theory]
@@ -390,7 +389,7 @@ namespace SheddingCardGames.Tests.Domain
                     .Build(cardsPlayed);
 
                 var actual = sut.IsValid();
-                actual.IsSuccess.Should().BeFalse();
+                actual.IsValid.Should().BeFalse();
             }
         }
 

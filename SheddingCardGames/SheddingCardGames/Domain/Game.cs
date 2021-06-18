@@ -32,43 +32,43 @@ namespace SheddingCardGames.Domain
             GameState = initialGameState;
         }
 
-        public ActionResult ChooseStartingPlayer(ChooseStartingPlayerContext chooseStartingPlayerContext)
+        public CommandExecutionResult ChooseStartingPlayer(ChooseStartingPlayerContext chooseStartingPlayerContext)
         {
             return ProcessCommand(chooseStartingPlayerContext);
         }
 
-        public ActionResult Deal(DealContext dealContext)
+        public CommandExecutionResult Deal(DealContext dealContext)
         {
             return ProcessCommand(dealContext);
         }
 
-        public ActionResult Play(PlayContext playContext)
+        public CommandExecutionResult Play(PlayContext playContext)
         {
             return ProcessCommand(playContext);
         }
 
-        public ActionResult SelectSuit(SelectSuitContext selectSuitContext)
+        public CommandExecutionResult SelectSuit(SelectSuitContext selectSuitContext)
         {
             return ProcessCommand(selectSuitContext);
         }
 
-        public ActionResult Take(TakeContext takeContext)
+        public CommandExecutionResult Take(TakeContext takeContext)
         {
             return ProcessCommand(takeContext);
         }
 
-        private ActionResult ProcessCommand(ICommandContext commandContext)
+        private CommandExecutionResult ProcessCommand(ICommandContext commandContext)
         {
             var command = Variant.CommandFactory.Create(GameState, commandContext);
 
             var isValidResult = command.IsValid();
 
-            if (!isValidResult.IsSuccess)
-                return isValidResult;
+            if (!isValidResult.IsValid)
+                return new CommandExecutionResult(isValidResult.IsValid, isValidResult.MessageKey);
 
             GameState = command.Execute();
 
-            return isValidResult;
+            return new CommandExecutionResult(isValidResult.IsValid, isValidResult.MessageKey);
         }
     }
 }
