@@ -42,21 +42,30 @@ namespace SheddingCardGames.Domain
                 playContext.CardsPlayed.ToArray()));
 
             if (HasWon())
-            {
-                gameState.CurrentTurn = currentTurnBuilder.BuildWinningTurn(gameState, playContext.ExecutingPlayer);
-                gameState.AddEvent(new RoundWon(gameState.NextEventNumber, playContext.ExecutingPlayer.Number));
-            }
-            else if (playContext.CardsPlayed.First().Rank == 8)
-            {
-                gameState.CurrentTurn = currentTurnBuilder.BuildCrazyEightTurn(gameState);
-            }
+                Won();
+            else if (crazyEightsRules.IsAlwaysValidCard(playContext.CardsPlayed.First()))
+                PlayedAlwaysValidCard();
             else
-            {
-                gameState.CurrentTurn = currentTurnBuilder.BuildNextTurn(gameState, gameState.NextPlayer);
-                gameState.AddEvent(new TurnEnded(gameState.NextEventNumber, playContext.ExecutingPlayer.Number));
-            }
+                TurnEnded();
 
             return gameState;
+        }
+
+        private void TurnEnded()
+        {
+            gameState.CurrentTurn = currentTurnBuilder.BuildNextTurn(gameState, gameState.NextPlayer);
+            gameState.AddEvent(new TurnEnded(gameState.NextEventNumber, playContext.ExecutingPlayer.Number));
+        }
+
+        private void PlayedAlwaysValidCard()
+        {
+            gameState.CurrentTurn = currentTurnBuilder.BuildCrazyEightTurn(gameState);
+        }
+
+        private void Won()
+        {
+            gameState.CurrentTurn = currentTurnBuilder.BuildWinningTurn(gameState, playContext.ExecutingPlayer);
+            gameState.AddEvent(new RoundWon(gameState.NextEventNumber, playContext.ExecutingPlayer.Number));
         }
 
         private bool IsValidPlay()

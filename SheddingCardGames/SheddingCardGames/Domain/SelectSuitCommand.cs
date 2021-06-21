@@ -5,12 +5,14 @@ namespace SheddingCardGames.Domain
 {
     public class SelectSuitCommand : GameCommand
     {
+        private readonly CrazyEightsRules crazyEightsRules;
         private readonly GameState gameState;
         private readonly SelectSuitContext selectSuitContext;
         private readonly CurrentTurnBuilder currentTurnBuilder;
 
         public SelectSuitCommand(CrazyEightsRules crazyEightsRules, GameState gameState, SelectSuitContext selectSuitContext)
         {
+            this.crazyEightsRules = crazyEightsRules;
             this.gameState = gameState;
             this.selectSuitContext = selectSuitContext;
 
@@ -25,7 +27,7 @@ namespace SheddingCardGames.Domain
             if (!gameState.AnyPlaysOrTakes)
                 return new IsValidResult(false, CommandExecutionResultMessageKey.InvalidPlay);
 
-            if (gameState.CurrentCardToMatch.Rank != 8)
+            if (!crazyEightsRules.IsAlwaysValidCard(gameState.CurrentCardToMatch))
                 return new IsValidResult(false, CommandExecutionResultMessageKey.InvalidPlay);
 
             return new IsValidResult(true, CommandExecutionResultMessageKey.Success);

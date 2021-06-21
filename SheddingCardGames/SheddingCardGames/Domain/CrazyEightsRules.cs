@@ -30,9 +30,14 @@ namespace SheddingCardGames.Domain
                    AreRestOfCardsValid(isValidPlayContext);
         }
 
-        private static bool IsFirstCardValid(IsValidPlayContext isValidPlayContext)
+        public bool IsAlwaysValidCard(Card card)
         {
-            if (!isValidPlayContext.AnyPlaysOrTakes && isValidPlayContext.DiscardCard.Rank == 8)
+            return card.Rank == 8;
+        }
+
+        private bool IsFirstCardValid(IsValidPlayContext isValidPlayContext)
+        {
+            if (!isValidPlayContext.AnyPlaysOrTakes && IsAlwaysValidCard(isValidPlayContext.DiscardCard))
                 return true;
 
             return IsCardValid(isValidPlayContext.FirstCardPlayed, 
@@ -53,9 +58,9 @@ namespace SheddingCardGames.Domain
             return 5;
         }
 
-        private static bool IsCardValid(Card cardPlayed, IsValidPlayContext isValidPlayContext)
+        private bool IsCardValid(Card cardPlayed, IsValidPlayContext isValidPlayContext)
         {
-            if (cardPlayed.Rank == 8)
+            if (IsAlwaysValidCard(cardPlayed))
                 return true;
 
             if (isValidPlayContext.DiscardCard.Rank == cardPlayed.Rank)
