@@ -17,7 +17,7 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var sampleData = new SampleData();
                 var initialGameState = new GameState(Players(sampleData.Player1, sampleData.Player2));
-                var sut = new ChooseStartingPlayerCommand(initialGameState, new ChooseStartingPlayerContext(sampleData.Player1));
+                var sut = new ChooseStartingPlayerCommand(new DummyPlayerChooser(), initialGameState, new ChooseStartingPlayerContext());
 
                 var actual = sut.IsValid();
 
@@ -36,7 +36,8 @@ namespace SheddingCardGames.Tests.Domain
                 var sampleData = new SampleData();
                 expectedPlayer = sampleData.Player2;
                 var initialGameState = new GameState(Players(sampleData.Player1, sampleData.Player2));
-                var sut = new ChooseStartingPlayerCommand(initialGameState, new ChooseStartingPlayerContext(expectedPlayer));
+                var dummyPlayerChooser = new DummyPlayerChooser(expectedPlayer);
+                var sut = new ChooseStartingPlayerCommand(dummyPlayerChooser, initialGameState, new ChooseStartingPlayerContext());
 
                 actual = sut.Execute();
             }

@@ -44,9 +44,9 @@ namespace SheddingCardGames.Tests.EndToEnd
             IDeckBuilder deckBuilder = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand);
             var deck = deckBuilder.Build();
 
-            sut = CreateSut(player1, player2, deck);
+            sut = CreateSut(player1, new []{ player1, player2 }, deck);
             
-            sut.ChooseStartingPlayer(new ChooseStartingPlayerContext(player1));
+            sut.ChooseStartingPlayer(new ChooseStartingPlayerContext());
             sut.Deal(new DealContext(deck));
 
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(1);
@@ -253,9 +253,9 @@ namespace SheddingCardGames.Tests.EndToEnd
             IDeckBuilder deckBuilder = new SpecificDeckBuilder(discardCard, stockPile, player1Hand, player2Hand);
             var deck = deckBuilder.Build();
 
-            sut = CreateSut(player1, player2, deck);
+            sut = CreateSut(player2, new [] { player1, player2 }, deck);
             
-            sut.ChooseStartingPlayer(new ChooseStartingPlayerContext(player2));
+            sut.ChooseStartingPlayer(new ChooseStartingPlayerContext());
             sut.Deal(new DealContext(deck));
 
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(1);
@@ -411,10 +411,11 @@ namespace SheddingCardGames.Tests.EndToEnd
             var players = new[] { player1, player2, player3 };
             var rules = new BasicVariantRules(NumberOfPlayers.Three);
             var shuffler = new DummyShuffler();
+            var randomPlayerChooser = new DummyPlayerChooser(player3);
 
-            sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), players);
+            sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler, randomPlayerChooser)), players);
             
-            sut.ChooseStartingPlayer(new ChooseStartingPlayerContext(player3));
+            sut.ChooseStartingPlayer(new ChooseStartingPlayerContext());
             sut.Deal(new DealContext(deck));
 
             sut.GameState.CurrentTurn.TurnNumber.Should().Be(1);
@@ -518,13 +519,13 @@ namespace SheddingCardGames.Tests.EndToEnd
             VerifyPlayerWon(3, result, 13, Card(9, Spades));
         }
 
-        private Game CreateSut(Player player1, Player player2, CardCollection deck)
+        private Game CreateSut(Player startingPlayer, Player[] players, CardCollection deck)
         {
-            var players = new[] {player1, player2};
             var rules = new BasicVariantRules(NumberOfPlayers.Two);
             var shuffler = new DummyShuffler();
+            var dummyPlayerChooser = new DummyPlayerChooser(startingPlayer);
 
-            return new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler)), players);
+            return new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler, dummyPlayerChooser)), players);
         }
 
         private void VerifyPlayerTake(int playerNumber, CommandExecutionResult takeResult, int turnNumber,

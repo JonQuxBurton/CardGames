@@ -21,7 +21,7 @@ namespace SheddingCardGames.Tests.Domain
             public CreateShould()
             {
                 sampleData = new SampleData();
-                sut = new BasicVariantCommandFactory(new BasicVariantRules(NumberOfPlayers.Two), new DummyShuffler());
+                sut = new BasicVariantCommandFactory(new BasicVariantRules(NumberOfPlayers.Two), new DummyShuffler(), new RandomPlayerChooser());
                 var players = Players(sampleData.Player1, sampleData.Player2);
                 gameState = new GameState(players);
             }
@@ -29,7 +29,7 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnChooseStartingPlayerCommand()
             {
-                var actual = sut.Create(gameState, new ChooseStartingPlayerContext(sampleData.Player1));
+                var actual = sut.Create(gameState, new ChooseStartingPlayerContext());
 
                 actual.Should().BeOfType<ChooseStartingPlayerCommand>();
             }

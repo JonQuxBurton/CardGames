@@ -10,7 +10,6 @@ namespace SheddingCardGames.Tests.Domain
         private CardCollection player1Hand = new CardCollection();
         private CardCollection player2Hand = new CardCollection();
         private CardCollection player3Hand = new CardCollection();
-        private int startingPlayerNumber = 1;
 
         public ReadyToDealGameBuilder(Game game)
         {
@@ -43,12 +42,6 @@ namespace SheddingCardGames.Tests.Domain
             return this;
         }
 
-        public ReadyToDealGameBuilder WithStartingPlayer(int withPlayerNumber)
-        {
-            startingPlayerNumber = withPlayerNumber;
-            return this;
-        }
-
         public Game Build()
         {
             game.GetPlayer(1).Hand = player1Hand;
@@ -57,7 +50,7 @@ namespace SheddingCardGames.Tests.Domain
             if (numberOfPlayers > 2)
                 game.GetPlayer(3).Hand = player3Hand;
 
-            game.ChooseStartingPlayer(new ChooseStartingPlayerContext(game.GetPlayer(startingPlayerNumber)));
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext());
 
             return game;
         }

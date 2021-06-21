@@ -7,7 +7,6 @@ using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
-using static SheddingCardGames.Domain.BasicVariantRules;
 using static SheddingCardGames.Domain.CrazyEightsRules;
 using static SheddingCardGames.Domain.PlayersUtils;
 using static SheddingCardGames.Domain.Suit;
@@ -23,8 +22,9 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var sampleData = new SampleData();
                 var rules = new BasicVariantRules(NumberOfPlayers.Two);
-                
-                var sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new [] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
+                var randomPlayerChooser = new DummyPlayerChooser();
+
+                var sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler(), randomPlayerChooser)), new [] { sampleData.Player1, sampleData.Player2, sampleData.Player3 });
 
                 sut.GameState.CurrentTurn.Should().BeNull();
                 sut.GameState.CurrentGamePhase.Should().Be(GamePhase.New);
@@ -41,8 +41,9 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var sampleData1 = new SampleData();
                 var rules = new BasicVariantRules(NumberOfPlayers.Two);
+                var randomPlayerChooser = new DummyPlayerChooser();
                 players = Players(sampleData1.Player1, sampleData1.Player2);
-                sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())),
+                sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler(), randomPlayerChooser)),
                     players.ToArray());
             }
 
@@ -59,25 +60,31 @@ namespace SheddingCardGames.Tests.Domain
         
         public class ChooseStartingPlayerShould
         {
-            private readonly Game sut;
             private readonly Player player1;
             private readonly Player player2;
+            private readonly Player player3;
 
             public ChooseStartingPlayerShould()
             {
                 var sampleData = new SampleData();
                 player1 = sampleData.Player1;
                 player2 = sampleData.Player2;
-                var player3 = sampleData.Player3;
+                player3 = sampleData.Player3;
+            }
 
+            private Game CreateSut(Player startingPlayer)
+            {
                 var rules = new BasicVariantRules(NumberOfPlayers.Two);
-                sut = new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler())), new[] { player1, player2, player3 });
+                var randomPlayerChooser = new DummyPlayerChooser(startingPlayer);
+                return new Game(new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, new DummyShuffler(), randomPlayerChooser)), new[] { player1, player2, player3 });
             }
 
             [Fact]
             public void ReturnTrueWhenMatchingSuit()
             {
-                var actual = sut.ChooseStartingPlayer(new ChooseStartingPlayerContext(player1));
+                var sut = CreateSut(player1);
+
+                var actual = sut.ChooseStartingPlayer(new ChooseStartingPlayerContext());
 
                 actual.IsSuccess.Should().BeTrue();
                 actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.Success);
@@ -86,7 +93,9 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void CreateStartingPlayerChosenEvent()
             {
-                sut.ChooseStartingPlayer(new ChooseStartingPlayerContext(player2));
+                var sut = CreateSut(player2);
+
+                sut.ChooseStartingPlayer(new ChooseStartingPlayerContext());
 
                 sut.GameState.Events.Last().Number.Should().Be(1);
                 sut.GameState.Events.Last().Should().BeOfType(typeof(StartingPlayerChosen));
@@ -102,7 +111,9 @@ namespace SheddingCardGames.Tests.Domain
             public void SetPlayerToStart(int startingPlayer)
             {
                 var sampleData = new SampleData();
-                sut.ChooseStartingPlayer(new ChooseStartingPlayerContext(sampleData.GetPlayer(startingPlayer)));
+                var sut = CreateSut(sampleData.GetPlayer(startingPlayer));
+
+                sut.ChooseStartingPlayer(new ChooseStartingPlayerContext());
                 
                 sut.GameState.PlayerToStart.Number.Should().Be(startingPlayer);
             }
@@ -110,7 +121,9 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void SetGamePhaseToReadyToDeal1()
             {
-                sut.ChooseStartingPlayer(new ChooseStartingPlayerContext(player1));
+                var sut = CreateSut(player1);
+
+                sut.ChooseStartingPlayer(new ChooseStartingPlayerContext());
                 
                 sut.GameState.CurrentGamePhase.Should().Be(GamePhase.ReadyToDeal);
             }
@@ -288,13 +301,13 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var game = new GameBuilder()
                     .WithNumberOfPlayers(3)
+                    .WithStartingPlayer(expectedStartingPlayer)
                     .Build();
                 var sut = new ReadyToDealGameBuilder(game)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithPlayer3Hand(player3Hand)
                     .WithDiscardCard(discardCard)
-                    .WithStartingPlayer(expectedStartingPlayer)
                     .Build();
 
                 sut.Deal(new DealContext(deck));
@@ -419,9 +432,9 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var game = new GameBuilder()
                     .WithNumberOfPlayers(3)
+                    .WithStartingPlayer(2)
                     .Build();
                 var sut = new ReadyToDealGameBuilder(game)
-                    .WithStartingPlayer(2)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithPlayer3Hand(player3Hand)
@@ -440,9 +453,9 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var game = new GameBuilder()
                     .WithNumberOfPlayers(3)
+                    .WithStartingPlayer(3)
                     .Build();
                 var sut = new ReadyToDealGameBuilder(game)
-                    .WithStartingPlayer(3)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithPlayer3Hand(player3Hand)
@@ -462,9 +475,9 @@ namespace SheddingCardGames.Tests.Domain
                 discardCard = new Card(10, Spades);
                 var game = new GameBuilder()
                     .WithNumberOfPlayers(3)
+                    .WithStartingPlayer(1)
                     .Build();
                 var sut = new ReadyToDealGameBuilder(game)
-                    .WithStartingPlayer(1)
                     .WithDiscardCard(discardCard)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
@@ -1186,9 +1199,9 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var game = new GameBuilder()
                     .WithNumberOfPlayers(3)
+                    .WithStartingPlayer(2)
                     .Build();
                 sut = new AtStartGameBuilder(game)
-                    .WithStartingPlayer(2)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithPlayer3Hand(player3Hand)
@@ -1207,9 +1220,9 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var game = new GameBuilder()
                     .WithNumberOfPlayers(3)
+                    .WithStartingPlayer(3)
                     .Build();
                 sut = new AtStartGameBuilder(game)
-                    .WithStartingPlayer(3)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithPlayer3Hand(player3Hand)
@@ -1571,9 +1584,9 @@ namespace SheddingCardGames.Tests.Domain
                 );
                 var game = new GameBuilder()
                     .WithNumberOfPlayers(3)
+                    .WithStartingPlayer(2)
                     .Build();
                 var sut = new AtStartGameBuilder(game)
-                    .WithStartingPlayer(2)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithPlayer3Hand(player3Hand)
@@ -1596,9 +1609,9 @@ namespace SheddingCardGames.Tests.Domain
                 );
                 var game = new GameBuilder()
                     .WithNumberOfPlayers(3)
+                    .WithStartingPlayer(1)
                     .Build();
                 var sut = new AtStartGameBuilder(game)
-                    .WithStartingPlayer(1)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithPlayer3Hand(player3Hand)
@@ -1621,9 +1634,9 @@ namespace SheddingCardGames.Tests.Domain
                 );
                 var game = new GameBuilder()
                     .WithNumberOfPlayers(3)
+                    .WithStartingPlayer(1)
                     .Build();
                 var sut = new AtStartGameBuilder(game)
-                    .WithStartingPlayer(1)
                     .WithPlayer1Hand(player1Hand)
                     .WithPlayer2Hand(player2Hand)
                     .WithPlayer3Hand(player3Hand)

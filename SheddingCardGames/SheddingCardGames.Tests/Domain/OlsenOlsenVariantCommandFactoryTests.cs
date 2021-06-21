@@ -1,10 +1,11 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using Moq;
 using SheddingCardGames.Domain;
 using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
-using static SheddingCardGames.Domain.OlsenOlsenVariantRules.NumberOfPlayers;
+using static SheddingCardGames.Domain.CrazyEightsRules.NumberOfPlayers;
 using static SheddingCardGames.Domain.PlayersUtils;
 using static SheddingCardGames.Domain.Suit;
 
@@ -23,13 +24,15 @@ namespace SheddingCardGames.Tests.Domain
                 sampleData = new SampleData();
                 var players = Players(sampleData.Player1, sampleData.Player2);
                 gameState = new GameState(players);
-                sut = new OlsenOlsenVariantCommandFactory(new OlsenOlsenVariantRules(Two), new DummyShuffler());
+                var randomPlayerChooser = new DummyPlayerChooser(players.First());
+
+                sut = new OlsenOlsenVariantCommandFactory(new OlsenOlsenVariantRules(Two), new DummyShuffler(), randomPlayerChooser);
             }
 
             [Fact]
             public void ReturnChooseStartingPlayerCommand()
             {
-                var actual = sut.Create(gameState, new ChooseStartingPlayerContext(sampleData.Player1));
+                var actual = sut.Create(gameState, new ChooseStartingPlayerContext());
 
                 actual.Should().BeOfType<ChooseStartingPlayerCommand>();
             }

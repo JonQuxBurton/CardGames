@@ -20,11 +20,7 @@ namespace SheddingCardGame.Cli
             ICrazyEightsGameBuilder gameBuilder = new CrazyEightsGameBuilder();
 
             var game = gameBuilder.Build(new Shuffler(), variantName, numberOfPlayers);
-
-            var random = new Random();
-            var startingPlayer = game.Players[random.Next(numberOfPlayers)];
-            
-            game.ChooseStartingPlayer(new ChooseStartingPlayerContext(startingPlayer));
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext());
 
             return game;
         }
@@ -36,7 +32,7 @@ namespace SheddingCardGame.Cli
             ICrazyEightsGameBuilder gameBuilder = new CrazyEightsGameBuilder();
 
             var game = gameBuilder.Build(new DummyShuffler(), variantName,  numberOfPlayers);
-            game.ChooseStartingPlayer(new ChooseStartingPlayerContext(game.Players.First().Value));
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext());
 
             return game;
         }
@@ -54,7 +50,7 @@ namespace SheddingCardGame.Cli
             ICrazyEightsGameBuilder gameBuilder = new CrazyEightsGameBuilder();
 
             var game = gameBuilder.Build(new DummyShuffler(), variantName, numberOfPlayers);
-            game.ChooseStartingPlayer(new ChooseStartingPlayerContext(game.Players.First().Value));
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext());
 
             return game;
         }

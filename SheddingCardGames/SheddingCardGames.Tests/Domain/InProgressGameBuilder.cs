@@ -7,7 +7,6 @@ namespace SheddingCardGames.Tests.Domain
     public class InProgressGameBuilder
     {
         private readonly Game game;
-        private readonly int startingPlayerNumber = 1;
 
         private Player currentPlayer;
         private CurrentTurn currentTurn;
@@ -83,7 +82,7 @@ namespace SheddingCardGames.Tests.Domain
             if (numberOfPlayers > 2)
                 game.GetPlayer(3).Hand = player3Hand;
 
-            game.ChooseStartingPlayer(new ChooseStartingPlayerContext(game.GetPlayer(startingPlayerNumber)));
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext());
 
             Table expectedTable;
             IImmutableList<Player> players;

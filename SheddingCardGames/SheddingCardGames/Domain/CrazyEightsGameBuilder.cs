@@ -24,17 +24,18 @@ namespace SheddingCardGames.Domain
             }
 
             CrazyEightsRules rules;
+            var randomPlayerChooser = new RandomPlayerChooser();
 
             Variant variant;
             if (variantNameName == VariantName.OlsenOlsen)
             {
                 rules = new OlsenOlsenVariantRules(numberOfPlayersValue);
-                variant = new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler));
+                variant = new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler, randomPlayerChooser));
             }
             else
             {
                 rules = new BasicVariantRules(numberOfPlayersValue);
-                variant = new Variant(VariantName.Basic, new BasicVariantCommandFactory(rules, shuffler));
+                variant = new Variant(VariantName.Basic, new BasicVariantCommandFactory(rules, shuffler, randomPlayerChooser));
             }
 
             var game = new Game(variant, players.ToArray());

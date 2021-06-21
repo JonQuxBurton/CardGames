@@ -6,17 +6,19 @@ namespace SheddingCardGames.Domain
     {
         private readonly CrazyEightsRules crazyEightsRules;
         private readonly IShuffler shuffler;
+        private readonly IRandomPlayerChooser randomPlayerChooser;
 
-        public OlsenOlsenVariantCommandFactory(CrazyEightsRules crazyEightsRules, IShuffler shuffler)
+        public OlsenOlsenVariantCommandFactory(CrazyEightsRules crazyEightsRules, IShuffler shuffler, IRandomPlayerChooser randomPlayerChooser)
         {
             this.crazyEightsRules = crazyEightsRules;
             this.shuffler = shuffler;
+            this.randomPlayerChooser = randomPlayerChooser;
         }
 
         public GameCommand Create(GameState gameState, ICommandContext context)
         {
             if (context is ChooseStartingPlayerContext chooseStartingPlayerContext)
-                return new ChooseStartingPlayerCommand(gameState, chooseStartingPlayerContext);
+                return new ChooseStartingPlayerCommand(randomPlayerChooser, gameState, chooseStartingPlayerContext);
 
             if (context is DealContext dealContext)
                 return new DealCommand(crazyEightsRules, shuffler, gameState, dealContext);

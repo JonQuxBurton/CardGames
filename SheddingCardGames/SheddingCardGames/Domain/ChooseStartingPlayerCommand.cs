@@ -5,11 +5,13 @@ namespace SheddingCardGames.Domain
 {
     public class ChooseStartingPlayerCommand : GameCommand
     {
+        private readonly IRandomPlayerChooser randomPlayerChooser;
         private readonly GameState gameState;
         private readonly ChooseStartingPlayerContext chooseStartingPlayerContext;
 
-        public ChooseStartingPlayerCommand(GameState gameState, ChooseStartingPlayerContext chooseStartingPlayerContext)
+        public ChooseStartingPlayerCommand(IRandomPlayerChooser randomPlayerChooser, GameState gameState, ChooseStartingPlayerContext chooseStartingPlayerContext)
         {
+            this.randomPlayerChooser = randomPlayerChooser;
             this.gameState = gameState;
             this.chooseStartingPlayerContext = chooseStartingPlayerContext;
         }
@@ -21,9 +23,10 @@ namespace SheddingCardGames.Domain
 
         public override GameState Execute()
         {
-            gameState.PlayerToStart = chooseStartingPlayerContext.ChosenPlayer;
+            var chosenPlayer = randomPlayerChooser.ChoosePlayer(gameState.Players);
+            gameState.PlayerToStart = chosenPlayer;
             gameState.CurrentGamePhase = GamePhase.ReadyToDeal;
-            gameState.AddEvent(new StartingPlayerChosen(1, chooseStartingPlayerContext.ChosenPlayer));
+            gameState.AddEvent(new StartingPlayerChosen(1, chosenPlayer));
 
             return gameState;
         }

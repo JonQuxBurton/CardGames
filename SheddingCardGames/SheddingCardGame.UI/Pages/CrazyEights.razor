@@ -56,9 +56,7 @@
             var game = new CrazyEightsGameBuilder().Build(new Shuffler(), VariantName.OlsenOlsen, numberOfPlayers);
             //var game = new SpecificGameBuilder(). Build(deck);
 
-            var random = new Random();
-            var startingPlayer = game.Players[random.Next(1, numberOfPlayers + 1)];
-            game.ChooseStartingPlayer(new ChooseStartingPlayerContext(startingPlayer));
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext());
 
             config = new Config();
             var inGameUiBuilder = new InGameUiBuilder(config, context, cardsSpriteSheet);

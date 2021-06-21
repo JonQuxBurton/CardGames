@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Linq;
 using SheddingCardGames.Domain;
 
 namespace SheddingCardGames.UiLogic
@@ -7,15 +7,16 @@ namespace SheddingCardGames.UiLogic
     {
         public Game Build()
         {
-            var players = new[] {new Player(1, "Alice"), new Player(2,"Bob")};
-            var rules = new BasicVariantRules(BasicVariantRules.NumberOfPlayers.Two);
+            var players = new[] {new Player(1, "Alice"), new Player(2, "Bob")};
+            var rules = new BasicVariantRules(CrazyEightsRules.NumberOfPlayers.Two);
             var shuffler = new DummyShuffler();
-            var variant = new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(rules, shuffler));
+            var randomPlayerChooser = new DummyPlayerChooser(players.First());
+
+            var variant = new Variant(VariantName.OlsenOlsen,
+                new OlsenOlsenVariantCommandFactory(rules, shuffler, randomPlayerChooser));
             var game = new Game(variant, players);
 
-            var random = new Random();
-            var firstPlayer = players[random.Next(2)];
-            game.ChooseStartingPlayer(new ChooseStartingPlayerContext(firstPlayer));
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext());
 
             return game;
         }
