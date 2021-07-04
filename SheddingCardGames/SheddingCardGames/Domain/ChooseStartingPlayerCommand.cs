@@ -18,7 +18,7 @@ namespace SheddingCardGames.Domain
 
         public override IsValidResult IsValid()
         {
-            return new IsValidResult(true, CommandExecutionResultMessageKey.Success);
+            return new IsValidResult(true, CommandIsValidResultMessageKey.Success);
         }
 
         public override GameState Execute()

@@ -24,6 +24,7 @@ namespace SheddingCardGames.Tests.Domain
             private readonly int turnNumber = 1;
             private Suit? selectedSuit;
             private IImmutableList<Action> previousActions = ImmutableList.Create<Action>();
+            private int? winnerPlayerNumber = null;
 
             public PlaySingleCommandBuilder WithExecutingPlayer(int withExecutingPlayerNumber)
             {
@@ -56,6 +57,12 @@ namespace SheddingCardGames.Tests.Domain
                 return this;
             }
 
+            public PlaySingleCommandBuilder WithWinner(int withWinnerPlayerNumber)
+            {
+                winnerPlayerNumber = withWinnerPlayerNumber;
+                return this;
+            }
+
             public PlaySingleCommand Build(ImmutableList<Card> playedCards)
             {
                 var sampleData = new SampleData();
@@ -68,6 +75,11 @@ namespace SheddingCardGames.Tests.Domain
                 if (executingPlayerNumber == 2)
                     executingPlayer = player2;
 
+                Player winner = null;
+
+                if (winnerPlayerNumber.HasValue)
+                    winner = sampleData.GetPlayer(winnerPlayerNumber.Value);
+
                 discardPile.TurnUpTopCard();
                 var players = Players(sampleData.Player1, sampleData.Player2);
                 var table = TableCreator.Create(new StockPile(new CardCollection()), discardPile, players);
@@ -75,7 +87,7 @@ namespace SheddingCardGames.Tests.Domain
                 {
                     CurrentTable = table,
                     PlayerToStart = player1,
-                    CurrentTurn = new CurrentTurn(turnNumber, currentPlayer, Action.Play, null, selectedSuit, null, previousActions)
+                    CurrentTurn = new CurrentTurn(turnNumber, currentPlayer, Action.Play, null, selectedSuit, winner, previousActions)
                 };
 
                 return new PlaySingleCommand(new BasicVariantRules(Two), gameState,
@@ -86,7 +98,7 @@ namespace SheddingCardGames.Tests.Domain
         public class IsValidShould
         {
             [Fact]
-            public void ReturnIsSuccessTrue_WhenCardPlayedValid()
+            public void ReturnIsValidTrue_WhenCardPlayedValid()
             {
                 var cardsPlayed = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection(cardsPlayed);
@@ -103,11 +115,11 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.IsValid();
 
                 actual.IsValid.Should().BeTrue();
-                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.Success);
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.Success);
             }
 
             [Fact]
-            public void ReturnIsSuccessFalse_WhenCardPlayedIsNotInPlayersHand()
+            public void ReturnIsValidFalse_WhenCardPlayedIsNotInPlayersHand()
             {
                 var cardsPlayed = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection();
@@ -120,11 +132,11 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.IsValid();
 
                 actual.IsValid.Should().BeFalse();
-                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.CardIsNotInPlayersHand);
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.CardIsNotInPlayersHand);
             }
 
             [Fact]
-            public void ReturnIsSuccessFalse_WhenPlayedCardIsNotInPlayersHand()
+            public void ReturnIsValidFalse_WhenPlayedCardIsNotInPlayersHand()
             {
                 var cardsPlayed = Cards(Card(2, Hearts));
                 var player1Hand = new CardCollection(
@@ -144,11 +156,11 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.IsValid();
 
                 actual.IsValid.Should().BeFalse();
-                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.CardIsNotInPlayersHand);
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.CardIsNotInPlayersHand);
             }
 
             [Fact]
-            public void ReturnIsSuccessFalse_WhenNotPlayersTurn()
+            public void ReturnIsValidFalse_WhenNotPlayersTurn()
             {
                 var cardsPlayed = Cards(Card(1, Clubs));
                 var discardPile = new DiscardPile(
@@ -168,11 +180,11 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.IsValid();
 
                 actual.IsValid.Should().BeFalse();
-                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.NotPlayersTurn);
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.NotPlayersTurn);
             }
 
             [Fact]
-            public void ReturnIsSuccessFalse_WhenPlayIsInvalid()
+            public void ReturnIsValidFalse_WhenPlayIsInvalid()
             {
                 var cardsPlayed = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection(cardsPlayed);
@@ -189,11 +201,11 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.IsValid();
 
                 actual.IsValid.Should().BeFalse();
-                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.InvalidPlay);
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.InvalidPlay);
             }
 
             [Fact]
-            public void ReturnIsSuccessTrue_WhenCardPlayedHasMatchingSuit()
+            public void ReturnIsValidTrue_WhenCardPlayedHasMatchingSuit()
             {
                 var cardPlayed = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection(cardPlayed);
@@ -213,7 +225,7 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnIsSuccessTrue_WhenCardPlayed_AndSelectedSuit_AndHasMatchingSuit()
+            public void ReturnIsValidTrue_WhenCardPlayed_AndSelectedSuit_AndHasMatchingSuit()
             {
                 var playedCards = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection(playedCards);
@@ -233,7 +245,7 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnIsSuccessFalse_WhenCardPlayed_AndSelectedSuit_ButDoesNotMatchSuit()
+            public void ReturnIsValidFalse_WhenCardPlayed_AndSelectedSuit_ButDoesNotMatchSuit()
             {
                 var selectedSuit = Hearts;
                 var playedCards = Cards(Card(1, Clubs));
@@ -256,7 +268,7 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnIsSuccessTrue_WhenCardPlayed_WithMatchingRank()
+            public void ReturnIsValidTrue_WhenCardPlayed_WithMatchingRank()
             {
                 var cardsPlayed = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection(cardsPlayed);
@@ -276,7 +288,7 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnIsSuccessTrue_WhenCardPlayed_AndHasRankEight()
+            public void ReturnIsValidTrue_WhenCardPlayed_AndHasRankEight()
             {
                 var cardsPlayed = Cards(Card(8, Clubs));
                 var player1Hand = new CardCollection(cardsPlayed);
@@ -297,7 +309,7 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnIsSuccessTrue_WhenInitialDiscardCardIsEight()
+            public void ReturnIsValidTrue_WhenInitialDiscardCardIsEight()
             {
                 var cardsPlayed = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection(cardsPlayed);
@@ -317,7 +329,7 @@ namespace SheddingCardGames.Tests.Domain
             }
 
             [Fact]
-            public void ReturnIsSuccessFalse_WhenInitialDiscardCardIsNotEight()
+            public void ReturnIsValidFalse_WhenInitialDiscardCardIsNotEight()
             {
                 var cardsPlayed = Cards(Card(1, Clubs));
                 var player1Hand = new CardCollection(cardsPlayed);
@@ -334,11 +346,11 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.IsValid();
 
                 actual.IsValid.Should().BeFalse();
-                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.InvalidPlay);
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.InvalidPlay);
             }
 
             [Fact]
-            public void ReturnIsSuccessFalse_WhenMultipleCardsPlayed()
+            public void ReturnIsValidFalse_WhenMultipleCardsPlayed()
             {
                 var cardsPlayed = Cards(Card(1, Clubs), Card(2, Clubs));
                 var player1Hand = new CardCollection(cardsPlayed);
@@ -355,7 +367,29 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.IsValid();
 
                 actual.IsValid.Should().BeFalse();
-                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.InvalidPlay);
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.InvalidPlay);
+            }
+
+            [Fact]
+            public void ReturnIsValidFalse_WhenGameHasBeenWon()
+            {
+                var cardsPlayed = Cards(Card(1, Clubs));
+                var player1Hand = new CardCollection(cardsPlayed);
+                var player2Hand = new CardCollection();
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(2, Clubs)
+                ));
+                var sut = new PlaySingleCommandBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithPlayer2Hand(player2Hand)
+                    .WithDiscardPile(discardPile)
+                    .WithWinner(1)
+                    .Build(cardsPlayed);
+
+                var actual = sut.IsValid();
+
+                actual.IsValid.Should().BeFalse();
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.GameCompleted);
             }
         }
 

@@ -22,16 +22,19 @@ namespace SheddingCardGames.Domain
 
         public override IsValidResult IsValid()
         {
+            if (gameState.CurrentTurn.HasWinner)
+                return new IsValidResult(false, CommandIsValidResultMessageKey.GameCompleted);
+
             if (playContext.ExecutingPlayer.Number != gameState.CurrentPlayerToPlayNumber)
-                return new IsValidResult(false, CommandExecutionResultMessageKey.NotPlayersTurn);
+                return new IsValidResult(false, CommandIsValidResultMessageKey.NotPlayersTurn);
 
             if (!playContext.ExecutingPlayer.Hand.ContainsAll(playContext.CardsPlayed))
-                return new IsValidResult(false, CommandExecutionResultMessageKey.CardIsNotInPlayersHand);
+                return new IsValidResult(false, CommandIsValidResultMessageKey.CardIsNotInPlayersHand);
 
             if (!IsValidPlay())
-                return new IsValidResult(false, CommandExecutionResultMessageKey.InvalidPlay);
+                return new IsValidResult(false, CommandIsValidResultMessageKey.InvalidPlay);
 
-            return new IsValidResult(true, CommandExecutionResultMessageKey.Success);
+            return new IsValidResult(true, CommandIsValidResultMessageKey.Success);
         }
 
         public override GameState Execute()

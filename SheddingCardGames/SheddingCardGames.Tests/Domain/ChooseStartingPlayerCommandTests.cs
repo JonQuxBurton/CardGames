@@ -22,7 +22,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.IsValid();
 
                 actual.IsValid.Should().BeTrue();
-                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.Success);
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.Success);
             }
         }
 

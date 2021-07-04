@@ -1,11 +1,12 @@
 namespace SheddingCardGames.Domain
 {
-    public enum CommandExecutionResultMessageKey
+    public enum CommandIsValidResultMessageKey
     {
         Success,
         CardIsNotInPlayersHand,
         NotPlayersTurn,
         InvalidPlay,
-        InvalidTake
+        InvalidTake,
+        GameCompleted
     }
 }

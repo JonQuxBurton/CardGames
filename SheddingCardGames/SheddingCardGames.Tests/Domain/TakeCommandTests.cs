@@ -26,6 +26,7 @@ namespace SheddingCardGames.Tests.Domain
             private CrazyEightsRules rules = new BasicVariantRules(NumberOfPlayers.Two);
             private Suit? selectedSuit;
             private CardCollection stockPile = new CardCollection();
+            private int? winnerPlayerNumber = null;
 
             public TakeCommandBuilder WithExecutingPlayer(int withExecutingPlayerNumber)
             {
@@ -75,6 +76,12 @@ namespace SheddingCardGames.Tests.Domain
                 return this;
             }
 
+            public TakeCommandBuilder WithWinner(int withWinnerPlayerNumber)
+            {
+                winnerPlayerNumber = withWinnerPlayerNumber;
+                return this;
+            }
+
             public TakeCommand Build()
             {
                 var sampleData = new SampleData();
@@ -82,6 +89,11 @@ namespace SheddingCardGames.Tests.Domain
                 player1.Hand = player1Hand;
                 var player2 = sampleData.Player2;
                 player2.Hand = player2Hand;
+
+                Player winner = null;
+
+                if (winnerPlayerNumber.HasValue)
+                    winner = sampleData.GetPlayer(winnerPlayerNumber.Value);
 
                 var playerToPlay = player1;
                 if (playerToPlayNumber == 2)
@@ -98,7 +110,7 @@ namespace SheddingCardGames.Tests.Domain
                 {
                     CurrentTable = table,
                     PlayerToStart = player1,
-                    CurrentTurn = new CurrentTurn(turnNumber, playerToPlay, Action.Play, null, selectedSuit)
+                    CurrentTurn = new CurrentTurn(turnNumber, playerToPlay, Action.Play, null, selectedSuit, winner)
                 };
 
                 return new TakeCommand(rules, new DummyShuffler(), gameState, new TakeContext(executingPlayer));
@@ -108,7 +120,7 @@ namespace SheddingCardGames.Tests.Domain
         public class IsValidShould
         {
             [Fact]
-            public void ReturnIsSuccessTrueWhenNoValidPlays()
+            public void ReturnIsValidTrueWhenNoValidPlays()
             {
                 var player1Hand = new CardCollection(Card(1, Clubs));
                 var discardPile = new DiscardPile(new CardCollection(
@@ -122,11 +134,11 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.IsValid();
 
                 actual.IsValid.Should().BeTrue();
-                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.Success);
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.Success);
             }
 
             [Fact]
-            public void ReturnIsSuccessFalseWhenValidPlays()
+            public void ReturnIsValidFalseWhenValidPlays()
             {
                 var player1Hand = new CardCollection(Card(1, Clubs));
                 var discardPile = new DiscardPile(new CardCollection(
@@ -140,11 +152,11 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.IsValid();
 
                 actual.IsValid.Should().BeFalse();
-                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.InvalidTake);
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.InvalidTake);
             }
 
             [Fact]
-            public void ReturnIsSuccessFalseWhenNotPlayersTurn()
+            public void ReturnIsValidFalseWhenNotPlayersTurn()
             {
                 var player1Hand = new CardCollection(Card(1, Clubs));
                 var discardPile = new DiscardPile(new CardCollection(
@@ -160,7 +172,26 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.IsValid();
 
                 actual.IsValid.Should().BeFalse();
-                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.NotPlayersTurn);
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.NotPlayersTurn);
+            }
+            
+            [Fact]
+            public void ReturnIsValidFalse_WhenGameHasBeenWon()
+            {
+                var player1Hand = new CardCollection(Card(1, Clubs));
+                var discardPile = new DiscardPile(new CardCollection(
+                    Card(2, Hearts)
+                ));
+                var sut = new TakeCommandBuilder()
+                    .WithPlayer1Hand(player1Hand)
+                    .WithDiscardPile(discardPile)
+                    .WithWinner(1)
+                    .Build();
+
+                var actual = sut.IsValid();
+
+                actual.IsValid.Should().BeFalse();
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.GameCompleted);
             }
         }
 

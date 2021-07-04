@@ -22,15 +22,15 @@ namespace SheddingCardGames.Domain
         public override IsValidResult IsValid()
         {
             if (gameState.CurrentPlayerToPlayNumber != selectSuitContext.ExecutingPlayer.Number)
-                return new IsValidResult(false, CommandExecutionResultMessageKey.NotPlayersTurn);
+                return new IsValidResult(false, CommandIsValidResultMessageKey.NotPlayersTurn);
 
             if (!gameState.AnyPlaysOrTakes)
-                return new IsValidResult(false, CommandExecutionResultMessageKey.InvalidPlay);
+                return new IsValidResult(false, CommandIsValidResultMessageKey.InvalidPlay);
 
             if (!crazyEightsRules.IsAlwaysValidCard(gameState.CurrentCardToMatch))
-                return new IsValidResult(false, CommandExecutionResultMessageKey.InvalidPlay);
+                return new IsValidResult(false, CommandIsValidResultMessageKey.InvalidPlay);
 
-            return new IsValidResult(true, CommandExecutionResultMessageKey.Success);
+            return new IsValidResult(true, CommandIsValidResultMessageKey.Success);
         }
 
         public override GameState Execute()

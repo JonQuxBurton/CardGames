@@ -119,7 +119,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.IsValid();
 
                 actual.IsValid.Should().BeTrue();
-                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.Success);
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.Success);
             }
 
             [Fact]
@@ -138,7 +138,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.IsValid();
 
                 actual.IsValid.Should().BeFalse();
-                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.NotPlayersTurn);
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.NotPlayersTurn);
             }
 
             [Fact]
@@ -155,7 +155,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.IsValid();
 
                 actual.IsValid.Should().BeFalse();
-                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.InvalidPlay);
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.InvalidPlay);
             }
 
             [Fact]
@@ -172,7 +172,7 @@ namespace SheddingCardGames.Tests.Domain
                 var actual = sut.IsValid();
                 actual.IsValid.Should().BeFalse();
 
-                actual.MessageKey.Should().Be(CommandExecutionResultMessageKey.InvalidPlay);
+                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.InvalidPlay);
             }
         }
 

@@ -25,18 +25,21 @@ namespace SheddingCardGames.Domain
 
         public override IsValidResult IsValid()
         {
+            if (gameState.CurrentTurn.HasWinner)
+                return new IsValidResult(false, CommandIsValidResultMessageKey.GameCompleted);
+
             var validPlays = crazyEightsRules.HasValidPlay(gameState.CurrentCardToMatch,
                 takeContext.ExecutingPlayer.Hand,
                 gameState.CurrentSelectedSuit,
                 gameState.AnyPlaysOrTakes);
 
             if (validPlays)
-                return new IsValidResult(false, CommandExecutionResultMessageKey.InvalidTake);
+                return new IsValidResult(false, CommandIsValidResultMessageKey.InvalidTake);
 
             if (gameState.CurrentPlayerToPlayNumber != takeContext.ExecutingPlayer.Number)
-                return new IsValidResult(false, CommandExecutionResultMessageKey.NotPlayersTurn);
+                return new IsValidResult(false, CommandIsValidResultMessageKey.NotPlayersTurn);
 
-            return new IsValidResult(true, CommandExecutionResultMessageKey.Success);
+            return new IsValidResult(true, CommandIsValidResultMessageKey.Success);
         }
 
         public override GameState Execute()
