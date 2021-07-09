@@ -1,15 +1,15 @@
 using SheddingCardGames.Domain.Events;
-using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGames.Domain
 {
     public class ChooseStartingPlayerCommand : GameCommand
     {
-        private readonly IRandomPlayerChooser randomPlayerChooser;
-        private readonly GameState gameState;
         private readonly ChooseStartingPlayerContext chooseStartingPlayerContext;
+        private readonly GameState gameState;
+        private readonly IRandomPlayerChooser randomPlayerChooser;
 
-        public ChooseStartingPlayerCommand(IRandomPlayerChooser randomPlayerChooser, GameState gameState, ChooseStartingPlayerContext chooseStartingPlayerContext)
+        public ChooseStartingPlayerCommand(IRandomPlayerChooser randomPlayerChooser, GameState gameState,
+            ChooseStartingPlayerContext chooseStartingPlayerContext)
         {
             this.randomPlayerChooser = randomPlayerChooser;
             this.gameState = gameState;
@@ -23,10 +23,10 @@ namespace SheddingCardGames.Domain
 
         public override GameState Execute()
         {
-            var chosenPlayer = randomPlayerChooser.ChoosePlayer(gameState.Players);
-            gameState.PlayerToStart = chosenPlayer;
-            gameState.CurrentGamePhase = GamePhase.ReadyToDeal;
-            gameState.AddEvent(new StartingPlayerChosen(1, chosenPlayer));
+            var chosenPlayer = randomPlayerChooser.ChoosePlayer(gameState.GameSetup.Players);
+            gameState.GameSetup.WithStartingPlayer(chosenPlayer);
+            gameState.CurrentStateOfPlay = StateOfPlay.WithGamePhaseReadyToDeal(gameState.CurrentStateOfPlay);
+            gameState.EventLog.AddEvent(new StartingPlayerChosen(1, chosenPlayer));
 
             return gameState;
         }

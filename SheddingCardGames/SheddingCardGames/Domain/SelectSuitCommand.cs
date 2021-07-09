@@ -1,5 +1,4 @@
 using SheddingCardGames.Domain.Events;
-using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGames.Domain
 {
@@ -24,7 +23,7 @@ namespace SheddingCardGames.Domain
             if (gameState.CurrentPlayerToPlayNumber != selectSuitContext.ExecutingPlayer.Number)
                 return new IsValidResult(false, CommandIsValidResultMessageKey.NotPlayersTurn);
 
-            if (!gameState.AnyPlaysOrTakes)
+            if (!gameState.CurrentStateOfPlay.AnyPlaysOrTakes)
                 return new IsValidResult(false, CommandIsValidResultMessageKey.InvalidPlay);
 
             if (!crazyEightsRules.IsAlwaysValidCard(gameState.CurrentCardToMatch))
@@ -35,10 +34,10 @@ namespace SheddingCardGames.Domain
 
         public override GameState Execute()
         {
-            gameState.CurrentTurn = currentTurnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, selectSuitContext.SelectedSuit);
-            gameState.AddEvent(new SuitSelected(gameState.NextEventNumber,
+            gameState.CurrentStateOfTurn = currentTurnBuilder.BuildNextTurn(gameState, gameState.NextPlayer, selectSuitContext.SelectedSuit);
+            gameState.EventLog.AddEvent(new SuitSelected(gameState.EventLog.NextEventNumber,
                 selectSuitContext.ExecutingPlayer.Number, selectSuitContext.SelectedSuit));
-            gameState.AddEvent(new TurnEnded(gameState.NextEventNumber, selectSuitContext.ExecutingPlayer.Number));
+            gameState.EventLog.AddEvent(new TurnEnded(gameState.EventLog.NextEventNumber, selectSuitContext.ExecutingPlayer.Number));
 
             return gameState;
         }

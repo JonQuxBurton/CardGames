@@ -23,7 +23,11 @@ namespace SheddingCardGames.Tests.Domain
             {
                 sampleData = new SampleData();
                 var players = Players(sampleData.Player1, sampleData.Player2);
-                gameState = new GameState(players);
+                gameState = new GameState
+                {
+                    GameSetup = new GameSetup(players)
+                };
+
                 var randomPlayerChooser = new DummyPlayerChooser(players.First());
 
                 sut = new OlsenOlsenVariantCommandFactory(new OlsenOlsenVariantRules(Two), new DummyShuffler(), randomPlayerChooser);

@@ -1,6 +1,5 @@
 using System.Collections.Immutable;
 using SheddingCardGames.Domain;
-using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGames.Tests.Domain
 {
@@ -9,7 +8,7 @@ namespace SheddingCardGames.Tests.Domain
         private readonly Game game;
 
         private Player currentPlayer;
-        private CurrentTurn currentTurn;
+        private StateOfTurn currentTurn;
         private DiscardPile discardPile = new DiscardPile(CardsUtils.Cards(CardsUtils.Card(1, Suit.Clubs)));
         private int numberOfPlayers = 2;
         private CardCollection player1Hand = new CardCollection();
@@ -66,7 +65,7 @@ namespace SheddingCardGames.Tests.Domain
             return this;
         }
 
-        public InProgressGameBuilder WithCurrentTurn(CurrentTurn withCurrentTurn)
+        public InProgressGameBuilder WithCurrentTurn(StateOfTurn withCurrentTurn)
         {
             currentTurn = withCurrentTurn;
             return this;
@@ -98,12 +97,14 @@ namespace SheddingCardGames.Tests.Domain
                 expectedTable = new Table(stockPile, discardPile, PlayersUtils.Players(player1, player2));
             }
 
-            var gameState = new GameState(players)
+            var gameState = new GameState()
             {
+                GameSetup = new GameSetup(players),
                 CurrentTable = expectedTable,
-                PlayerToStart = currentPlayer,
-                CurrentTurn = currentTurn
+                CurrentStateOfTurn = currentTurn,
+                CurrentStateOfPlay = game.GameState.CurrentStateOfPlay
             };
+            gameState.GameSetup.WithStartingPlayer(currentPlayer);
             game.Initialise(gameState);
 
             return game;

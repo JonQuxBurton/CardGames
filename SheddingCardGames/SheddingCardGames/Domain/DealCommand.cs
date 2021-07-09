@@ -1,6 +1,5 @@
 using System.Linq;
 using SheddingCardGames.Domain.Events;
-using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGames.Domain
 {
@@ -31,26 +30,26 @@ namespace SheddingCardGames.Domain
         {
             var shuffled = shuffler.Shuffle(dealContext.Deck);
             gameState.CurrentTable = Deal(shuffled);
-            gameState.AddEvent(new DealCompleted(gameState.NextEventNumber));
-            gameState.CurrentTurn = currentTurnBuilder.BuildFirstTurn(gameState, gameState.PlayerToStart);
-            gameState.CurrentGamePhase = GamePhase.InGame;
+            gameState.EventLog.AddEvent(new DealCompleted(gameState.EventLog.NextEventNumber));
+            gameState.CurrentStateOfTurn = currentTurnBuilder.BuildFirstTurn(gameState, gameState.GameSetup.PlayerToStart);
+            gameState.CurrentStateOfPlay = StateOfPlay.WithGamePhaseInGame(gameState.CurrentStateOfPlay);
             
             return gameState;
         }
 
         private Table Deal(CardCollection cardsToDeal)
         {
-            var table = new Table(new StockPile(cardsToDeal), new DiscardPile(), gameState.Players);
+            var table = new Table(new StockPile(cardsToDeal), new DiscardPile(), gameState.GameSetup.Players);
 
             for (var i = 0; i < crazyEightsRules.GetHandSize(); i++)
             {
                 if (table.StockPile.IsEmpty()) break;
 
-                for (var j = 0; j < gameState.Players.Count(); j++)
+                for (var j = 0; j < gameState.GameSetup.Players.Count(); j++)
                 {
                     var player = table.Players[j];
                     var takenCard = table.MoveCardFromStockPileToPlayer(player);
-                    gameState.AddEvent(new CardMoved(gameState.NextEventNumber, 
+                    gameState.EventLog.AddEvent(new CardMoved(gameState.EventLog.NextEventNumber, 
                         takenCard,
                         CardMoveSources.StockPile, 
                         CardMoveSources.PlayerHand(player.Number)));
@@ -58,7 +57,7 @@ namespace SheddingCardGames.Domain
             }
 
             var cardTurnedUp = table.MoveCardFromStockPileToDiscardPile();
-            gameState.AddEvent(new CardMoved(gameState.NextEventNumber, 
+            gameState.EventLog.AddEvent(new CardMoved(gameState.EventLog.NextEventNumber, 
                 cardTurnedUp,
                 CardMoveSources.StockPile, 
                 CardMoveSources.DiscardPile));

@@ -1,14 +1,13 @@
-using SheddingCardGames.UiLogic;
-
 namespace SheddingCardGames.Domain
 {
     public class BasicVariantCommandFactory : ICommandFactory
     {
         private readonly CrazyEightsRules crazyEightsRules;
-        private readonly IShuffler shuffler;
         private readonly IRandomPlayerChooser randomPlayerChooser;
+        private readonly IShuffler shuffler;
 
-        public BasicVariantCommandFactory(CrazyEightsRules crazyEightsRules, IShuffler shuffler, IRandomPlayerChooser randomPlayerChooser)
+        public BasicVariantCommandFactory(CrazyEightsRules crazyEightsRules, IShuffler shuffler,
+            IRandomPlayerChooser randomPlayerChooser)
         {
             this.crazyEightsRules = crazyEightsRules;
             this.shuffler = shuffler;

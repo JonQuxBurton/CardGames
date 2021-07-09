@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using SheddingCardGames.UiLogic;
 using static SheddingCardGames.Domain.PlayersUtils;
 
 namespace SheddingCardGames.Domain
@@ -15,10 +14,15 @@ namespace SheddingCardGames.Domain
             foreach (var player in withPlayers)
                 Players.Add(player.Number, player);
 
-            GameState = new GameState(Players(withPlayers));
+            GameState = new GameState
+            {
+                GameSetup = new GameSetup(Players(withPlayers)), 
+            };
+            GameState.CurrentStateOfPlay = new StateOfPlay(GameState);
         }
 
         public Variant Variant { get; }
+
 
         public GameState GameState { get; private set; }
 

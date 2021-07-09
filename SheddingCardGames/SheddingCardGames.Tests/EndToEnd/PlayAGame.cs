@@ -49,7 +49,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             sut.ChooseStartingPlayer(new ChooseStartingPlayerContext());
             sut.Deal(new DealContext(deck));
 
-            sut.GameState.CurrentTurn.TurnNumber.Should().Be(1);
+            sut.GameState.CurrentStateOfTurn.TurnNumber.Should().Be(1);
             sut.GameState.CurrentTable.Players[0].Hand.Cards.Should().Equal(player1Hand.Cards);
             sut.GameState.CurrentTable.Players[1].Hand.Cards.Should().Equal(player2Hand.Cards);
             sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(discardCard);
@@ -115,8 +115,8 @@ namespace SheddingCardGames.Tests.EndToEnd
             result = sut.SelectSuit(new SelectSuitContext(player1, Spades));
 
             result.IsSuccess.Should().BeTrue();
-            sut.GameState.CurrentTurn.TurnNumber.Should().Be(6);
-            sut.GameState.CurrentTurn.SelectedSuit.Should().Be(Spades);
+            sut.GameState.CurrentStateOfTurn.TurnNumber.Should().Be(6);
+            sut.GameState.CurrentStateOfTurn.SelectedSuit.Should().Be(Spades);
 
             result = sut.Play(new PlayContext(player2, Card(8, Spades)));
             VerifyPlayerPlay(2, result, 6, Card(8, Spades), new[]
@@ -132,8 +132,8 @@ namespace SheddingCardGames.Tests.EndToEnd
             result = sut.SelectSuit(new SelectSuitContext(player2, Hearts));
 
             result.IsSuccess.Should().BeTrue();
-            sut.GameState.CurrentTurn.TurnNumber.Should().Be(7);
-            sut.GameState.CurrentTurn.SelectedSuit.Should().Be(Hearts);
+            sut.GameState.CurrentStateOfTurn.TurnNumber.Should().Be(7);
+            sut.GameState.CurrentStateOfTurn.SelectedSuit.Should().Be(Hearts);
 
             result = sut.Play(new PlayContext(player1, Card(2, Hearts)));
             VerifyPlayerPlay(1, result, 8, Card(2, Hearts), new[]
@@ -258,7 +258,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             sut.ChooseStartingPlayer(new ChooseStartingPlayerContext());
             sut.Deal(new DealContext(deck));
 
-            sut.GameState.CurrentTurn.TurnNumber.Should().Be(1);
+            sut.GameState.CurrentStateOfTurn.TurnNumber.Should().Be(1);
             sut.GameState.CurrentTable.Players[0].Hand.Cards.Should().Equal(player1Hand.Cards);
             sut.GameState.CurrentTable.Players[1].Hand.Cards.Should().Equal(player2Hand.Cards);
             sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(discardCard);
@@ -418,7 +418,7 @@ namespace SheddingCardGames.Tests.EndToEnd
             sut.ChooseStartingPlayer(new ChooseStartingPlayerContext());
             sut.Deal(new DealContext(deck));
 
-            sut.GameState.CurrentTurn.TurnNumber.Should().Be(1);
+            sut.GameState.CurrentStateOfTurn.TurnNumber.Should().Be(1);
             sut.GameState.CurrentTable.Players[0].Hand.Cards.Should().Equal(player1Hand.Cards);
             sut.GameState.CurrentTable.Players[1].Hand.Cards.Should().Equal(player2Hand.Cards);
             sut.GameState.CurrentTable.Players[2].Hand.Cards.Should().Equal(player3Hand.Cards);
@@ -533,25 +533,25 @@ namespace SheddingCardGames.Tests.EndToEnd
             Card[] hand)
         {
             takeResult.IsSuccess.Should().BeTrue();
-            sut.GameState.CurrentTurn.TakenCard.Should().Be(takenCard);
-            sut.GameState.CurrentTurn.TurnNumber.Should().Be(turnNumber);
+            sut.GameState.CurrentStateOfTurn.TakenCard.Should().Be(takenCard);
+            sut.GameState.CurrentStateOfTurn.TurnNumber.Should().Be(turnNumber);
             sut.GameState.CurrentTable.Players[playerNumber-1].Hand.Cards.Should().Equal(hand);
         }
 
         private void VerifyPlayerWon(int playerNumber, CommandExecutionResult result, int turnNumber, Card discardCard)
         {
             result.IsSuccess.Should().BeTrue();
-            sut.GameState.CurrentTurn.TurnNumber.Should().Be(turnNumber);
+            sut.GameState.CurrentStateOfTurn.TurnNumber.Should().Be(turnNumber);
             sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(discardCard);
             sut.GameState.CurrentTable.Players[playerNumber-1].Hand.Cards.Should().BeEmpty();
-            sut.GameState.CurrentTurn.HasWinner.Should().BeTrue();
-            sut.GameState.CurrentTurn.Winner.Number.Should().Be(playerNumber);
+            sut.GameState.CurrentStateOfPlay.HasWinner.Should().BeTrue();
+            sut.GameState.CurrentStateOfPlay.Winner.Number.Should().Be(playerNumber);
         }
 
         private void VerifyPlayerPlay(int playerNumber, CommandExecutionResult result, int turnNumber, Card discardCard, Card[] hand)
         {
             result.IsSuccess.Should().BeTrue();
-            sut.GameState.CurrentTurn.TurnNumber.Should().Be(turnNumber);
+            sut.GameState.CurrentStateOfTurn.TurnNumber.Should().Be(turnNumber);
             sut.GameState.CurrentTable.DiscardPile.CardToMatch.Should().Be(discardCard);
             sut.GameState.CurrentTable.Players[playerNumber-1].Hand.Cards.Should().Equal(hand);
         }

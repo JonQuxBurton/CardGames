@@ -1,7 +1,6 @@
 ﻿using System.Collections.Immutable;
 using FluentAssertions;
 using SheddingCardGames.Domain;
-using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
 using static SheddingCardGames.Domain.PlayersUtils;
@@ -22,10 +21,12 @@ namespace SheddingCardGames.Tests.Domain
             private GameState CreateSut(Player playerToPlay)
             {
                 var players = Players(sampleData.Player1, sampleData.Player2);
-                return new GameState(players)
+                
+                return new GameState()
                 {
+                    GameSetup = new GameSetup(players),
                     CurrentTable = new Table(new StockPile(new CardCollection()), new DiscardPile(), players),
-                    CurrentTurn = new CurrentTurn(1, playerToPlay, Action.Play)
+                    CurrentStateOfTurn = new StateOfTurn(1, playerToPlay, Action.Play)
                 };
             }
 
@@ -52,54 +53,59 @@ namespace SheddingCardGames.Tests.Domain
 
         public class AnyPlaysOrTakesShould
         {
-            private SampleData sampleData;
-            private ImmutableList<Player> players;
+            private readonly SampleData sampleData;
+            private readonly ImmutableList<Player> players;
 
             public AnyPlaysOrTakesShould()
             {
                 sampleData = new SampleData();
                 players = Players(sampleData.Player1, sampleData.Player2);
             }
-            
+
             [Fact]
             public void ReturnFalse_WhenNoCurrentTurn()
             {
-                var sut = new GameState(players)
+                var gameState = new GameState
                 {
-                    CurrentTable = new Table(new StockPile(new CardCollection()), new DiscardPile(), players),
-                    CurrentTurn = null
+                    GameSetup = new GameSetup(players),
+                    CurrentTable = new Table(new StockPile(new CardCollection()), new DiscardPile(), players)
                 };
-                
+                var sut = new StateOfPlay(gameState);
+
                 var actual = sut.AnyPlaysOrTakes;
 
                 actual.Should().BeFalse();
             }
-            
+
             [Fact]
             public void ReturnTrue_WhenNotFirstTurn()
             {
-                var sut = new GameState(players)
+                var gameState = new GameState
                 {
+                    GameSetup = new GameSetup(players),
                     CurrentTable = new Table(new StockPile(new CardCollection()), new DiscardPile(), players),
-                    CurrentTurn = new CurrentTurn(2, sampleData.Player2, Action.Play)
+                    CurrentStateOfTurn = new StateOfTurn(2, sampleData.Player2, Action.Play)
                 };
+                var sut = new StateOfPlay(gameState);
 
                 var actual = sut.AnyPlaysOrTakes;
 
                 actual.Should().BeTrue();
             }
-            
+
             [Fact]
             public void ReturnTrue_WhenEightPlayed_ButSuitHasNotBeenSelected()
             {
                 var discardPile = new DiscardPile(Cards(Card(8, Suit.Clubs)));
                 discardPile.TurnUpTopCard();
-                
-                var sut = new GameState(players)
+
+                var gameState = new GameState
                 {
+                    GameSetup = new GameSetup(players),
                     CurrentTable = new Table(new StockPile(new CardCollection()), discardPile, players),
-                    CurrentTurn = new CurrentTurn(1, sampleData.Player1, Action.SelectSuit, null, null, null, ImmutableList.Create(Action.Play))
+                    CurrentStateOfTurn = new StateOfTurn(1, sampleData.Player1, Action.SelectSuit, null, null, ImmutableList.Create(Action.Play))
                 };
+                var sut = new StateOfPlay(gameState);
 
                 var actual = sut.AnyPlaysOrTakes;
 

@@ -32,7 +32,9 @@ namespace SheddingCardGame.UI
             this.actionResultMessageMapper = actionResultMessageMapper;
         }
 
-        public CurrentTurn CurrentTurn => game.GameState.CurrentTurn;
+        public bool HasWinner => game.GameState.CurrentStateOfPlay.HasWinner;
+        public Player Winner => game.GameState.CurrentStateOfPlay.Winner;
+        public StateOfTurn CurrentTurn => game.GameState.CurrentStateOfTurn;
         public CardCollection AllCards => game.GameState.CurrentTable.AllCards;
 
         public UiState UiState { get; set; }
@@ -160,7 +162,7 @@ namespace SheddingCardGame.UI
 
             if (actionResult.IsSuccess)
             {
-                var cardComponent = UiState.CardGameObjects[game.GameState.CurrentTurn.TakenCard];
+                var cardComponent = UiState.CardGameObjects[game.GameState.CurrentStateOfTurn.TakenCard];
                 cardComponent.OnClick = () => Play(cardComponent);
             }
 
@@ -173,7 +175,7 @@ namespace SheddingCardGame.UI
 
         public void SelectCard(CardComponent cardComponent)
         {
-            if (game.GameState.CurrentTurn.CurrentAction != Action.Play)
+            if (game.GameState.CurrentStateOfTurn.CurrentAction != Action.Play)
                 return;
 
             if (!game.GameState.CurrentPlayerToPlay.Hand.Cards.Contains(cardComponent.Card))

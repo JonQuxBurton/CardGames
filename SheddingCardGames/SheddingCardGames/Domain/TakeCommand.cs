@@ -1,6 +1,5 @@
 using System.Linq;
 using SheddingCardGames.Domain.Events;
-using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGames.Domain
 {
@@ -25,13 +24,13 @@ namespace SheddingCardGames.Domain
 
         public override IsValidResult IsValid()
         {
-            if (gameState.CurrentTurn.HasWinner)
+            if (gameState.CurrentStateOfPlay.HasWinner)
                 return new IsValidResult(false, CommandIsValidResultMessageKey.GameCompleted);
 
             var validPlays = crazyEightsRules.HasValidPlay(gameState.CurrentCardToMatch,
                 takeContext.ExecutingPlayer.Hand,
                 gameState.CurrentSelectedSuit,
-                gameState.AnyPlaysOrTakes);
+                gameState.CurrentStateOfPlay.AnyPlaysOrTakes);
 
             if (validPlays)
                 return new IsValidResult(false, CommandIsValidResultMessageKey.InvalidTake);
@@ -47,19 +46,19 @@ namespace SheddingCardGames.Domain
             var currentTable = gameState.CurrentTable;
 
             var takenCard = currentTable.MoveCardFromStockPileToPlayer(gameState.CurrentPlayerToPlay);
-            gameState.AddEvent(new Taken(gameState.NextEventNumber,
+            gameState.EventLog.AddEvent(new Taken(gameState.EventLog.NextEventNumber,
                 gameState.CurrentPlayerToPlayNumber, takenCard));
 
             if (currentTable.StockPile.IsEmpty())
                 MoveDiscardPileToStockPile();
 
-            CurrentTurn currentTurn;
+            StateOfTurn currentTurn;
 
-            if (gameState.CurrentTurn.PreviousActions.Count == crazyEightsRules.NumberOfTakesBeforePass - 1)
+            if (gameState.CurrentStateOfTurn.PreviousActions.Count == crazyEightsRules.NumberOfTakesBeforePass - 1)
             {
-                gameState.AddEvent(new Passed(gameState.NextEventNumber,
+                gameState.EventLog.AddEvent(new Passed(gameState.EventLog.NextEventNumber,
                     gameState.CurrentPlayerToPlayNumber));
-                gameState.AddEvent(new TurnEnded(gameState.NextEventNumber,
+                gameState.EventLog.AddEvent(new TurnEnded(gameState.EventLog.NextEventNumber,
                     gameState.CurrentPlayerToPlayNumber));
 
                 currentTurn = currentTurnBuilder.BuildNextTurn(gameState, gameState.NextPlayer,
@@ -70,7 +69,7 @@ namespace SheddingCardGames.Domain
                 currentTurn = currentTurnBuilder.AddTakenCard(gameState, takenCard);
             }
 
-            gameState.CurrentTurn = currentTurn;
+            gameState.CurrentStateOfTurn = currentTurn;
 
             return gameState;
         }
@@ -82,7 +81,7 @@ namespace SheddingCardGames.Domain
             foreach (var card in cardsToRemove)
             {
                 gameState.CurrentTable.MoveCardFromDiscardPileToStockPile();
-                gameState.AddEvent(new CardMoved(gameState.NextEventNumber, card,
+                gameState.EventLog.AddEvent(new CardMoved(gameState.EventLog.NextEventNumber, card,
                     CardMoveSources.DiscardPile,
                     CardMoveSources.StockPile));
             }
@@ -95,7 +94,7 @@ namespace SheddingCardGames.Domain
             var startCards = gameState.CurrentTable.StockPile.Cards.ToArray();
             var shuffled = shuffler.Shuffle(new CardCollection(startCards));
             gameState.CurrentTable.StockPile = new StockPile(shuffled);
-            gameState.AddEvent(new Shuffled(gameState.NextEventNumber,
+            gameState.EventLog.AddEvent(new Shuffled(gameState.EventLog.NextEventNumber,
                 CardMoveSources.StockPile, new CardCollection(startCards), shuffled));
         }
     }

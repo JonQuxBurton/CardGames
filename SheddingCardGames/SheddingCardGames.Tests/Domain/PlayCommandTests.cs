@@ -3,7 +3,6 @@ using System.Linq;
 using FluentAssertions;
 using SheddingCardGames.Domain;
 using SheddingCardGames.Domain.Events;
-using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
 using static SheddingCardGames.Domain.CrazyEightsRules.NumberOfPlayers;
@@ -82,12 +81,16 @@ namespace SheddingCardGames.Tests.Domain
                 discardPile.TurnUpTopCard();
                 var players = Players(sampleData.Player1, sampleData.Player2);
                 var table = TableCreator.Create(new StockPile(new CardCollection()), discardPile, players);
-                var gameState = new GameState(players)
+                var gameState = new GameState
                 {
-                    CurrentTable = table,
-                    PlayerToStart = player1,
-                    CurrentTurn = new CurrentTurn(turnNumber, currentPlayer, Action.Play, null, selectedSuit, winner, previousActions)
+                    GameSetup = new GameSetup(players)
                 };
+                gameState.GameSetup.WithStartingPlayer(currentPlayer);
+                gameState.CurrentTable = table;
+                gameState.CurrentStateOfTurn = new StateOfTurn(turnNumber, currentPlayer, Action.Play, null, selectedSuit, previousActions);
+                gameState.CurrentStateOfPlay = new StateOfPlay(gameState);
+                if (winner != null)
+                    gameState.CurrentStateOfPlay = StateOfPlay.WithWinner(gameState.CurrentStateOfPlay , winner);
 
                 return new PlayCommand(new BasicVariantRules(Two), gameState,  new PlayContext(executingPlayer, playedCards));
             }
@@ -498,8 +501,8 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                actual.Events.LastSkip(1).Should().BeOfType<Played>();
-                var actualEvent = actual.Events.LastSkip(1) as Played;
+                actual.EventLog.Events.LastSkip(1).Should().BeOfType<Played>();
+                var actualEvent = actual.EventLog.Events.LastSkip(1) as Played;
                 if (actualEvent == null) Assert.NotNull(actualEvent);
                 actualEvent.Number.Should().Be(1);
                 actualEvent.PlayerNumber.Should().Be(1);
@@ -529,7 +532,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                var actualEvent = actual.Events.Last();
+                var actualEvent = actual.EventLog.Events.Last();
                 actualEvent.Should().BeOfType<TurnEnded>();
                 var domainEvent = actualEvent as TurnEnded;
                 if (domainEvent == null) Assert.NotNull(domainEvent);
@@ -562,13 +565,13 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                var actualTurn = actual.CurrentTurn;
+                var actualTurn = actual.CurrentStateOfTurn;
                 actualTurn.TurnNumber.Should().Be(2);
                 actualTurn.PlayerToPlay.Number.Should().Be(2);
                 actualTurn.CurrentAction.Should().Be(Action.Play);
 
-                actualTurn.HasWinner.Should().BeFalse();
-                actualTurn.Winner.Should().BeNull();
+                actual.CurrentStateOfPlay.HasWinner.Should().BeFalse();
+                actual.CurrentStateOfPlay.Winner.Should().BeNull();
                 actualTurn.SelectedSuit.Should().BeNull();
                 actualTurn.TakenCard.Should().BeNull();
 
@@ -599,13 +602,13 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                var actualTurn = actual.CurrentTurn;
+                var actualTurn = actual.CurrentStateOfTurn;
                 actualTurn.TurnNumber.Should().Be(2);
                 actualTurn.PlayerToPlay.Number.Should().Be(2);
                 actualTurn.CurrentAction.Should().Be(Action.Take);
 
-                actualTurn.HasWinner.Should().BeFalse();
-                actualTurn.Winner.Should().BeNull();
+                actual.CurrentStateOfPlay.HasWinner.Should().BeFalse();
+                actual.CurrentStateOfPlay.Winner.Should().BeNull();
                 actualTurn.SelectedSuit.Should().BeNull();
                 actualTurn.TakenCard.Should().BeNull();
 
@@ -631,19 +634,19 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                var actualTurn = actual.CurrentTurn;
+                var actualTurn = actual.CurrentStateOfTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(1);
                 actualTurn.CurrentAction.Should().Be(Action.Won);
 
-                actualTurn.HasWinner.Should().BeTrue();
-                actualTurn.Winner.Number.Should().Be(1);
+                actual.CurrentStateOfPlay.HasWinner.Should().BeTrue();
+                actual.CurrentStateOfPlay.Winner.Number.Should().Be(1);
                 actualTurn.SelectedSuit.Should().BeNull();
                 actualTurn.TakenCard.Should().BeNull();
 
                 actualTurn.PreviousActions.Should().Equal(Action.Play);
 
-                var actualEvent = actual.Events.Last();
+                var actualEvent = actual.EventLog.Events.Last();
                 actualEvent.Should().BeOfType<RoundWon>();
                 var domainEvent = actualEvent as RoundWon;
                 if (domainEvent == null) Assert.NotNull(domainEvent);
@@ -669,13 +672,13 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                var actualTurn = actual.CurrentTurn;
+                var actualTurn = actual.CurrentStateOfTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(1);
                 actualTurn.CurrentAction.Should().Be(Action.SelectSuit);
 
-                actualTurn.HasWinner.Should().BeFalse();
-                actualTurn.Winner.Should().BeNull();
+                actual.CurrentStateOfPlay.HasWinner.Should().BeFalse();
+                actual.CurrentStateOfPlay.Winner.Should().BeNull();
                 actualTurn.SelectedSuit.Should().BeNull();
                 actualTurn.TakenCard.Should().BeNull();
 
@@ -683,7 +686,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 actual.CurrentTable.DiscardPile.CardToMatch.Should().Be(cardsPlayed.First());
 
-                var actualEvent = actual.Events.Last();
+                var actualEvent = actual.EventLog.Events.Last();
                 actualEvent.Should().BeOfType<Played>();
                 var domainEvent = actualEvent as Played;
                 if (domainEvent == null) Assert.NotNull(domainEvent);

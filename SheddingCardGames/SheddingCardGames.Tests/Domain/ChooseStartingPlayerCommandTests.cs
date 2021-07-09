@@ -16,7 +16,10 @@ namespace SheddingCardGames.Tests.Domain
             public void ReturnIsSuccessTrue()
             {
                 var sampleData = new SampleData();
-                var initialGameState = new GameState(Players(sampleData.Player1, sampleData.Player2));
+                var initialGameState = new GameState
+                {
+                    GameSetup = new GameSetup(Players(sampleData.Player1, sampleData.Player2))
+                };
                 var sut = new ChooseStartingPlayerCommand(new DummyPlayerChooser(), initialGameState, new ChooseStartingPlayerContext());
 
                 var actual = sut.IsValid();
@@ -35,7 +38,11 @@ namespace SheddingCardGames.Tests.Domain
             {
                 var sampleData = new SampleData();
                 expectedPlayer = sampleData.Player2;
-                var initialGameState = new GameState(Players(sampleData.Player1, sampleData.Player2));
+                var initialGameState = new GameState
+                {
+                    GameSetup = new GameSetup(Players(sampleData.Player1, sampleData.Player2)),
+                };
+                initialGameState.CurrentStateOfPlay = new StateOfPlay(initialGameState);
                 var dummyPlayerChooser = new DummyPlayerChooser(expectedPlayer);
                 var sut = new ChooseStartingPlayerCommand(dummyPlayerChooser, initialGameState, new ChooseStartingPlayerContext());
 
@@ -45,26 +52,26 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnGameStateWithPlayerToStart()
             {
-                actual.PlayerToStart.Should().Be(expectedPlayer);
+                actual.GameSetup.PlayerToStart.Should().Be(expectedPlayer);
             }
 
             [Fact]
             public void ReturnGameStateWithCurrentTurnNull()
             {
-                actual.CurrentTurn.Should().BeNull();
+                actual.CurrentStateOfTurn.Should().BeNull();
             }
 
             [Fact]
             public void ReturnGameStateWithCurrentGamePhaseReadyToDeal()
             {
-                actual.CurrentGamePhase.Should().Be(GamePhase.ReadyToDeal);
+                actual.CurrentStateOfPlay.CurrentGamePhase.Should().Be(GamePhase.ReadyToDeal);
             }
 
             [Fact]
             public void AddStartingPlayerChosenEvent()
             {
-                actual.Events.First().Should().BeOfType<StartingPlayerChosen>();
-                var actualEvent = actual.Events.First() as StartingPlayerChosen;
+                actual.EventLog.Events.First().Should().BeOfType<StartingPlayerChosen>();
+                var actualEvent = actual.EventLog.Events.First() as StartingPlayerChosen;
                 if (actualEvent == null) Assert.NotNull(actualEvent);
                 actualEvent.Number.Should().Be(1);
                 actualEvent.Player.Should().Be(expectedPlayer);

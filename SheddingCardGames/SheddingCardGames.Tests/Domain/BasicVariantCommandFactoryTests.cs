@@ -23,7 +23,11 @@ namespace SheddingCardGames.Tests.Domain
                 sampleData = new SampleData();
                 sut = new BasicVariantCommandFactory(new BasicVariantRules(NumberOfPlayers.Two), new DummyShuffler(), new RandomPlayerChooser());
                 var players = Players(sampleData.Player1, sampleData.Player2);
-                gameState = new GameState(players);
+                gameState = new GameState
+                {
+                    GameSetup = new GameSetup(players)
+                };
+
             }
 
             [Fact]

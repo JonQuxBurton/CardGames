@@ -67,11 +67,12 @@ namespace SheddingCardGame.Cli
 
             game.Deal(new DealContext(deck));
 
-            CurrentTurn currentTurn = null;
+            StateOfTurn currentTurn = null;
+            var currentStateOfPlay = game.GameState.CurrentStateOfPlay;
 
-            while (currentTurn == null || !currentTurn.HasWinner)
+            while (currentTurn == null || !currentStateOfPlay.HasWinner)
             {
-                currentTurn = game.GameState.CurrentTurn;
+                currentTurn = game.GameState.CurrentStateOfTurn;
                 RenderTurn(currentTurn, game.GameState);
                 if (currentTurn.CurrentAction == Action.SelectSuit)
                     SelectSuit(game, currentTurn);
@@ -79,10 +80,10 @@ namespace SheddingCardGame.Cli
                     Play(game, currentTurn);
             }
 
-            Console.WriteLine($"{currentTurn.Winner.Name} has won!");
+            Console.WriteLine($"{currentStateOfPlay.Winner.Name} has won!");
         }
 
-        private static void SelectSuit(Game game, CurrentTurn currentTurn)
+        private static void SelectSuit(Game game, StateOfTurn currentTurn)
         {
             Console.WriteLine($"Select a Suit:");
             var selectedSuitInput = Console.ReadLine();
@@ -114,14 +115,14 @@ namespace SheddingCardGame.Cli
             return cards;
         }
 
-        private static void Play(Game game, CurrentTurn currentTurn)
+        private static void Play(Game game, StateOfTurn currentTurn)
         {
             if (currentTurn.CurrentAction == Action.Take)
             {
                 Console.WriteLine($"No valid plays, press any key to Take a card");
                 Console.ReadKey();
                 game.Take(new TakeContext(currentTurn.PlayerToPlay));
-                Console.WriteLine($"Taken: {game.GameState.CurrentTurn.TakenCard}");
+                Console.WriteLine($"Taken: {game.GameState.CurrentStateOfTurn.TakenCard}");
                 return;
             }
             
@@ -135,7 +136,7 @@ namespace SheddingCardGame.Cli
             Console.WriteLine($"IsValidPlay: {playResult}");
         }
 
-        private static void RenderTurn(CurrentTurn turn, GameState gameState)
+        private static void RenderTurn(StateOfTurn turn, GameState gameState)
         {
             var currentTable = gameState.CurrentTable;
 
@@ -143,7 +144,7 @@ namespace SheddingCardGame.Cli
             Console.WriteLine($"Turn {turn.TurnNumber}");
             Console.WriteLine($"PlayerToPlay: {turn.PlayerToPlay.Name}");
             Console.WriteLine($"NextAction: {turn.CurrentAction}");
-            Console.WriteLine($"SelectedSuit: {gameState.CurrentTurn?.SelectedSuit}");
+            Console.WriteLine($"SelectedSuit: {gameState.CurrentStateOfTurn?.SelectedSuit}");
             Console.WriteLine($"Stock pile: {currentTable.StockPile.Cards.Count()} cards");
             Console.WriteLine($"Discard pile: {currentTable.DiscardPile.CardToMatch} ({currentTable.DiscardPile.RestOfCards.Count()} other cards)");
             

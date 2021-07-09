@@ -5,7 +5,6 @@ using SheddingCardGames.Domain;
 using SheddingCardGames.Domain.Events;
 using SheddingCardGames.UiLogic;
 using Xunit;
-using static SheddingCardGames.Domain.BasicVariantRules;
 using static SheddingCardGames.Domain.CrazyEightsRules;
 using static SheddingCardGames.Domain.PlayersUtils;
 
@@ -24,12 +23,12 @@ namespace SheddingCardGames.Tests.Domain
                 discardPile.TurnUpTopCard();
                 var players = Players(player1, sampleData.Player2);
                 var table = TableCreator.Create(new StockPile(new CardCollection()), discardPile, players);
-                var gameState = new GameState(players)
+                var gameState = new GameState
                 {
-                    CurrentTable = table,
-                    PlayerToStart = player1,
+                    GameSetup = new GameSetup(players)
                 };
-
+                gameState.GameSetup .WithStartingPlayer(player1);
+                gameState.CurrentTable = table;
                 var deck = new DeckBuilder().Build();
                 var rules = new BasicVariantRules(NumberOfPlayers.Two);
 
@@ -80,12 +79,14 @@ namespace SheddingCardGames.Tests.Domain
             private DealCommand CreateSut(Player currentPlayer)
             {
                 var table = TableCreator.Create(new StockPile(new CardCollection()), new DiscardPile(), players);
-                var gameState = new GameState(players)
+                var gameState = new GameState
                 {
-                    CurrentTable = table,
-                    PlayerToStart = currentPlayer,
-                    CurrentTurn = new CurrentTurn(1, currentPlayer, Action.Play)
+                    GameSetup = new GameSetup(players)
                 };
+                gameState.GameSetup.WithStartingPlayer(currentPlayer);
+                gameState.CurrentTable = table;
+                gameState.CurrentStateOfTurn = new StateOfTurn(1, currentPlayer, Action.Play);
+                gameState.CurrentStateOfPlay = new StateOfPlay(gameState);
 
                 var player2Hand = new CardCollection(
                     new Card(2, Suit.Clubs),
@@ -184,7 +185,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                var actualEvent = actual.Events.LastSkip(1);
+                var actualEvent = actual.EventLog.Events.LastSkip(1);
                 actualEvent.Should().BeOfType<CardMoved>();
                 var domainEvent = actualEvent as CardMoved;
                 if (domainEvent == null) Assert.NotNull(domainEvent);
@@ -200,7 +201,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                var actualEvents = actual.Events.ToArray();
+                var actualEvents = actual.EventLog.Events.ToArray();
                 for (var i = 0; i < basicVariantRules.GetHandSize(); i++)
                 {
                     var counter1 = i * players.Count;
@@ -236,7 +237,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                var actualTurn = actual.CurrentTurn;
+                var actualTurn = actual.CurrentStateOfTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(1);
                 actualTurn.CurrentAction.Should().Be(Action.Play);
@@ -249,7 +250,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                var actualTurn = actual.CurrentTurn;
+                var actualTurn = actual.CurrentStateOfTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(2);
                 actualTurn.CurrentAction.Should().Be(Action.Play);
@@ -262,7 +263,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                var actualTurn = actual.CurrentTurn;
+                var actualTurn = actual.CurrentStateOfTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(3);
                 actualTurn.CurrentAction.Should().Be(Action.Play);
@@ -282,7 +283,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                var actualTurn = actual.CurrentTurn;
+                var actualTurn = actual.CurrentStateOfTurn;
                 actualTurn.TurnNumber.Should().Be(1);
                 actualTurn.PlayerToPlay.Number.Should().Be(1);
                 actualTurn.CurrentAction.Should().Be(Action.Take);
@@ -295,7 +296,7 @@ namespace SheddingCardGames.Tests.Domain
 
                 var actual = sut.Execute();
 
-                actual.CurrentGamePhase.Should().Be(GamePhase.InGame);
+                actual.CurrentStateOfPlay.CurrentGamePhase.Should().Be(GamePhase.InGame);
             }
 
         }
