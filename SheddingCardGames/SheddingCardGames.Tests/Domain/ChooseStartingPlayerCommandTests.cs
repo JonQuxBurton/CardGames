@@ -42,7 +42,7 @@ namespace SheddingCardGames.Tests.Domain
                 {
                     GameSetup = new GameSetup(Players(sampleData.Player1, sampleData.Player2)),
                 };
-                initialGameState.CurrentStateOfPlay = new StateOfPlay(initialGameState);
+                initialGameState.CurrentStateOfPlay = new StateOfPlay();
                 var dummyPlayerChooser = new DummyPlayerChooser(expectedPlayer);
                 var sut = new ChooseStartingPlayerCommand(dummyPlayerChooser, initialGameState, new ChooseStartingPlayerContext());
 

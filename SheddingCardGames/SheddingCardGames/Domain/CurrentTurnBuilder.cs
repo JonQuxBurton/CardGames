@@ -24,7 +24,7 @@ namespace SheddingCardGames.Domain
         {
             var nextTurnNumber = gameState.CurrentTurnNumber + 1;
 
-            var hasValidPlays = crazyEightsRules.HasValidPlay(gameState.CurrentCardToMatch, nextPlayer.Hand, selectedSuit, gameState.CurrentStateOfPlay.AnyPlaysOrTakes);
+            var hasValidPlays = crazyEightsRules.HasValidPlay(gameState.CurrentCardToMatch, nextPlayer.Hand, selectedSuit, gameState.AnyPlaysOrTakes);
 
             return new StateOfTurn(nextTurnNumber,
                 nextPlayer,
@@ -35,7 +35,7 @@ namespace SheddingCardGames.Domain
 
         public StateOfTurn AddTakenCard(GameState gameState, Card takenCard)
         {
-            var hasValidPlays = crazyEightsRules.HasValidPlay(gameState.CurrentCardToMatch, gameState.CurrentPlayerToPlay.Hand, gameState.CurrentSelectedSuit, gameState.CurrentStateOfPlay.AnyPlaysOrTakes);
+            var hasValidPlays = crazyEightsRules.HasValidPlay(gameState.CurrentCardToMatch, gameState.CurrentPlayerToPlay.Hand, gameState.CurrentSelectedSuit, gameState.AnyPlaysOrTakes);
             
             return new StateOfTurn(gameState.CurrentTurnNumber,
                 gameState.CurrentPlayerToPlay,

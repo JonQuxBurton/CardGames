@@ -16,9 +16,9 @@ namespace SheddingCardGames.Domain
 
             GameState = new GameState
             {
-                GameSetup = new GameSetup(Players(withPlayers)), 
+                GameSetup = new GameSetup(Players(withPlayers)),
+                CurrentStateOfPlay = new StateOfPlay()
             };
-            GameState.CurrentStateOfPlay = new StateOfPlay(GameState);
         }
 
         public Variant Variant { get; }

@@ -21,8 +21,8 @@ namespace SheddingCardGames.Tests.Domain
             private GameState CreateSut(Player playerToPlay)
             {
                 var players = Players(sampleData.Player1, sampleData.Player2);
-                
-                return new GameState()
+
+                return new GameState
                 {
                     GameSetup = new GameSetup(players),
                     CurrentTable = new Table(new StockPile(new CardCollection()), new DiscardPile(), players),
@@ -53,8 +53,8 @@ namespace SheddingCardGames.Tests.Domain
 
         public class AnyPlaysOrTakesShould
         {
-            private readonly SampleData sampleData;
             private readonly ImmutableList<Player> players;
+            private readonly SampleData sampleData;
 
             public AnyPlaysOrTakesShould()
             {
@@ -65,12 +65,11 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnFalse_WhenNoCurrentTurn()
             {
-                var gameState = new GameState
+                var sut = new GameState
                 {
                     GameSetup = new GameSetup(players),
                     CurrentTable = new Table(new StockPile(new CardCollection()), new DiscardPile(), players)
                 };
-                var sut = new StateOfPlay(gameState);
 
                 var actual = sut.AnyPlaysOrTakes;
 
@@ -80,13 +79,12 @@ namespace SheddingCardGames.Tests.Domain
             [Fact]
             public void ReturnTrue_WhenNotFirstTurn()
             {
-                var gameState = new GameState
+                var sut = new GameState
                 {
                     GameSetup = new GameSetup(players),
                     CurrentTable = new Table(new StockPile(new CardCollection()), new DiscardPile(), players),
                     CurrentStateOfTurn = new StateOfTurn(2, sampleData.Player2, Action.Play)
                 };
-                var sut = new StateOfPlay(gameState);
 
                 var actual = sut.AnyPlaysOrTakes;
 
@@ -99,19 +97,18 @@ namespace SheddingCardGames.Tests.Domain
                 var discardPile = new DiscardPile(Cards(Card(8, Suit.Clubs)));
                 discardPile.TurnUpTopCard();
 
-                var gameState = new GameState
+                var sut = new GameState
                 {
                     GameSetup = new GameSetup(players),
                     CurrentTable = new Table(new StockPile(new CardCollection()), discardPile, players),
-                    CurrentStateOfTurn = new StateOfTurn(1, sampleData.Player1, Action.SelectSuit, null, null, ImmutableList.Create(Action.Play))
+                    CurrentStateOfTurn = new StateOfTurn(1, sampleData.Player1, Action.SelectSuit, null, null,
+                        ImmutableList.Create(Action.Play))
                 };
-                var sut = new StateOfPlay(gameState);
 
                 var actual = sut.AnyPlaysOrTakes;
 
                 actual.Should().BeTrue();
             }
-
         }
     }
 }

@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace SheddingCardGames.Domain
 {
     public class GameState
@@ -23,6 +25,18 @@ namespace SheddingCardGames.Domain
                     nextPlayerNumber = 1;
 
                 return CurrentTable.Players[nextPlayerNumber - 1];
+            }
+        }
+
+        public bool AnyPlaysOrTakes
+        {
+            get
+            {
+                if (CurrentStateOfTurn == null)
+                    return false;
+
+                return CurrentStateOfTurn.TurnNumber != 1 ||
+                       CurrentStateOfTurn.PreviousActions.Any();
             }
         }
 

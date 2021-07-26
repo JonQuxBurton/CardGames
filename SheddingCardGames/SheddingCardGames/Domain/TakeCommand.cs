@@ -30,7 +30,7 @@ namespace SheddingCardGames.Domain
             var validPlays = crazyEightsRules.HasValidPlay(gameState.CurrentCardToMatch,
                 takeContext.ExecutingPlayer.Hand,
                 gameState.CurrentSelectedSuit,
-                gameState.CurrentStateOfPlay.AnyPlaysOrTakes);
+                gameState.AnyPlaysOrTakes);
 
             if (validPlays)
                 return new IsValidResult(false, CommandIsValidResultMessageKey.InvalidTake);

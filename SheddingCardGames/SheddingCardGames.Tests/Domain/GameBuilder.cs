@@ -6,19 +6,13 @@ namespace SheddingCardGames.Tests.Domain
 {
     public class GameBuilder
     {
-        private int numberOfPlayers = 2;
-        private readonly SampleData sampleData;
+        private Player[] players;
         private IShuffler shuffler = new DummyShuffler();
         private int startingPlayerNumber = 1;
 
-        public GameBuilder()
+        public GameBuilder WithPlayers(params Player[] withPlayers)
         {
-            sampleData = new SampleData();
-        }
-
-        public GameBuilder WithNumberOfPlayers(int withNumberOfPlayers)
-        {
-            numberOfPlayers = withNumberOfPlayers;
+            players = withPlayers;
             return this;
         }
 
@@ -34,30 +28,39 @@ namespace SheddingCardGames.Tests.Domain
             return this;
         }
 
+        public Game BuildAtStart(CardCollection deck)
+        {
+            var game = Build();
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext());
+            game.Deal(new DealContext(deck));
+            return game;
+        }
+
+        public Game BuildAtReadyToDeal()
+        {
+            var game = Build();
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext());
+            return game;
+        }
+
+        public Game BuildWithGameState(GameState withGameState)
+        {
+            var game = Build();
+            game.ChooseStartingPlayer(new ChooseStartingPlayerContext());
+            game.Initialise(withGameState);
+            return game;
+        }
+
         public Game Build()
         {
-            var player1 = sampleData.Player1;
-            var player2 = sampleData.Player2;
+            var randomPlayerChooser = new DummyPlayerChooser(players[startingPlayerNumber - 1]);
+            var numberOfPlayers = (NumberOfPlayers) players.Length;
 
-            CrazyEightsRules crazyEightsRules;
-            Game game;
-            var randomPlayerChooser = new DummyPlayerChooser(sampleData.GetPlayer(startingPlayerNumber));
-
-            if (numberOfPlayers > 2)
-            {
-                crazyEightsRules = new BasicVariantRules(NumberOfPlayers.Three);
-                var player3 = sampleData.Player3;
-                game = new Game(
-                    new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(crazyEightsRules, shuffler, randomPlayerChooser)),
-                    new[] {player1, player2, player3});
-            }
-            else
-            {
-                crazyEightsRules = new BasicVariantRules(NumberOfPlayers.Two);
-                game = new Game(
-                    new Variant(VariantName.OlsenOlsen, new OlsenOlsenVariantCommandFactory(crazyEightsRules, shuffler, randomPlayerChooser)),
-                    new[] {player1, player2});
-            }
+            CrazyEightsRules crazyEightsRules = new BasicVariantRules(numberOfPlayers);
+            var game = new Game(
+                new Variant(VariantName.OlsenOlsen,
+                    new OlsenOlsenVariantCommandFactory(crazyEightsRules, shuffler, randomPlayerChooser)),
+                players);
 
             return game;
         }

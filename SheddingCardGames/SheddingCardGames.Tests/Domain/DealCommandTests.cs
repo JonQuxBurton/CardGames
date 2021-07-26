@@ -86,7 +86,7 @@ namespace SheddingCardGames.Tests.Domain
                 gameState.GameSetup.WithStartingPlayer(currentPlayer);
                 gameState.CurrentTable = table;
                 gameState.CurrentStateOfTurn = new StateOfTurn(1, currentPlayer, Action.Play);
-                gameState.CurrentStateOfPlay = new StateOfPlay(gameState);
+                gameState.CurrentStateOfPlay = new StateOfPlay();
 
                 var player2Hand = new CardCollection(
                     new Card(2, Suit.Clubs),

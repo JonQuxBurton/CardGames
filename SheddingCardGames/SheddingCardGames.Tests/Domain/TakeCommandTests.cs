@@ -113,7 +113,7 @@ namespace SheddingCardGames.Tests.Domain
                 gameState.GameSetup.WithStartingPlayer(player1);
                 gameState.CurrentTable = table;
                 gameState.CurrentStateOfTurn = new StateOfTurn(turnNumber, playerToPlay, Action.Play, null, selectedSuit);
-                gameState.CurrentStateOfPlay = new StateOfPlay(gameState);
+                gameState.CurrentStateOfPlay = new StateOfPlay();
 
                 if (winner != null)
                     gameState.CurrentStateOfPlay = StateOfPlay.WithWinner(gameState.CurrentStateOfPlay, winner);

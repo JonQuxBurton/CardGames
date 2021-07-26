@@ -23,7 +23,7 @@ namespace SheddingCardGames.Domain
             if (gameState.CurrentPlayerToPlayNumber != selectSuitContext.ExecutingPlayer.Number)
                 return new IsValidResult(false, CommandIsValidResultMessageKey.NotPlayersTurn);
 
-            if (!gameState.CurrentStateOfPlay.AnyPlaysOrTakes)
+            if (!gameState.AnyPlaysOrTakes)
                 return new IsValidResult(false, CommandIsValidResultMessageKey.InvalidPlay);
 
             if (!crazyEightsRules.IsAlwaysValidCard(gameState.CurrentCardToMatch))
