@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SheddingCardGames.Domain;
+using SheddingCardGames.Domain.CrazyEights;
 using SheddingCardGames.UiLogic;
 using Action = SheddingCardGames.Domain.Action;
 

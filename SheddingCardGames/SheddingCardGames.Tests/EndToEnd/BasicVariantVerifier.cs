@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
 using SheddingCardGames.Domain;
+using SheddingCardGames.Domain.CrazyEights;
 
 namespace SheddingCardGames.Tests.EndToEnd
 {

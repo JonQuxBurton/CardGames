@@ -2,6 +2,7 @@
 using System.Linq;
 using FluentAssertions;
 using SheddingCardGames.Domain;
+using SheddingCardGames.Domain.CrazyEights;
 
 namespace SheddingCardGames.Tests.EndToEnd
 {

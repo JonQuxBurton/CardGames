@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Blazor.Extensions.Canvas.Canvas2D;
 using Microsoft.AspNetCore.Components;
 using SheddingCardGames.Domain;
+using SheddingCardGames.Domain.CrazyEights;
 using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGame.UI

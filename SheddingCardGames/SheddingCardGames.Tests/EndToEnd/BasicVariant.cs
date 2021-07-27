@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using SheddingCardGames.Domain;
+using SheddingCardGames.Domain.CrazyEights;
 using SheddingCardGames.UiLogic;
 using Xunit;
 using static SheddingCardGames.Domain.CardsUtils;
-using static SheddingCardGames.Domain.CrazyEightsRules;
+using static SheddingCardGames.Domain.CrazyEights.CrazyEightsRules;
 using static SheddingCardGames.Domain.Suit;
 
 namespace SheddingCardGames.Tests.EndToEnd

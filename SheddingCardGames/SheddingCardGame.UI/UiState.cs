@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using SheddingCardGames.Domain;
+using SheddingCardGames.Domain.CrazyEights;
 using SheddingCardGames.UiLogic;
 
 namespace SheddingCardGame.UI
