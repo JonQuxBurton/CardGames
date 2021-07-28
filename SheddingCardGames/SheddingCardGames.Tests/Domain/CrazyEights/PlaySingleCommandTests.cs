@@ -122,33 +122,15 @@ namespace SheddingCardGames.Tests.Domain.CrazyEights
                 actual.IsValid.Should().BeTrue();
                 actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.Success);
             }
-
+            
             [Fact]
             public void ReturnIsValidFalse_WhenCardPlayedIsNotInPlayersHand()
             {
-                var cardsPlayed = Cards(Card(1, Clubs));
-                var player1Hand = new CardCollection();
-                var player2Hand = new CardCollection();
-                var sut = new PlaySingleCommandBuilder()
-                    .WithPlayer1Hand(player1Hand)
-                    .WithPlayer2Hand(player2Hand)
-                    .Build(cardsPlayed);
-
-                var actual = sut.IsValid();
-
-                actual.IsValid.Should().BeFalse();
-                actual.MessageKey.Should().Be(CommandIsValidResultMessageKey.CardIsNotInPlayersHand);
-            }
-
-            [Fact]
-            public void ReturnIsValidFalse_WhenPlayedCardIsNotInPlayersHand()
-            {
                 var cardsPlayed = Cards(Card(2, Hearts));
                 var player1Hand = new CardCollection(
-                    Card(2, Clubs),
-                    Card(2, Diamonds)
-                    );
-                var player2Hand = new CardCollection();
+                    Card(2, Clubs)
+                );
+                var player2Hand = new CardCollection(Card(2, Hearts));
                 var discardPile = new DiscardPile(
                     new[] { Card(1, Clubs) }
                 );

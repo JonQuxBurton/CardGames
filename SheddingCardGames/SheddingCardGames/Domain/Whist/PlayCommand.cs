@@ -50,7 +50,7 @@ namespace SheddingCardGames.Domain.Whist
 
         private bool IsValidPlay()
         {
-            return rules.IsValidPlay(new IsValidPlayContext(playContext.CardPlayed, gameState.CurrentStateOfTrick));
+            return rules.IsValidPlay(new IsValidPlayContext(playContext.CardPlayed, playContext.ExecutingPlayer.Hand, gameState.CurrentStateOfTrick));
         }
     }
 }
