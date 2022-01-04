@@ -49,7 +49,7 @@ Check for Win
 Validation:
 Must be Player's turn
 Must have Cards in Player's Hand
-Must be valid to add Cards to a Meld on the Table
+The Cards must match a Meld on the Table
 
 Result:
 Card removed from Players Hand
@@ -61,7 +61,7 @@ Check for Win
 Validation:
 Must be Player's turn
 Must have Cards in Player's Hand
-Must be a valid Meld
+The Cards must be a Meld
 
 Result:
 Cards removed from Players Hand

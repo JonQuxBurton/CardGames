@@ -1,7 +1,33 @@
 Create Rummy Game:
     On Create-Rummy-Game branch
-    ☐ Analyse Requirements, Plan Project
-
+    ✔ Analyse Requirements, Plan Project @done(22-01-04 21:54)
+    ☐ Implement CreateGame
+        ☐ Add GameCreated
+    ☐ Implement JoinGame
+        ☐ Add PlayerJoined
+        ☐ Add StartingPlayerChosen
+        ☐ Add DeckCreated
+        ☐ Add DeckShuffled
+        ☐ Add Dealt
+        ☐ Add CardsMovedToStockPile
+        ☐ Add CardMovedToDiscardPile
+        ☐ Add TurnedUpDiscardPile
+    ☐ Implement TakeFromStockPile
+        ☐ Add TakenCardFromStockPile
+    ☐ Implement TakeFromDiscardPile
+        ☐ Add TakenCardFromDiscardPile
+        ☐ Add RefreshedStockPile
+    ☐ Implement Discard
+        ☐ Add DiscardedCard
+        ☐ Add RoundWon
+    ☐ Implement Layoff
+        ☐ Add LayedoffCard
+        ☐ Add RoundWon
+    ☐ Implement Laydown
+        ☐ Add LayeddownMeld
+        ☐ Add RoundWon
+    ☐ Add GameWon
+☐ 
 Create Whist Game:
     On Create-Whist branch
     ☐ Analyse Requirements, Plan Project
