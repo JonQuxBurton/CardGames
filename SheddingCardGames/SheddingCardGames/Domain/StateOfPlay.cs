@@ -1,6 +1,6 @@
 using SheddingCardGames.UiLogic;
 
-namespace SheddingCardGames.Domain.CrazyEights
+namespace SheddingCardGames.Domain
 {
     public class StateOfPlay
     {

@@ -13,5 +13,7 @@ namespace SheddingCardGames.Domain.Whist
         {
             CardCollection.AddAtEnd(card);
         }
+
+        public bool IsCompleted => CardCollection.Count() == 4;
     }
 }

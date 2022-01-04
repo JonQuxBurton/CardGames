@@ -11,5 +11,10 @@ namespace SheddingCardGames.Domain.Whist
         {
             return new StateOfTrick(1, nextPlayer, nextPlayer);
         }
+        
+        public StateOfTrick AddWinner(GameState gameState, Card playContextCardPlayed, Player nextPlayer, Player winner)
+        {
+            return new StateOfTrick(1, nextPlayer, nextPlayer, null, winner);
+        }
     }
 }

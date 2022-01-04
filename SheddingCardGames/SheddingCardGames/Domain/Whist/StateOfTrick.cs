@@ -3,33 +3,48 @@ using System.Linq;
 
 namespace SheddingCardGames.Domain.Whist
 {
+    public class Play
+    {
+        public Play(Player player, Card card)
+        {
+            Player = player;
+            Card = card;
+        }
+        public Player Player { get; }
+        public Card Card { get;  }
+    }
+
     public class StateOfTrick
     {
         public StateOfTrick(int trickNumber, 
             Player playerToStart,
             Player playerToPlay,
-            ImmutableList<Card> cardsPlayed = null)
+            ImmutableList<Play> plays = null,
+            Player winner = null)
         {
             TrickNumber = trickNumber;
             PlayerToStart = playerToStart;
             PlayerToPlay = playerToPlay;
-            CardsPlayed = cardsPlayed;
+            Plays = plays;
+            Winner = winner;
         }
 
         public Suit? TrickSuit
         {
             get
             {
-                if (CardsPlayed == null || CardsPlayed.FirstOrDefault() == null)
+                if (Plays?.FirstOrDefault() == null)
                     return null;
 
-                return CardsPlayed.First().Suit;
+                return Plays.First().Card.Suit;
             }
         }
 
         public int TrickNumber { get; }
         public Player PlayerToStart { get; }
         public Player PlayerToPlay { get; }
-        public ImmutableList<Card> CardsPlayed { get; }
+        public ImmutableList<Play> Plays { get; }
+        public Player Winner { get; }
+        public bool HasWinner => Winner != null;
     }
 }

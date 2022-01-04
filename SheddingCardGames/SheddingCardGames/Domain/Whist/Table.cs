@@ -4,15 +4,17 @@ namespace SheddingCardGames.Domain.Whist
 {
     public class Table
     {
-        public Table(StockPile stockPile, IImmutableList<Player> players)
+        public Table(StockPile stockPile, IImmutableList<Player> players, Trick trick = null)
         {
             Players = players;
             StockPile = stockPile;
+
+            Trick = trick ?? new Trick(new CardCollection());
         }
 
         public IImmutableList<Player> Players { get; }
         public StockPile StockPile { get; set; }
-        public Trick Trick { get; set; }
+        public Trick Trick { get; }
 
 
         public void MoveCardFromPlayerToTrick(Player player, Card card)

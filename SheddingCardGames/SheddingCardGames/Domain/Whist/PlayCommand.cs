@@ -38,12 +38,25 @@ namespace SheddingCardGames.Domain.Whist
 
         public override GameState Execute()
         {
+            if (gameState.CurrentTable.Trick.CardCollection.IsEmpty())
+                gameState.EventLog.AddEvent(new TrickStarted(gameState.EventLog.NextEventNumber));
+
             gameState.CurrentTable.MoveCardFromPlayerToTrick(playContext.ExecutingPlayer, playContext.CardPlayed);
 
             gameState.EventLog.AddEvent(new Played(gameState.EventLog.NextEventNumber, playContext.ExecutingPlayer.Number,
                 new[] { playContext.CardPlayed }));
 
+            //var highestCard = gameState.CurrentStateOfTrick.CardsPlayed.OrderBy(x => x.Rank).First();
+            //gameState.CurrentStateOfTrick.
+
             gameState.CurrentStateOfTrick = currentTrickBuilder.AddCard(gameState, playContext.CardPlayed, gameState.NextPlayer);
+            gameState.CurrentStateOfTrick = currentTrickBuilder.AddWinner(gameState, playContext.CardPlayed, gameState.NextPlayer, playContext.ExecutingPlayer);
+
+            if (gameState.CurrentTable.Trick.IsCompleted)
+            {
+                gameState.EventLog.AddEvent(new TrickCompleted(gameState.EventLog.NextEventNumber, playContext.ExecutingPlayer.Number));
+            }
+                
 
             return gameState;
         }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using SheddingCardGames.Domain;
-using SheddingCardGames.Domain.CrazyEights;
 using SheddingCardGames.Domain.Whist;
 using SheddingCardGames.UiLogic;
 using static SheddingCardGames.Domain.CardsUtils;
@@ -48,13 +47,18 @@ namespace SheddingCardGame.Cli
 
         }
 
-        private static void RenderTrick(StateOfTrick trick, SheddingCardGames.Domain.Whist.GameState gameState)
+        private static void RenderTrick(StateOfTrick trick, GameState gameState)
         {
             var currentTable = gameState.CurrentTable;
 
             Console.WriteLine("--------------------------------------------------");
             Console.WriteLine($"Trick {trick.TrickNumber}");
-            Console.WriteLine($"PlayerToPlay: {trick.PlayerToPlay.Name}");
+            Console.WriteLine($"Cards: {CardsToString(gameState.CurrentTable.Trick.CardCollection)}");
+
+            if (trick.HasWinner) 
+                Console.WriteLine($"Won by: {trick.Winner.Name}");
+            else
+                Console.WriteLine($"PlayerToPlay: {trick.PlayerToPlay.Name}");
 
             foreach (var player in currentTable.Players)
                 Console.WriteLine($"{player.Number}. {player.Name}: {CardsToString(player.Hand)} ");
@@ -70,8 +74,8 @@ namespace SheddingCardGame.Cli
             var parsedInput = ParseInput(playInput).ToList();
             Console.WriteLine($"{currentTrick.PlayerToPlay.Name} plays: {string.Join(" ", parsedInput)}");
 
-            //var playResult = game.Play(new PlayContext(currentTurn.PlayerToPlay, Cards(parsedInput.ToArray())));
-            //Console.WriteLine($"IsValidPlay: {playResult}");
+            var playResult = game.Play(new PlayContext(currentTrick.PlayerToPlay, parsedInput.First()));
+            Console.WriteLine($"IsValidPlay: {playResult}");
         }
 
         private static IEnumerable<Card> ParseInput(string input)

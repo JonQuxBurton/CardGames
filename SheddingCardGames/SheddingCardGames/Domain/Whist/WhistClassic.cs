@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using SheddingCardGames.Domain.CrazyEights;
 using static SheddingCardGames.Domain.PlayersUtils;
 
 namespace SheddingCardGames.Domain.Whist
@@ -48,7 +47,7 @@ namespace SheddingCardGames.Domain.Whist
             return ProcessCommand(dealContext);
         }
 
-        public CommandExecutionResult Play(CrazyEights.PlayContext playContext)
+        public CommandExecutionResult Play(PlayContext playContext)
         {
             return ProcessCommand(playContext);
         }
