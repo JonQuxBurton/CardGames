@@ -75,4 +75,4 @@ AcesHigh
 
 ## Architecture
 
-Command pattern
+Core of system seems to match the Command pattern
