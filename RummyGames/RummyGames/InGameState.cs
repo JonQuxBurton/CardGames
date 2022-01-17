@@ -7,10 +7,15 @@ namespace RummyGames
         public Guid GameId { get; }
         public Player StartingPlayer { get; }
 
-        public InGameState(Guid gameId, Player startingPlayer)
+        private InGameState(Guid gameId, Player startingPlayer)
         {
             GameId = gameId;
             StartingPlayer = startingPlayer;
+        }
+
+        public static InGameState Create(Guid gameId, Player startingPlayer)
+        {
+            return new InGameState(gameId, startingPlayer);
         }
     }
 }

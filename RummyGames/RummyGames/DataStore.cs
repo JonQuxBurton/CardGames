@@ -14,9 +14,9 @@ namespace RummyGames
             return games.FirstOrDefault(x => x.Id == id);
         }
 
-        public void AddGame(RummyGame newGgame)
+        public void AddGame(RummyGame newGame)
         {
-            games.Add(newGgame);
+            games.Add(newGame);
         }
 
         public void UpdateGame(RummyGame updatedGame)
@@ -28,7 +28,12 @@ namespace RummyGames
 
         public InGameState GetInGameState(Guid gameId)
         {
-            return null;
+            return inGameStates.FirstOrDefault(x => x.GameId == gameId);
+        }
+
+        public void AddInGameState(InGameState newInGameState)
+        {
+            inGameStates.Add(newInGameState);
         }
     }
 }

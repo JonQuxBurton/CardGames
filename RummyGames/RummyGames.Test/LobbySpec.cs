@@ -48,6 +48,8 @@ namespace RummyGames.Test
             var actual = dataStore.GetInGameState(game.Id);
 
             actual.Should().NotBeNull();
+            actual.GameId.Should().Be(game.Id);
+            actual.StartingPlayer.Should().Be(host);
         }
     }
 }

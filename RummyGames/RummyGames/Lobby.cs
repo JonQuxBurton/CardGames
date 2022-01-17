@@ -23,6 +23,9 @@ namespace RummyGames
             var currentGame = dataStore.GetGame(gameToJoin.Id);
             var updatedGame = RummyGame.WithJoinPlayer(currentGame, guest);
             dataStore.UpdateGame(updatedGame);
+
+            dataStore.AddInGameState(InGameState.Create(gameToJoin.Id, gameToJoin.Host));
+
             return updatedGame;
         }
     }

@@ -1,10 +1,11 @@
 Create Rummy Game:
     On Create-Rummy-Game branch
     ✔ Analyse Requirements, Plan Project @done(22-01-04 21:54)
-    ☐ Implement CreateGame
-        ☐ Add GameCreated
+    ✔ Implement CreateGame @done(22-01-07 17:52)
+        ✔ Add GameCreated @done(22-01-07 17:52)
+    ☐ Add CLI
     ☐ Implement JoinGame
-        ☐ Add PlayerJoined
+        ✔ Add PlayerJoined @done(22-01-07 17:52)
         ☐ Add StartingPlayerChosen
         ☐ Add DeckCreated
         ☐ Add DeckShuffled
