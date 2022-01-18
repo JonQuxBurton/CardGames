@@ -3,7 +3,7 @@ Create Rummy Game:
     ✔ Analyse Requirements, Plan Project @done(22-01-04 21:54)
     ✔ Implement CreateGame @done(22-01-07 17:52)
         ✔ Add GameCreated @done(22-01-07 17:52)
-    ☐ Add CLI
+    ✔ Add CLI @done(22-01-18 15:08)
     ☐ Implement JoinGame
         ✔ Add PlayerJoined @done(22-01-07 17:52)
         ☐ Add StartingPlayerChosen
@@ -13,6 +13,7 @@ Create Rummy Game:
         ☐ Add CardsMovedToStockPile
         ☐ Add CardMovedToDiscardPile
         ☐ Add TurnedUpDiscardPile
+    ☐ Add to CLI: Implement JoinGame
     ☐ Implement TakeFromStockPile
         ☐ Add TakenCardFromStockPile
     ☐ Implement TakeFromDiscardPile
