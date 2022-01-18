@@ -4,6 +4,7 @@ Create Rummy Game:
     ✔ Implement CreateGame @done(22-01-07 17:52)
         ✔ Add GameCreated @done(22-01-07 17:52)
     ✔ Add CLI @done(22-01-18 15:08)
+    ✔ Add to CLI: Add PlayerJoined @done(22-01-18 15:11)
     ☐ Implement JoinGame
         ✔ Add PlayerJoined @done(22-01-07 17:52)
         ☐ Add StartingPlayerChosen

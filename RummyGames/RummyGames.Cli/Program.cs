@@ -16,9 +16,11 @@ namespace RummyGames.Cli
 
             game = lobby.JoinGame(game, player2);
 
+            var inGameState = dataStore.GetInGameState(game.Id);
 
             Console.WriteLine("Rummy");
             Console.WriteLine($"Host: {game.Host.Name}, Guest: {game.Guest.Name}");
+            Console.WriteLine($"Starting Player: {inGameState.StartingPlayer.Name}");
         }
     }
 }
