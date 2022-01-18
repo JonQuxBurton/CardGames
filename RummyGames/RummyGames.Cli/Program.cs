@@ -7,7 +7,7 @@ namespace RummyGames.Cli
         static void Main(string[] args)
         {
             var dataStore = new DataStore();
-            var lobby = new Lobby(dataStore);
+            var lobby = new Lobby(dataStore, new StartingPlayerChooser());
             var player1 = new Player(Guid.NewGuid(), "Alice");
 
             var game = lobby.CreateGame(player1);

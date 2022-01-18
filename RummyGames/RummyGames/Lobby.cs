@@ -5,10 +5,12 @@ namespace RummyGames
     public class Lobby
     {
         private readonly DataStore dataStore;
+        private readonly IStartingPlayerChooser startingPlayerChooser;
 
-        public Lobby(DataStore dataStore)
+        public Lobby(DataStore dataStore, IStartingPlayerChooser startingPlayerChooser)
         {
             this.dataStore = dataStore;
+            this.startingPlayerChooser = startingPlayerChooser;
         }
 
         public RummyGame CreateGame(Player host)
@@ -24,7 +26,9 @@ namespace RummyGames
             var updatedGame = RummyGame.WithJoinPlayer(currentGame, guest);
             dataStore.UpdateGame(updatedGame);
 
-            dataStore.AddInGameState(InGameState.Create(gameToJoin.Id, gameToJoin.Host));
+            var startingPlayer = startingPlayerChooser.Choose(updatedGame.Host, updatedGame.Guest);
+
+            dataStore.AddInGameState(InGameState.Create(updatedGame.Id, startingPlayer));
 
             return updatedGame;
         }
