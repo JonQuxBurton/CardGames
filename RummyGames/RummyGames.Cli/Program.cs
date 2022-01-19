@@ -1,4 +1,5 @@
 ﻿using System;
+using CardGamesDomain;
 
 namespace RummyGames.Cli
 {
@@ -15,8 +16,12 @@ namespace RummyGames.Cli
             var player2 = new Player(Guid.NewGuid(), "Bob");
 
             game = lobby.JoinGame(game, player2);
+            game = lobby.SetupGame(game);
 
             var inGameState = dataStore.GetInGameState(game.Id);
+
+            var inGameController = new InGameController(new RandomShuffler());
+            inGameState = inGameController.ShuffleDeck(inGameState);
 
             Console.WriteLine("Rummy");
             Console.WriteLine($"Host: {game.Host.Name}, Guest: {game.Guest.Name}");
