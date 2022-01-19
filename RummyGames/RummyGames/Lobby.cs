@@ -1,4 +1,5 @@
 ﻿using System;
+using CardGamesDomain;
 
 namespace RummyGames
 {
@@ -26,11 +27,19 @@ namespace RummyGames
             var updatedGame = RummyGame.WithJoinPlayer(currentGame, guest);
             dataStore.UpdateGame(updatedGame);
 
-            var startingPlayer = startingPlayerChooser.Choose(updatedGame.Host, updatedGame.Guest);
-
-            dataStore.AddInGameState(InGameState.Create(updatedGame.Id, startingPlayer));
-
+            var inGameState = SetupInGameState(updatedGame);
+            dataStore.AddInGameState(inGameState);
+            
             return updatedGame;
+        }
+
+        private InGameState SetupInGameState(RummyGame game)
+        {
+            var startingPlayer = startingPlayerChooser.Choose(game.Host, game.Guest);
+            var deckBuilder = new DeckBuilder();
+
+            return new InGameState(game.Id, new Table(new[] { game.Host, game.Guest }, deckBuilder.Build()), startingPlayer);
+
         }
     }
 }

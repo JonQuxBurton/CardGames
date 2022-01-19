@@ -21,6 +21,10 @@ namespace RummyGames.Cli
             Console.WriteLine("Rummy");
             Console.WriteLine($"Host: {game.Host.Name}, Guest: {game.Guest.Name}");
             Console.WriteLine($"Starting Player: {inGameState.StartingPlayer.Name}");
+
+            var deckString = string.Join(',', inGameState.Table.Deck.Cards);
+            Console.WriteLine($"Deck: {deckString}");
+
         }
     }
 }

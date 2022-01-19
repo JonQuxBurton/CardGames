@@ -5,10 +5,10 @@ Create Rummy Game:
         ✔ Add GameCreated @done(22-01-07 17:52)
     ✔ Add CLI @done(22-01-18 15:08)
     ✔ Add to CLI: Add PlayerJoined @done(22-01-18 15:11)
-    ☐ Implement JoinGame
+    ☐ Implement JoinGame:
         ✔ Add PlayerJoined @done(22-01-07 17:52)
-        ☐ Add StartingPlayerChosen
-        ☐ Add DeckCreated
+        ✔ Add StartingPlayerChosen @done(22-01-18 15:34)
+        ✔ Add DeckCreated @done(22-01-19 12:14)
         ☐ Add DeckShuffled
         ☐ Add Dealt
         ☐ Add CardsMovedToStockPile

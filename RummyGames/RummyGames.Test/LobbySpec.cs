@@ -1,4 +1,8 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using CardGamesDomain;
 using FluentAssertions;
 using Xunit;
 
@@ -85,6 +89,24 @@ namespace RummyGames.Test
             var actual = dataStore.GetInGameState(game.Id);
 
             actual.StartingPlayer.Should().Be(guest);
+        }
+        
+        [Fact]
+        public void JoinGame_Should_CreateTable()
+        {
+            var deckBuilder = new DeckBuilder();
+            var dataStore = new DataStore();
+            var sut = new Lobby(dataStore, new StartingPlayerChooser());
+            var game = sut.CreateGame(host);
+
+            sut.JoinGame(game, guest);
+
+            var actual = dataStore.GetInGameState(game.Id);
+
+            actual.Table.Should().NotBeNull();
+            actual.Table.Players.Should().Equal(host, guest);
+            actual.Table.Deck.Should().NotBeNull();
+            actual.Table.Deck.Cards.Should().Equal(deckBuilder.Build().Cards);
         }
     }
 }
