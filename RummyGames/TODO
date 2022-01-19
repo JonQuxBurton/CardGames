@@ -9,7 +9,7 @@ Create Rummy Game:
         ✔ Add PlayerJoined @done(22-01-07 17:52)
         ✔ Add StartingPlayerChosen @done(22-01-18 15:34)
         ✔ Add DeckCreated @done(22-01-19 12:14)
-        ☐ Add DeckShuffled
+        ☐ Add DeckShuffled @started(22-01-19 12:38)
         ☐ Add Dealt
         ☐ Add CardsMovedToStockPile
         ☐ Add CardMovedToDiscardPile

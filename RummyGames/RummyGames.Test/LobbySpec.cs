@@ -1,7 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using CardGamesDomain;
 using FluentAssertions;
 using Xunit;
@@ -48,29 +45,30 @@ namespace RummyGames.Test
         }
 
         [Fact]
-        public void JoinGame_Should_CreateInGameState()
+        public void SetupGame_Should_CreateInGameState()
         {
             var dataStore = new DataStore();
             var sut = new Lobby(dataStore, new StartingPlayerChooser());
             var game = sut.CreateGame(host);
+            game = sut.JoinGame(game, guest);
 
-            sut.JoinGame(game, guest);
+            sut.SetupGame(game);
 
             var actual = dataStore.GetInGameState(game.Id);
-
             actual.Should().NotBeNull();
             actual.GameId.Should().Be(game.Id);
             actual.StartingPlayer.Should().Be(host);
         }
 
         [Fact]
-        public void JoinGame_Should_ChooseStartingPlayerAsPlayer1()
+        public void SetupGame_Should_ChooseStartingPlayerAsPlayer1()
         {
             var dataStore = new DataStore();
             var sut = new Lobby(dataStore, new FakeStartingPlayerChooser(host));
             var game = sut.CreateGame(host);
+            game = sut.JoinGame(game, guest);
 
-            sut.JoinGame(game, guest);
+            sut.SetupGame(game);
 
             var actual = dataStore.GetInGameState(game.Id);
 
@@ -78,28 +76,30 @@ namespace RummyGames.Test
         }
 
         [Fact]
-        public void JoinGame_Should_ChooseStartingPlayerAsPlayer2()
+        public void SetupGame_Should_ChooseStartingPlayerAsPlayer2()
         {
             var dataStore = new DataStore();
             var sut = new Lobby(dataStore, new FakeStartingPlayerChooser(guest));
             var game = sut.CreateGame(host);
+            game = sut.JoinGame(game, guest);
 
-            sut.JoinGame(game, guest);
+            sut.SetupGame(game);
 
             var actual = dataStore.GetInGameState(game.Id);
 
             actual.StartingPlayer.Should().Be(guest);
         }
-        
+
         [Fact]
-        public void JoinGame_Should_CreateTable()
+        public void SetupGame_Should_CreateTable()
         {
             var deckBuilder = new DeckBuilder();
             var dataStore = new DataStore();
             var sut = new Lobby(dataStore, new StartingPlayerChooser());
             var game = sut.CreateGame(host);
+            game = sut.JoinGame(game, guest);
 
-            sut.JoinGame(game, guest);
+            sut.SetupGame(game);
 
             var actual = dataStore.GetInGameState(game.Id);
 

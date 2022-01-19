@@ -27,11 +27,17 @@ namespace RummyGames
             var updatedGame = RummyGame.WithJoinPlayer(currentGame, guest);
             dataStore.UpdateGame(updatedGame);
 
-            var inGameState = SetupInGameState(updatedGame);
-            dataStore.AddInGameState(inGameState);
-            
             return updatedGame;
         }
+
+        public RummyGame SetupGame(RummyGame gameToSetup)
+        {
+            var inGameState = SetupInGameState(gameToSetup);
+            dataStore.AddInGameState(inGameState);
+
+            return gameToSetup;
+        }
+
 
         private InGameState SetupInGameState(RummyGame game)
         {
