@@ -5,16 +5,16 @@ Create Rummy Game:
         ✔ Add GameCreated @done(22-01-07 17:52)
     ✔ Add CLI @done(22-01-18 15:08)
     ✔ Add to CLI: Add PlayerJoined @done(22-01-18 15:11)
-    ☐ Implement JoinGame:
+    ✔ Implement JoinGame: @done(22-01-23 14:31)
         ✔ Add PlayerJoined @done(22-01-07 17:52)
         ✔ Add StartingPlayerChosen @done(22-01-18 15:34)
         ✔ Add DeckCreated @done(22-01-19 12:14)
         ✔ Add DeckShuffled @started(22-01-19 12:38) @done(22-01-19 18:05) @lasted(5h27m13s)
-        ☐ Add Dealt
-        ☐ Add CardsMovedToStockPile
-        ☐ Add CardMovedToDiscardPile
-        ☐ Add TurnedUpDiscardPile
-    ☐ Add to CLI: Implement JoinGame
+        ✔ Add Dealt @done(22-01-23 14:31)
+        ✔ Add CardsMovedToStockPile @done(22-01-23 14:31)
+        ✔ Add CardMovedToDiscardPile @done(22-01-23 14:31)
+        ✔ Add TurnedUpDiscardPile @done(22-01-23 14:31)
+    ✔ Add to CLI: Implement JoinGame @done(22-01-23 14:31)
     ☐ Implement TakeFromStockPile
         ☐ Add TakenCardFromStockPile
     ☐ Implement TakeFromDiscardPile
@@ -30,6 +30,7 @@ Create Rummy Game:
         ☐ Add LayeddownMeld
         ☐ Add RoundWon
     ☐ Add GameWon
+    ☐ Create brief document with CRC style descriptions of the major classes (could use text-to-diagram tool?)
 ☐ 
 Create Whist Game:
     On Create-Whist branch

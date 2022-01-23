@@ -3,9 +3,9 @@ using CardGamesDomain;
 
 namespace RummyGames.Cli
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var dataStore = new DataStore();
             var lobby = new Lobby(dataStore, new StartingPlayerChooser());
@@ -20,8 +20,8 @@ namespace RummyGames.Cli
 
             var inGameState = dataStore.GetInGameState(game.Id);
 
-            var inGameController = new InGameController(new RandomShuffler());
-            inGameState = inGameController.ShuffleDeck(inGameState);
+            var controller = new InGameController(new RandomShuffler());
+            inGameState = controller.ShuffleDeck(inGameState);
 
             Console.WriteLine("Rummy");
             Console.WriteLine($"Host: {game.Host.Name}, Guest: {game.Guest.Name}");
@@ -30,6 +30,11 @@ namespace RummyGames.Cli
             var deckString = string.Join(',', inGameState.Table.Deck.Cards);
             Console.WriteLine($"Deck: {deckString}");
 
+            Console.WriteLine("Dealing...");
+            inGameState = controller.Deal(inGameState);
+
+            foreach (var player in inGameState.Table.Players)
+                Console.WriteLine($"{player.Name}: {player.Hand}");
         }
     }
 }

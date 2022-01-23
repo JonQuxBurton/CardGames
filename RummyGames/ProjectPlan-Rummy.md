@@ -1,11 +1,13 @@
 # Project Plan - Rummy
 
-Rules: https://bicyclecards.com/how-to-play/rummy-rum/
+Rules:
+https://www.pagat.com/rummy/rummy.html
+https://bicyclecards.com/how-to-play/rummy-rum/
 
 ## Milestones
 
-Implement Two Player Game
-Implement Three or More Players Game
+- Implement Two Player Game
+- Implement Three or More Players Game
 
 ## Actions and Events
 
@@ -68,10 +70,20 @@ Cards removed from Players Hand
 Meld added to Table
 Check for Win
 
+## Deal
+
+| NumberOfPlayers | NumberOfCardsDealt |
+| --------------- | ------------------ |
+| 2               | 10                 |
+| 3               | 7                  |
+| 4               | 7                  |
+| 5               | 6                  |
+| 6               | 6                  |
+
 ## Configuration
 
-NumberOfPlayers
-AcesHigh
+- NumberOfPlayers (2-6)
+- AcesHigh
 
 ## Architecture
 
