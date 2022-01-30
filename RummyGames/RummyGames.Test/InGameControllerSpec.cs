@@ -273,5 +273,109 @@ namespace RummyGames.Test
             }
 
         }
+        
+        public class TakeFromDiscardPileShould
+        {
+            private readonly DeckBuilder deckBuilder;
+            private InGameState initialInGameState;
+            private Player guest;
+            private Player host;
+
+            public TakeFromDiscardPileShould()
+            {
+                deckBuilder = new DeckBuilder();
+                host = new Player(Guid.NewGuid(), "Alice");
+                guest = new Player(Guid.NewGuid(), "Bob");
+                initialInGameState = new InGameState(Guid.NewGuid(),
+                    new Table(new[] { host, guest }, deckBuilder.Build(), null),
+                    host, null);
+            }
+
+            private InGameController CreateSut()
+            {
+                var expected = deckBuilder.Build().Cards.ToList();
+
+                var shuffler = new FakeShuffler(expected);
+                return new InGameController(shuffler);
+            }
+
+            [Fact]
+            public void ReturnIsSuccessFalse_When_NotPlayerTurn()
+            {
+                var sut = CreateSut();
+                var currentInGameState = sut.Deal(initialInGameState);
+
+                var actual = sut.TakeFromDiscardPile(currentInGameState, initialInGameState.Table.Players.ElementAt(1));
+
+                actual.IsSuccess.Should().BeFalse();
+                actual.ErrorKey.Should().Be(ErrorKey.NotTurn);
+                actual.NewInGameState.CurrentTurn.TakenCard.Should().BeNull();
+            }
+
+            [Fact]
+            public void ReturnIsSuccessFalse_When_PlayerAlreadyTaken()
+            {
+                var sut = CreateSut();
+                var currentInGameState = sut.Deal(initialInGameState);
+                var result = sut.TakeFromStockPile(currentInGameState, initialInGameState.Table.Players.ElementAt(0));
+
+                var actual = sut.TakeFromDiscardPile(result.NewInGameState, initialInGameState.Table.Players.ElementAt(0));
+
+                actual.IsSuccess.Should().BeFalse();
+                actual.ErrorKey.Should().Be(ErrorKey.AlreadyTaken);
+            }
+
+            [Fact]
+            public void AddTakenCardToCurrentTurn()
+            {
+                var sut = CreateSut();
+                var currentInGameState = sut.Deal(initialInGameState);
+                var expected = currentInGameState.Table.DiscardPile.TurnedUpCard;
+
+                var actual = sut.TakeFromDiscardPile(currentInGameState, initialInGameState.Table.Players.ElementAt(0));
+
+                actual.NewInGameState.CurrentTurn.TakenCard.Should().Be(expected);
+            }
+
+            [Fact]
+            public void AddCardToPlayer1()
+            {
+                var sut = CreateSut();
+                var currentInGameState = sut.Deal(initialInGameState);
+
+                var actual = sut.TakeFromDiscardPile(currentInGameState, initialInGameState.Table.Players.ElementAt(0));
+
+                actual.NewInGameState.Table.Players.First().Hand.Cards.Should().Contain(new Card(Rank.SIX, Suit.CLUBS));
+                actual.NewInGameState.CurrentTurn.Number.Should().Be(1);
+                actual.NewInGameState.CurrentTurn.CurrentPlayer.Id.Should().Be(host.Id);
+            }
+
+            [Fact]
+            public void RemoveCardFromDiscardPile()
+            {
+                var sut = CreateSut();
+                var currentInGameState = sut.Deal(initialInGameState);
+
+                var actual = sut.TakeFromDiscardPile(currentInGameState, initialInGameState.Table.Players.ElementAt(0));
+
+                actual.NewInGameState.Table.DiscardPile.Cards.Should().NotContain(new Card(Rank.SIX, Suit.CLUBS));
+            }
+
+            [Fact]
+            public void AddCardToPlayer2()
+            {
+                initialInGameState = new InGameState(Guid.NewGuid(),
+                    new Table(new[] { host, guest }, deckBuilder.Build(), null),
+                    guest, null);
+
+                var sut = CreateSut();
+                var currentInGameState = sut.Deal(initialInGameState);
+
+                var actual = sut.TakeFromDiscardPile(currentInGameState, initialInGameState.Table.Players.ElementAt(1));
+
+                actual.NewInGameState.Table.Players.ElementAt(1).Hand.Cards.Should().Contain(new Card(Rank.SIX, Suit.CLUBS));
+            }
+
+        }
     }
 }

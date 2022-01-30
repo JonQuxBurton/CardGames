@@ -86,6 +86,42 @@ namespace RummyGames
             return new Result(true, ErrorKey.None, new InGameState(currentGameState.GameId, newTable, currentGameState.StartingPlayer, newTurn));
         }
 
+        public Result TakeFromDiscardPile(InGameState currentGameState, Player playerToTake)
+        {
+            if (playerToTake.Id != currentGameState.CurrentTurn.CurrentPlayer.Id)
+                return new Result(false, ErrorKey.NotTurn, currentGameState);
+
+            if (currentGameState.CurrentTurn.TakenCard != null)
+                return new Result(false, ErrorKey.AlreadyTaken, currentGameState);
+
+            Card takenCard = currentGameState.Table.DiscardPile.TurnedUpCard;
+
+            var currentTable = currentGameState.Table;
+            Player newPlayer1;
+            Player newPlayer2;
+
+            if (playerToTake.Id == currentGameState.Table.Players.First().Id)
+            {
+                newPlayer1 = new Player(playerToTake.Id, playerToTake.Name, new Hand(
+                    playerToTake.Hand.Cards.Append(takenCard)));
+                newPlayer2 = currentTable.Players.ElementAt(1);
+            }
+            else
+            {
+                newPlayer1 = currentTable.Players.ElementAt(0);
+                newPlayer2 = new Player(playerToTake.Id, playerToTake.Name, new Hand(
+                    playerToTake.Hand.Cards.Append(takenCard)));
+            }
+
+            var newDiscardPile = new DiscardPile(currentGameState.Table.DiscardPile.RestOfCards);
+
+            var newTable = new Table(new[] { newPlayer1, newPlayer2 }, currentTable.Deck, newDiscardPile, currentGameState.Table.StockPile);
+
+            var newTurn = new Turn(currentGameState.CurrentTurn.Number, currentGameState.CurrentTurn.CurrentPlayer, takenCard);
+
+            return new Result(true, ErrorKey.None, new InGameState(currentGameState.GameId, newTable, currentGameState.StartingPlayer, newTurn));
+        }
+
         private Player GetNextPlayer(InGameState inGameState)
         {
             if (inGameState.CurrentTurn.CurrentPlayer == inGameState.Table.Players.ElementAt(1))
