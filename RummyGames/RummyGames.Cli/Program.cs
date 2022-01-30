@@ -35,6 +35,24 @@ namespace RummyGames.Cli
 
             foreach (var player in inGameState.Table.Players)
                 Console.WriteLine($"{player.Name}: {player.Hand}");
+
+            Console.WriteLine("Press 1 to Take From StockPile");
+            
+            var selection = 0;
+            var input = Console.ReadKey();
+
+            if (char.IsDigit(input.KeyChar))
+            {
+                selection = int.Parse(input.KeyChar.ToString());
+            }
+
+            if (selection == 1)
+            {
+                Console.WriteLine("\nTake From StockPile");
+                var result = controller.TakeFromStockPile(inGameState, inGameState.CurrentTurn.CurrentPlayer);
+                Console.WriteLine($"Taken Card: {result.NewInGameState.CurrentTurn.TakenCard}");
+            }
+
         }
     }
 }
