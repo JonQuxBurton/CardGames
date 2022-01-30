@@ -18,6 +18,7 @@ namespace RummyGames
         }
 
         public IEnumerable<Card> Cards { get; }
+        public IEnumerable<Card> CardsWithoutTopCard => Cards.Skip(1);
 
         public Card TopCard => Cards.FirstOrDefault();
         public bool IsEmpty => !Cards.Any();

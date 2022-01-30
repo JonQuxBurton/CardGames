@@ -44,8 +44,8 @@ namespace RummyGames
             var startingPlayer = startingPlayerChooser.Choose(game.Host, game.Guest);
             var deckBuilder = new DeckBuilder();
 
-            return new InGameState(game.Id, new Table(new[] { game.Host, game.Guest }, deckBuilder.Build(), null), startingPlayer);
-
+            return new InGameState(game.Id, new Table(new[] {game.Host, game.Guest}, deckBuilder.Build(), null),
+                startingPlayer, null);
         }
     }
 }
