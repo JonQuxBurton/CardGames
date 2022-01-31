@@ -45,7 +45,7 @@ namespace RummyGames
             var deckBuilder = new DeckBuilder();
 
             return new InGameState(game.Id, new Table(new[] {game.Host, game.Guest}, deckBuilder.Build(), null),
-                startingPlayer, null);
+                startingPlayer.Id, null);
         }
     }
 }

@@ -27,7 +27,7 @@ namespace RummyGames.Test
                 var expected = deckBuilder.Build().Cards.Reverse().ToList();
                 var inGameState = new InGameState(Guid.NewGuid(),
                     new Table(new[] {host, guest}, deckBuilder.Build(), null),
-                    host, null);
+                    host.Id, null);
                 var shuffler = new FakeShuffler(expected);
                 var sut = new InGameController(shuffler);
 
@@ -49,7 +49,7 @@ namespace RummyGames.Test
                 var guest = new Player(Guid.NewGuid(), "Bob");
                 initialInGameState = new InGameState(Guid.NewGuid(),
                     new Table(new[] {host, guest}, deckBuilder.Build(), null),
-                    host, null);
+                    host.Id, null);
             }
 
             private InGameController CreateSut()
@@ -166,7 +166,7 @@ namespace RummyGames.Test
                 var actual = sut.Deal(initialInGameState);
 
                 actual.CurrentTurn.Number.Should().Be(1);
-                actual.CurrentTurn.CurrentPlayer.Should().Be(initialInGameState.StartingPlayer);
+                actual.CurrentTurn.CurrentPlayerId.Should().Be(initialInGameState.StartingPlayerId);
             }
         }
 
@@ -184,7 +184,7 @@ namespace RummyGames.Test
                 guest = new Player(Guid.NewGuid(), "Bob");
                 initialInGameState = new InGameState(Guid.NewGuid(),
                     new Table(new[] { host, guest }, deckBuilder.Build(), null),
-                    host, null);
+                    host.Id, null);
             }
 
             private InGameController CreateSut()
@@ -243,7 +243,7 @@ namespace RummyGames.Test
 
                 actual.NewInGameState.Table.Players.First().Hand.Cards.Should().Contain(new Card(Rank.SIX, Suit.DIAMONDS));
                 actual.NewInGameState.CurrentTurn.Number.Should().Be(1);
-                actual.NewInGameState.CurrentTurn.CurrentPlayer.Id.Should().Be(host.Id);
+                actual.NewInGameState.CurrentTurn.CurrentPlayerId.Should().Be(host.Id);
             }
             
             [Fact]
@@ -262,7 +262,7 @@ namespace RummyGames.Test
             {
                 initialInGameState = new InGameState(Guid.NewGuid(),
                     new Table(new[] { host, guest }, deckBuilder.Build(), null),
-                    guest, null);
+                    guest.Id, null);
 
                 var sut = CreateSut();
                 var currentInGameState = sut.Deal(initialInGameState);
@@ -288,7 +288,7 @@ namespace RummyGames.Test
                 guest = new Player(Guid.NewGuid(), "Bob");
                 initialInGameState = new InGameState(Guid.NewGuid(),
                     new Table(new[] { host, guest }, deckBuilder.Build(), null),
-                    host, null);
+                    host.Id, null);
             }
 
             private InGameController CreateSut()
@@ -347,7 +347,7 @@ namespace RummyGames.Test
 
                 actual.NewInGameState.Table.Players.First().Hand.Cards.Should().Contain(new Card(Rank.SIX, Suit.CLUBS));
                 actual.NewInGameState.CurrentTurn.Number.Should().Be(1);
-                actual.NewInGameState.CurrentTurn.CurrentPlayer.Id.Should().Be(host.Id);
+                actual.NewInGameState.CurrentTurn.CurrentPlayerId.Should().Be(host.Id);
             }
 
             [Fact]
@@ -366,7 +366,7 @@ namespace RummyGames.Test
             {
                 initialInGameState = new InGameState(Guid.NewGuid(),
                     new Table(new[] { host, guest }, deckBuilder.Build(), null),
-                    guest, null);
+                    guest.Id, null);
 
                 var sut = CreateSut();
                 var currentInGameState = sut.Deal(initialInGameState);

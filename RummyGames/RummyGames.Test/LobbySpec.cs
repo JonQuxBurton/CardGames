@@ -57,7 +57,7 @@ namespace RummyGames.Test
             var actual = dataStore.GetInGameState(game.Id);
             actual.Should().NotBeNull();
             actual.GameId.Should().Be(game.Id);
-            actual.StartingPlayer.Should().Be(host);
+            actual.StartingPlayerId.Should().Be(host.Id);
         }
 
         [Fact]
@@ -72,7 +72,7 @@ namespace RummyGames.Test
 
             var actual = dataStore.GetInGameState(game.Id);
 
-            actual.StartingPlayer.Should().Be(host);
+            actual.StartingPlayerId.Should().Be(host.Id);
             actual.CurrentTurn.Should().BeNull();
         }
 
@@ -88,7 +88,7 @@ namespace RummyGames.Test
 
             var actual = dataStore.GetInGameState(game.Id);
 
-            actual.StartingPlayer.Should().Be(guest);
+            actual.StartingPlayerId.Should().Be(guest.Id);
             actual.CurrentTurn.Should().BeNull();
         }
 

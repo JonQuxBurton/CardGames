@@ -19,7 +19,7 @@ namespace RummyGames
             var shuffledDeck = new Deck(shuffler.Shuffle(inGameState.Table.Deck.Cards));
 
             return new InGameState(inGameState.GameId, new Table(inGameState.Table.Players, shuffledDeck, null),
-                inGameState.StartingPlayer, null);
+                inGameState.StartingPlayerId, null);
         }
 
         public InGameState Deal(InGameState inGameState)
@@ -47,12 +47,12 @@ namespace RummyGames
             var stockPile = new StockPile(cards.Skip(deckCounter));
             var newTable = new Table(new []{newPlayer1, newPlayer2}, currentTable.Deck, discardPile, stockPile);
 
-            return new InGameState(inGameState.GameId, newTable, inGameState.StartingPlayer, new Turn(1, inGameState.StartingPlayer));
+            return new InGameState(inGameState.GameId, newTable, inGameState.StartingPlayerId, new Turn(1, inGameState.StartingPlayerId));
         }
 
         public Result TakeFromStockPile(InGameState currentGameState, Player playerToTake)
         {
-            if (playerToTake.Id != currentGameState.CurrentTurn.CurrentPlayer.Id)
+            if (playerToTake.Id != currentGameState.CurrentTurn.CurrentPlayerId)
                 return new Result(false, ErrorKey.NotTurn, currentGameState);
 
             if (currentGameState.CurrentTurn.TakenCard != null)
@@ -81,14 +81,14 @@ namespace RummyGames
 
             var newTable = new Table(new[] { newPlayer1, newPlayer2 }, currentTable.Deck, currentGameState.Table.DiscardPile, newStockPile);
 
-            var newTurn = new Turn(currentGameState.CurrentTurn.Number, currentGameState.CurrentTurn.CurrentPlayer, takenCard);
+            var newTurn = new Turn(currentGameState.CurrentTurn.Number, currentGameState.CurrentTurn.CurrentPlayerId, takenCard);
 
-            return new Result(true, ErrorKey.None, new InGameState(currentGameState.GameId, newTable, currentGameState.StartingPlayer, newTurn));
+            return new Result(true, ErrorKey.None, new InGameState(currentGameState.GameId, newTable, currentGameState.StartingPlayerId, newTurn));
         }
 
         public Result TakeFromDiscardPile(InGameState currentGameState, Player playerToTake)
         {
-            if (playerToTake.Id != currentGameState.CurrentTurn.CurrentPlayer.Id)
+            if (playerToTake.Id != currentGameState.CurrentTurn.CurrentPlayerId)
                 return new Result(false, ErrorKey.NotTurn, currentGameState);
 
             if (currentGameState.CurrentTurn.TakenCard != null)
@@ -117,14 +117,14 @@ namespace RummyGames
 
             var newTable = new Table(new[] { newPlayer1, newPlayer2 }, currentTable.Deck, newDiscardPile, currentGameState.Table.StockPile);
 
-            var newTurn = new Turn(currentGameState.CurrentTurn.Number, currentGameState.CurrentTurn.CurrentPlayer, takenCard);
+            var newTurn = new Turn(currentGameState.CurrentTurn.Number, currentGameState.CurrentTurn.CurrentPlayerId, takenCard);
 
-            return new Result(true, ErrorKey.None, new InGameState(currentGameState.GameId, newTable, currentGameState.StartingPlayer, newTurn));
+            return new Result(true, ErrorKey.None, new InGameState(currentGameState.GameId, newTable, currentGameState.StartingPlayerId, newTurn));
         }
 
         private Player GetNextPlayer(InGameState inGameState)
         {
-            if (inGameState.CurrentTurn.CurrentPlayer == inGameState.Table.Players.ElementAt(1))
+            if (inGameState.CurrentTurn.CurrentPlayerId == inGameState.Table.Players.ElementAt(1).Id)
                 return inGameState.Table.Players.ElementAt(0);
 
             return inGameState.Table.Players.ElementAt(1);

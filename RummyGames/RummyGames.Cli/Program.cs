@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using CardGamesDomain;
 
 namespace RummyGames.Cli
@@ -25,7 +26,7 @@ namespace RummyGames.Cli
 
             Console.WriteLine("Rummy");
             Console.WriteLine($"Host: {game.Host.Name}, Guest: {game.Guest.Name}");
-            Console.WriteLine($"Starting Player: {inGameState.StartingPlayer.Name}");
+            Console.WriteLine($"Starting Player: {inGameState.GetPlayer(inGameState.StartingPlayerId).Name}");
 
             var deckString = string.Join(',', inGameState.Table.Deck.Cards);
             Console.WriteLine($"Deck: {deckString}");
@@ -36,7 +37,9 @@ namespace RummyGames.Cli
             foreach (var player in inGameState.Table.Players)
                 Console.WriteLine($"{player.Name}: {player.Hand}");
 
-            Console.WriteLine("Press 1 to Take From StockPile");
+            Console.WriteLine("Press:");
+            Console.WriteLine("Press: 1. To Take From StockPile");
+            Console.WriteLine($"Press: 2. To Take From DiscardPile ({inGameState.Table.DiscardPile.TurnedUpCard})");
             
             var selection = 0;
             var input = Console.ReadKey();
@@ -49,8 +52,21 @@ namespace RummyGames.Cli
             if (selection == 1)
             {
                 Console.WriteLine("\nTake From StockPile");
-                var result = controller.TakeFromStockPile(inGameState, inGameState.CurrentTurn.CurrentPlayer);
-                Console.WriteLine($"Taken Card: {result.NewInGameState.CurrentTurn.TakenCard}");
+                var result = controller.TakeFromStockPile(inGameState, inGameState.GetPlayer(inGameState.CurrentTurn.CurrentPlayerId));
+                inGameState = result.NewInGameState;
+                var currentPlayer = inGameState.GetPlayer(inGameState.CurrentTurn.CurrentPlayerId);
+                Console.WriteLine($"Taken Card: {inGameState.CurrentTurn.TakenCard}");
+                
+                Console.WriteLine($"{currentPlayer.Name}: {currentPlayer.Hand}");
+            }
+            else if (selection == 2)
+            {
+                Console.WriteLine("\nTake From DiscardPile");
+                var result = controller.TakeFromDiscardPile(inGameState, inGameState.GetPlayer(inGameState.CurrentTurn.CurrentPlayerId));
+                inGameState = result.NewInGameState;
+                var currentPlayer = inGameState.GetPlayer(inGameState.CurrentTurn.CurrentPlayerId);
+                Console.WriteLine($"Taken Card: {inGameState.CurrentTurn.TakenCard}");
+                Console.WriteLine($"{currentPlayer.Name}: {currentPlayer.Hand}");
             }
 
         }

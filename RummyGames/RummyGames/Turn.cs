@@ -1,18 +1,19 @@
-﻿using CardGamesDomain;
+﻿using System;
+using CardGamesDomain;
 
 namespace RummyGames
 {
     public class Turn
     {
-        public Turn(int number, Player currentPlayer, Card takenCard = null)
+        public Turn(int number, Guid currentPlayerId, Card takenCard = null)
         {
             Number = number;
-            CurrentPlayer = currentPlayer;
+            CurrentPlayerId = currentPlayerId;
             TakenCard = takenCard;
         }
 
         public int Number { get; }
-        public Player CurrentPlayer { get; }
+        public Guid CurrentPlayerId { get; }
         public Card TakenCard { get; }
     }
 }
