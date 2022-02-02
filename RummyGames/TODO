@@ -18,12 +18,11 @@ Create Rummy Game:
     ✔ Implement TakeFromStockPile @done(22-01-30 17:40)
         ✔ Add TakenCardFromStockPile @started(22-01-23 14:33) @done(22-01-30 17:25) @lasted(1w2h52m21s)
         ✔ Add to CLI @started(22-01-30 17:39) @done(22-01-30 17:40) @lasted(1m45s)
-    ☐ Implement TakeFromDiscardPile
+    ✔ Implement TakeFromDiscardPile @done(22-01-31 23:17)
         ✔ Add TakenCardFromDiscardPile @started(22-01-30 17:41) @done(22-01-30 17:53) @lasted(12m24s)        
         ✔ Add to CLI @done(22-01-31 23:16)
     ☐ Implement Discard
-        ☐ Add DiscardedCard
-        ☐ Add RoundWon
+        ✔ Add DiscardedCard @started(22-01-31 23:18) @done(22-02-02 21:11) @lasted(1d21h53m23s)        
         ☐ Add to CLI
     ☐ Implement Layoff
         ☐ Add LayedoffCard
@@ -33,11 +32,16 @@ Create Rummy Game:
         ☐ Add LayeddownMeld
         ☐ Add RoundWon
         ☐ Add to CLI
+    ☐ Implement Discard        
+        ☐ Add RoundWon        
     ☐ Implement TakeFromDiscardPile    
         ☐ Add RefreshedStockPile        
     ☐ Add GameWon
-    ☐ Create brief document with CRC style descriptions of the major classes (could use text-to-diagram tool?)
-☐ 
+    ☐ Create brief document with Design Sketch of the major classes
+    Refactoring:
+        ☐ Split out InGameController. Methods return Result (rather than InGameState) and should have an IsValid call before they Execute
+        ☐ Rethink the InGameState model. Split Table, so Deck is not with Hands, etc.
+
 Create Whist Game:
     On Create-Whist branch
     ☐ Analyse Requirements, Plan Project

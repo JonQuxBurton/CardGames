@@ -377,5 +377,107 @@ namespace RummyGames.Test
             }
 
         }
+        
+        public class DiscardShould
+        {
+            private readonly DeckBuilder deckBuilder;
+            private InGameState initialInGameState;
+            private readonly Player guest;
+            private readonly Player host;
+
+            public DiscardShould()
+            {
+                deckBuilder = new DeckBuilder();
+                host = new Player(Guid.NewGuid(), "Alice");
+                guest = new Player(Guid.NewGuid(), "Bob");
+                initialInGameState = new InGameState(Guid.NewGuid(),
+                    new Table(new[] { host, guest }, deckBuilder.Build(), null),
+                    host.Id, null);
+            }
+
+            private InGameController CreateSut()
+            {
+                var expected = deckBuilder.Build().Cards.ToList();
+
+                var shuffler = new FakeShuffler(expected);
+                return new InGameController(shuffler);
+            }
+
+            [Fact]
+            public void ReturnIsSuccessFalse_When_NotPlayerTurn()
+            {
+                var sut = CreateSut();
+                var currentInGameState = sut.Deal(initialInGameState);
+                var discardCard = new Card(Rank.FIVE, Suit.HEARTS);
+
+                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(1), discardCard);
+
+                actual.IsSuccess.Should().BeFalse();
+                actual.ErrorKey.Should().Be(ErrorKey.NotTurn);
+            }
+
+            [Fact]
+            public void ReturnIsSuccessFalse_When_PlayerHasNotTaken()
+            {
+                var sut = CreateSut();
+                var currentInGameState = sut.Deal(initialInGameState);
+                var discardCard = new Card(Rank.FIVE, Suit.HEARTS);
+
+                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(0), discardCard);
+
+                actual.IsSuccess.Should().BeFalse();
+                actual.ErrorKey.Should().Be(ErrorKey.InvalidAction);
+            }
+
+            [Fact]
+            public void RemoveCardFromPlayer1()
+            {
+                var sut = CreateSut();
+                var currentInGameState = sut.Deal(initialInGameState);
+                var result = sut.TakeFromStockPile(currentInGameState, currentInGameState.Table.Players.ElementAt(0));
+                currentInGameState = result.NewInGameState;
+                var discardCard = new Card(Rank.FIVE, Suit.HEARTS);
+
+                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(0), discardCard);
+
+                actual.NewInGameState.Table.Players.First().Hand.Cards.Should().NotContain(discardCard);
+                actual.NewInGameState.CurrentTurn.Number.Should().Be(2);
+                actual.NewInGameState.CurrentTurn.CurrentPlayerId.Should().Be(guest.Id);
+            }
+
+            [Fact]
+            public void AddCardToDiscardPile()
+            {
+                var sut = CreateSut();
+                var currentInGameState = sut.Deal(initialInGameState);
+                var result = sut.TakeFromStockPile(currentInGameState, currentInGameState.Table.Players.ElementAt(0));
+                currentInGameState = result.NewInGameState;
+                var discardCard = new Card(Rank.FIVE, Suit.HEARTS);
+
+                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(0), discardCard);
+
+                actual.NewInGameState.Table.DiscardPile.Cards.Should().Contain(discardCard);
+            }
+
+            [Fact]
+            public void RemoveCardFromPlayer2()
+            {
+                initialInGameState = new InGameState(Guid.NewGuid(),
+                    new Table(new[] { host, guest }, deckBuilder.Build(), null),
+                    guest.Id, null);
+                var discardCard = new Card(Rank.FIVE, Suit.SPADES);
+                var sut = CreateSut();
+                var currentInGameState = sut.Deal(initialInGameState);
+                var result = sut.TakeFromStockPile(currentInGameState, currentInGameState.Table.Players.ElementAt(1));
+                currentInGameState = result.NewInGameState;
+
+                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(1), discardCard);
+
+                actual.NewInGameState.Table.Players.ElementAt(1).Hand.Cards.Should().NotContain(discardCard);
+                actual.NewInGameState.CurrentTurn.Number.Should().Be(2);
+                actual.NewInGameState.CurrentTurn.CurrentPlayerId.Should().Be(host.Id);
+            }
+
+        }
     }
 }

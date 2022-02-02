@@ -4,6 +4,7 @@
     {
         None,
         NotTurn,
-        AlreadyTaken
+        AlreadyTaken,
+        InvalidAction
     }
 }

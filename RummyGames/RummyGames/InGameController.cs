@@ -122,6 +122,39 @@ namespace RummyGames
             return new Result(true, ErrorKey.None, new InGameState(currentGameState.GameId, newTable, currentGameState.StartingPlayerId, newTurn));
         }
 
+        public Result Discard(InGameState currentGameState, Player playerToDiscard, Card cardToDiscard)
+        {
+            if (playerToDiscard.Id != currentGameState.CurrentTurn.CurrentPlayerId)
+                return new Result(false, ErrorKey.NotTurn, currentGameState);
+
+            if (currentGameState.CurrentTurn.TakenCard == null)
+                return new Result(false, ErrorKey.InvalidAction, currentGameState);
+
+            var currentTable = currentGameState.Table;
+            Player newPlayer1;
+            Player newPlayer2;
+
+            if (playerToDiscard.Id == currentGameState.Table.Players.First().Id)
+            {
+                newPlayer1 = new Player(playerToDiscard.Id, playerToDiscard.Name, new Hand(
+                    playerToDiscard.Hand.Cards.Except(new[] {cardToDiscard})));
+                newPlayer2 = currentTable.Players.ElementAt(1);
+            }
+            else
+            {
+                newPlayer1 = currentTable.Players.ElementAt(0);
+                newPlayer2 = new Player(playerToDiscard.Id, playerToDiscard.Name, new Hand(
+                    playerToDiscard.Hand.Cards.Except(new[] {cardToDiscard})));
+            }
+
+            var newDiscardPile = new DiscardPile(currentGameState.Table.DiscardPile.Cards.Append(cardToDiscard));
+            var newTable = new Table(new[] { newPlayer1, newPlayer2 }, currentTable.Deck, newDiscardPile, currentGameState.Table.StockPile);
+
+            var newTurn = new Turn(currentGameState.CurrentTurn.Number+1, GetNextPlayer(currentGameState).Id);
+
+            return new Result(true, ErrorKey.None, new InGameState(currentGameState.GameId, newTable, currentGameState.StartingPlayerId, newTurn));
+        }
+
         private Player GetNextPlayer(InGameState inGameState)
         {
             if (inGameState.CurrentTurn.CurrentPlayerId == inGameState.Table.Players.ElementAt(1).Id)
