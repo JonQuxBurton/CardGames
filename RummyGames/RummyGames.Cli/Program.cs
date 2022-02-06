@@ -69,6 +69,29 @@ namespace RummyGames.Cli
                 Console.WriteLine($"{currentPlayer.Name}: {currentPlayer.Hand}");
             }
 
+            Console.WriteLine($"Select Card to Discard:");
+            var currentPlayer2 = inGameState.GetPlayer(inGameState.CurrentTurn.CurrentPlayerId);
+            var counter = 1;
+
+            Console.WriteLine(string.Join("\n", currentPlayer2.Hand.Cards.Select(x => $"{counter++}: {x}")));
+
+            selection = GetInput();
+
+            var cardToDiscard = currentPlayer2.Hand.Cards.ElementAt(selection - 1);
+
+            var result2 = controller.Discard(inGameState, inGameState.GetPlayer(inGameState.CurrentTurn.CurrentPlayerId), cardToDiscard);
+            inGameState = result2.NewInGameState;
+            Console.WriteLine($"Discarded: {cardToDiscard}");
+        }
+
+        private static int GetInput()
+        {
+            var input = Console.ReadLine();
+
+            if (int.TryParse(input, out var selection))
+                return selection;
+
+            return 0;
         }
     }
 }
