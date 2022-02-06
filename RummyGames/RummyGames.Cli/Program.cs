@@ -55,7 +55,7 @@ namespace RummyGames.Cli
                 var result = controller.TakeFromStockPile(inGameState, inGameState.GetPlayer(inGameState.CurrentTurn.CurrentPlayerId));
                 inGameState = result.NewInGameState;
                 var currentPlayer = inGameState.GetPlayer(inGameState.CurrentTurn.CurrentPlayerId);
-                Console.WriteLine($"Taken Card: {inGameState.CurrentTurn.TakenCard}");
+                Console.WriteLine($"Taken Card: {inGameState.CurrentTurn.CardTakenFromStockPile}");
                 
                 Console.WriteLine($"{currentPlayer.Name}: {currentPlayer.Hand}");
             }
@@ -65,7 +65,7 @@ namespace RummyGames.Cli
                 var result = controller.TakeFromDiscardPile(inGameState, inGameState.GetPlayer(inGameState.CurrentTurn.CurrentPlayerId));
                 inGameState = result.NewInGameState;
                 var currentPlayer = inGameState.GetPlayer(inGameState.CurrentTurn.CurrentPlayerId);
-                Console.WriteLine($"Taken Card: {inGameState.CurrentTurn.TakenCard}");
+                Console.WriteLine($"Taken Card: {inGameState.CurrentTurn.CardTakenFromStockPile}");
                 Console.WriteLine($"{currentPlayer.Name}: {currentPlayer.Hand}");
             }
 
@@ -80,8 +80,12 @@ namespace RummyGames.Cli
             var cardToDiscard = currentPlayer2.Hand.Cards.ElementAt(selection - 1);
 
             var result2 = controller.Discard(inGameState, inGameState.GetPlayer(inGameState.CurrentTurn.CurrentPlayerId), cardToDiscard);
+            if (!result2.IsSuccess)
+                Console.WriteLine($"Invalid Discard");
+            else
+                Console.WriteLine($"Discarded: {cardToDiscard}");
+
             inGameState = result2.NewInGameState;
-            Console.WriteLine($"Discarded: {cardToDiscard}");
         }
 
         private static int GetInput()

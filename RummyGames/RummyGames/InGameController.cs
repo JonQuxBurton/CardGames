@@ -55,7 +55,7 @@ namespace RummyGames
             if (playerToTake.Id != currentGameState.CurrentTurn.CurrentPlayerId)
                 return new Result(false, ErrorKey.NotTurn, currentGameState);
 
-            if (currentGameState.CurrentTurn.TakenCard != null)
+            if (currentGameState.CurrentTurn.HasTakenCard())
                 return new Result(false, ErrorKey.AlreadyTaken, currentGameState);
 
             var currentTable = currentGameState.Table;
@@ -91,7 +91,7 @@ namespace RummyGames
             if (playerToTake.Id != currentGameState.CurrentTurn.CurrentPlayerId)
                 return new Result(false, ErrorKey.NotTurn, currentGameState);
 
-            if (currentGameState.CurrentTurn.TakenCard != null)
+            if (currentGameState.CurrentTurn.HasTakenCard())
                 return new Result(false, ErrorKey.AlreadyTaken, currentGameState);
 
             Card takenCard = currentGameState.Table.DiscardPile.TurnedUpCard;
@@ -117,7 +117,7 @@ namespace RummyGames
 
             var newTable = new Table(new[] { newPlayer1, newPlayer2 }, currentTable.Deck, newDiscardPile, currentGameState.Table.StockPile);
 
-            var newTurn = new Turn(currentGameState.CurrentTurn.Number, currentGameState.CurrentTurn.CurrentPlayerId, takenCard);
+            var newTurn = new Turn(currentGameState.CurrentTurn.Number, currentGameState.CurrentTurn.CurrentPlayerId, null, takenCard);
 
             return new Result(true, ErrorKey.None, new InGameState(currentGameState.GameId, newTable, currentGameState.StartingPlayerId, newTurn));
         }
@@ -127,7 +127,11 @@ namespace RummyGames
             if (playerToDiscard.Id != currentGameState.CurrentTurn.CurrentPlayerId)
                 return new Result(false, ErrorKey.NotTurn, currentGameState);
 
-            if (currentGameState.CurrentTurn.TakenCard == null)
+            if (!currentGameState.CurrentTurn.HasTakenCard())
+                return new Result(false, ErrorKey.InvalidAction, currentGameState);
+
+            if (currentGameState.CurrentTurn.CardTakenFromDiscardPile != null && 
+                currentGameState.CurrentTurn.CardTakenFromDiscardPile.Equals(cardToDiscard))
                 return new Result(false, ErrorKey.InvalidAction, currentGameState);
 
             var currentTable = currentGameState.Table;

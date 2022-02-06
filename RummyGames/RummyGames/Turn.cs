@@ -5,15 +5,19 @@ namespace RummyGames
 {
     public class Turn
     {
-        public Turn(int number, Guid currentPlayerId, Card takenCard = null)
+        public Turn(int number, Guid currentPlayerId, Card cardTakenFromStockPile = null, Card cardTakenFromDiscardPile = null)
         {
             Number = number;
             CurrentPlayerId = currentPlayerId;
-            TakenCard = takenCard;
+            CardTakenFromStockPile = cardTakenFromStockPile;
+            CardTakenFromDiscardPile = cardTakenFromDiscardPile;
         }
 
         public int Number { get; }
         public Guid CurrentPlayerId { get; }
-        public Card TakenCard { get; }
+        public Card CardTakenFromStockPile { get; }
+        public Card CardTakenFromDiscardPile { get; }
+
+        public bool HasTakenCard() => CardTakenFromStockPile != null || CardTakenFromDiscardPile != null;
     }
 }

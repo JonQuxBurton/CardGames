@@ -205,7 +205,8 @@ namespace RummyGames.Test
 
                 actual.IsSuccess.Should().BeFalse();
                 actual.ErrorKey.Should().Be(ErrorKey.NotTurn);
-                actual.NewInGameState.CurrentTurn.TakenCard.Should().BeNull();
+                actual.NewInGameState.CurrentTurn.HasTakenCard().Should().BeFalse();
+                actual.NewInGameState.CurrentTurn.CardTakenFromStockPile.Should().BeNull();
             }
             
             [Fact]
@@ -230,7 +231,8 @@ namespace RummyGames.Test
 
                 var actual = sut.TakeFromStockPile(currentInGameState, initialInGameState.Table.Players.ElementAt(0));
 
-                actual.NewInGameState.CurrentTurn.TakenCard.Should().Be(expected);
+                actual.NewInGameState.CurrentTurn.HasTakenCard().Should().BeTrue();
+                actual.NewInGameState.CurrentTurn.CardTakenFromStockPile.Should().Be(expected);
             }
             
             [Fact]
@@ -309,7 +311,8 @@ namespace RummyGames.Test
 
                 actual.IsSuccess.Should().BeFalse();
                 actual.ErrorKey.Should().Be(ErrorKey.NotTurn);
-                actual.NewInGameState.CurrentTurn.TakenCard.Should().BeNull();
+                actual.NewInGameState.CurrentTurn.HasTakenCard().Should().BeFalse();
+                actual.NewInGameState.CurrentTurn.CardTakenFromStockPile.Should().BeNull();
             }
 
             [Fact]
@@ -334,7 +337,9 @@ namespace RummyGames.Test
 
                 var actual = sut.TakeFromDiscardPile(currentInGameState, initialInGameState.Table.Players.ElementAt(0));
 
-                actual.NewInGameState.CurrentTurn.TakenCard.Should().Be(expected);
+                actual.NewInGameState.CurrentTurn.HasTakenCard().Should().BeTrue();
+                actual.NewInGameState.CurrentTurn.CardTakenFromStockPile.Should().BeNull();
+                actual.NewInGameState.CurrentTurn.CardTakenFromDiscardPile.Should().Be(expected);
             }
 
             [Fact]
@@ -422,6 +427,37 @@ namespace RummyGames.Test
                 var sut = CreateSut();
                 var currentInGameState = sut.Deal(initialInGameState);
                 var discardCard = new Card(Rank.FIVE, Suit.HEARTS);
+
+                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(0), discardCard);
+
+                actual.IsSuccess.Should().BeFalse();
+                actual.ErrorKey.Should().Be(ErrorKey.InvalidAction);
+            }
+
+            //[Fact]
+            public void ReturnIsSuccessTrue_When_CardJustTakenFromStockPile()
+            {
+                var sut = CreateSut();
+                var currentInGameState = sut.Deal(initialInGameState);
+                var takeResult = sut.TakeFromStockPile(currentInGameState, initialInGameState.Table.Players.ElementAt(0));
+                currentInGameState = takeResult.NewInGameState;
+
+                var discardCard = new Card(Rank.SIX, Suit.DIAMONDS);
+
+                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(0), discardCard);
+
+                actual.IsSuccess.Should().BeTrue();
+                actual.ErrorKey.Should().Be(ErrorKey.None);
+            }
+
+            [Fact]
+            public void ReturnIsSuccessFalse_When_CardJustTakenFromDiscardPile()
+            {
+                var sut = CreateSut();
+                var currentInGameState = sut.Deal(initialInGameState);
+                var takeResult = sut.TakeFromDiscardPile(currentInGameState, initialInGameState.Table.Players.ElementAt(0));
+                currentInGameState = takeResult.NewInGameState;
+                var discardCard = new Card(Rank.SIX, Suit.CLUBS);
 
                 var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(0), discardCard);
 
