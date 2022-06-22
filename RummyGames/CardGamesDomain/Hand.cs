@@ -22,6 +22,11 @@ namespace CardGamesDomain
         {
             return Cards.Any(x => x.Equals(card));
         }
+        
+        public bool Contains(IEnumerable<Card> cards)
+        {
+            return Cards.Intersect(cards).Count() == cards.Count();
+        }
 
         public override string ToString()
         {
