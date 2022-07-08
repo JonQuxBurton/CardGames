@@ -198,8 +198,31 @@ namespace RummyGames
 
             // If Sequence, must all have same Suit
             if (cards.Select(x => x.Suit).Distinct().Count() == 1)
-                return new Result(true, ErrorKey.None, currentGameState);
-            
+            {
+                //var newPlayer1 = currentGameState.Table.Players.ElementAt(0);
+                //var newPlayer2 = currentGameState.Table.Players.ElementAt(1);
+
+                Player newPlayer1;
+                Player newPlayer2;
+                
+                if (playerToPlay.Id == currentGameState.CurrentTurn.CurrentPlayerId)
+                {
+                    newPlayer1 = new Player(playerToPlay.Id, playerToPlay.Name, new Hand(
+                        playerToPlay.Hand.Cards.Except(cards)));
+                    newPlayer2 = currentGameState.Table.Players.ElementAt(1);
+                }
+                else
+                {
+                    newPlayer1 = currentGameState.Table.Players.ElementAt(0);
+                    newPlayer2 = currentGameState.Table.Players.ElementAt(1);
+                }
+
+                var newTable = new Table(new[] { newPlayer1, newPlayer2 }, currentGameState.Table.Deck, currentGameState.Table.DiscardPile,
+                    currentGameState.Table.StockPile, new IEnumerable<Card>[] { cards });
+
+                return new Result(true, ErrorKey.None, new InGameState(currentGameState.GameId, newTable, currentGameState.StartingPlayerId, currentGameState.CurrentTurn));
+            }
+
             return new Result(false, ErrorKey.InvalidAction, currentGameState);
         }
 
