@@ -27,7 +27,7 @@ namespace RummyGames.Test
             {
                 var expected = deckBuilder.Build().Cards.Reverse().ToList();
                 var inGameState = new InGameState(Guid.NewGuid(),
-                    new Table(new[] {host, guest}, deckBuilder.Build(), null),
+                    new Table(new[] { host, guest }, deckBuilder.Build(), null),
                     host.Id, null);
                 var shuffler = new FakeShuffler(expected);
                 var sut = new InGameController(shuffler);
@@ -49,7 +49,7 @@ namespace RummyGames.Test
                 var host = new Player(Guid.NewGuid(), "Alice");
                 var guest = new Player(Guid.NewGuid(), "Bob");
                 initialInGameState = new InGameState(Guid.NewGuid(),
-                    new Table(new[] {host, guest}, deckBuilder.Build(), null),
+                    new Table(new[] { host, guest }, deckBuilder.Build(), null),
                     host.Id, null);
             }
 
@@ -209,7 +209,7 @@ namespace RummyGames.Test
                 actual.NewInGameState.CurrentTurn.HasTakenCard().Should().BeFalse();
                 actual.NewInGameState.CurrentTurn.CardTakenFromStockPile.Should().BeNull();
             }
-            
+
             [Fact]
             public void ReturnIsSuccessFalse_When_PlayerAlreadyTaken()
             {
@@ -217,12 +217,13 @@ namespace RummyGames.Test
                 var currentInGameState = sut.Deal(initialInGameState);
                 var result = sut.TakeFromStockPile(currentInGameState, initialInGameState.Table.Players.ElementAt(0));
 
-                var actual = sut.TakeFromStockPile(result.NewInGameState, initialInGameState.Table.Players.ElementAt(0));
+                var actual =
+                    sut.TakeFromStockPile(result.NewInGameState, initialInGameState.Table.Players.ElementAt(0));
 
                 actual.IsSuccess.Should().BeFalse();
                 actual.ErrorKey.Should().Be(ErrorKey.AlreadyTaken);
             }
-            
+
             [Fact]
             public void AddTakenCardToCurrentTurn()
             {
@@ -235,7 +236,7 @@ namespace RummyGames.Test
                 actual.NewInGameState.CurrentTurn.HasTakenCard().Should().BeTrue();
                 actual.NewInGameState.CurrentTurn.CardTakenFromStockPile.Should().Be(expected);
             }
-            
+
             [Fact]
             public void AddCardToPlayer1()
             {
@@ -244,11 +245,12 @@ namespace RummyGames.Test
 
                 var actual = sut.TakeFromStockPile(currentInGameState, initialInGameState.Table.Players.ElementAt(0));
 
-                actual.NewInGameState.Table.Players.First().Hand.Cards.Should().Contain(new Card(Rank.SIX, Suit.DIAMONDS));
+                actual.NewInGameState.Table.Players.First().Hand.Cards.Should()
+                    .Contain(new Card(Rank.SIX, Suit.DIAMONDS));
                 actual.NewInGameState.CurrentTurn.Number.Should().Be(1);
                 actual.NewInGameState.CurrentTurn.CurrentPlayerId.Should().Be(host.Id);
             }
-            
+
             [Fact]
             public void RemoveCardFromStockPile()
             {
@@ -272,11 +274,11 @@ namespace RummyGames.Test
 
                 var actual = sut.TakeFromStockPile(currentInGameState, initialInGameState.Table.Players.ElementAt(1));
 
-                actual.NewInGameState.Table.Players.ElementAt(1).Hand.Cards.Should().Contain(new Card(Rank.SIX, Suit.DIAMONDS));
+                actual.NewInGameState.Table.Players.ElementAt(1).Hand.Cards.Should()
+                    .Contain(new Card(Rank.SIX, Suit.DIAMONDS));
             }
-
         }
-        
+
         public class TakeFromDiscardPileShould
         {
             private readonly DeckBuilder deckBuilder;
@@ -323,7 +325,8 @@ namespace RummyGames.Test
                 var currentInGameState = sut.Deal(initialInGameState);
                 var result = sut.TakeFromStockPile(currentInGameState, initialInGameState.Table.Players.ElementAt(0));
 
-                var actual = sut.TakeFromDiscardPile(result.NewInGameState, initialInGameState.Table.Players.ElementAt(0));
+                var actual =
+                    sut.TakeFromDiscardPile(result.NewInGameState, initialInGameState.Table.Players.ElementAt(0));
 
                 actual.IsSuccess.Should().BeFalse();
                 actual.ErrorKey.Should().Be(ErrorKey.AlreadyTaken);
@@ -379,11 +382,11 @@ namespace RummyGames.Test
 
                 var actual = sut.TakeFromDiscardPile(currentInGameState, initialInGameState.Table.Players.ElementAt(1));
 
-                actual.NewInGameState.Table.Players.ElementAt(1).Hand.Cards.Should().Contain(new Card(Rank.SIX, Suit.CLUBS));
+                actual.NewInGameState.Table.Players.ElementAt(1).Hand.Cards.Should()
+                    .Contain(new Card(Rank.SIX, Suit.CLUBS));
             }
-
         }
-        
+
         public class DiscardShould
         {
             private readonly DeckBuilder deckBuilder;
@@ -416,7 +419,8 @@ namespace RummyGames.Test
                 var currentInGameState = sut.Deal(initialInGameState);
                 var discardCard = new Card(Rank.FIVE, Suit.HEARTS);
 
-                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(1), discardCard);
+                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(1),
+                    discardCard);
 
                 actual.IsSuccess.Should().BeFalse();
                 actual.ErrorKey.Should().Be(ErrorKey.NotTurn);
@@ -429,7 +433,8 @@ namespace RummyGames.Test
                 var currentInGameState = sut.Deal(initialInGameState);
                 var discardCard = new Card(Rank.FIVE, Suit.HEARTS);
 
-                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(0), discardCard);
+                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(0),
+                    discardCard);
 
                 actual.IsSuccess.Should().BeFalse();
                 actual.ErrorKey.Should().Be(ErrorKey.InvalidAction);
@@ -440,12 +445,14 @@ namespace RummyGames.Test
             {
                 var sut = CreateSut();
                 var currentInGameState = sut.Deal(initialInGameState);
-                var takeResult = sut.TakeFromStockPile(currentInGameState, initialInGameState.Table.Players.ElementAt(0));
+                var takeResult =
+                    sut.TakeFromStockPile(currentInGameState, initialInGameState.Table.Players.ElementAt(0));
                 currentInGameState = takeResult.NewInGameState;
 
                 var discardCard = new Card(Rank.SIX, Suit.DIAMONDS);
 
-                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(0), discardCard);
+                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(0),
+                    discardCard);
 
                 actual.IsSuccess.Should().BeTrue();
                 actual.ErrorKey.Should().Be(ErrorKey.None);
@@ -456,11 +463,13 @@ namespace RummyGames.Test
             {
                 var sut = CreateSut();
                 var currentInGameState = sut.Deal(initialInGameState);
-                var takeResult = sut.TakeFromDiscardPile(currentInGameState, initialInGameState.Table.Players.ElementAt(0));
+                var takeResult =
+                    sut.TakeFromDiscardPile(currentInGameState, initialInGameState.Table.Players.ElementAt(0));
                 currentInGameState = takeResult.NewInGameState;
                 var discardCard = new Card(Rank.SIX, Suit.CLUBS);
 
-                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(0), discardCard);
+                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(0),
+                    discardCard);
 
                 actual.IsSuccess.Should().BeFalse();
                 actual.ErrorKey.Should().Be(ErrorKey.InvalidAction);
@@ -475,7 +484,8 @@ namespace RummyGames.Test
                 currentInGameState = result.NewInGameState;
                 var discardCard = new Card(Rank.FIVE, Suit.HEARTS);
 
-                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(0), discardCard);
+                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(0),
+                    discardCard);
 
                 actual.NewInGameState.Table.Players.First().Hand.Cards.Should().NotContain(discardCard);
                 actual.NewInGameState.CurrentTurn.Number.Should().Be(2);
@@ -491,7 +501,8 @@ namespace RummyGames.Test
                 currentInGameState = result.NewInGameState;
                 var discardCard = new Card(Rank.FIVE, Suit.HEARTS);
 
-                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(0), discardCard);
+                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(0),
+                    discardCard);
 
                 actual.NewInGameState.Table.DiscardPile.Cards.Should().Contain(discardCard);
             }
@@ -508,15 +519,15 @@ namespace RummyGames.Test
                 var result = sut.TakeFromStockPile(currentInGameState, currentInGameState.Table.Players.ElementAt(1));
                 currentInGameState = result.NewInGameState;
 
-                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(1), discardCard);
+                var actual = sut.Discard(currentInGameState, currentInGameState.Table.Players.ElementAt(1),
+                    discardCard);
 
                 actual.NewInGameState.Table.Players.ElementAt(1).Hand.Cards.Should().NotContain(discardCard);
                 actual.NewInGameState.CurrentTurn.Number.Should().Be(2);
                 actual.NewInGameState.CurrentTurn.CurrentPlayerId.Should().Be(host.Id);
             }
-
         }
-        
+
         public class LaydownShould
         {
             private readonly Player guest;
@@ -527,9 +538,10 @@ namespace RummyGames.Test
                 host = new Player(Guid.NewGuid(), "Alice");
                 guest = new Player(Guid.NewGuid(), "Bob");
             }
-            
 
-            private Deck BuildSpecificDeck(IEnumerable<Card> player1Cards, IEnumerable<Card> player2Cards, Card discardCard, IEnumerable<Card> stockPile)
+
+            private Deck BuildSpecificDeck(IEnumerable<Card> player1Cards, IEnumerable<Card> player2Cards,
+                Card discardCard, IEnumerable<Card> stockPile)
             {
                 var deck = new List<Card>();
 
@@ -588,7 +600,8 @@ namespace RummyGames.Test
                 return CreateSut(player1Cards, player2Cards, discardCard, stockPileCards);
             }
 
-            private TestSetup CreateSut(IEnumerable<Card> player1Cards, IEnumerable<Card> player2Cards, Card discardCard, IEnumerable<Card> stockPile)
+            private TestSetup CreateSut(IEnumerable<Card> player1Cards, IEnumerable<Card> player2Cards,
+                Card discardCard, IEnumerable<Card> stockPile)
             {
                 var deck = BuildSpecificDeck(
                     player1Cards,
@@ -617,7 +630,7 @@ namespace RummyGames.Test
 
                 var sut = setup.InGameController;
 
-                var cards =  new[] { new Card(Rank.FIVE, Suit.HEARTS) };
+                var cards = new[] { new Card(Rank.FIVE, Suit.HEARTS) };
                 var takeResult = sut.TakeFromDiscardPile(currentInGameState, new InGameState(Guid.NewGuid(),
                     new Table(new[] { host, guest }, new DeckBuilder().Build(), null),
                     host.Id, null).Table.Players.ElementAt(0));
@@ -683,7 +696,7 @@ namespace RummyGames.Test
 
                 var sut = setup.InGameController;
 
-                var sequence =  new[]
+                var sequence = new[]
                 {
                     new Card(Rank.ACE, Suit.CLUBS),
                     new Card(Rank.TWO, Suit.CLUBS)
@@ -707,7 +720,7 @@ namespace RummyGames.Test
 
                 var sut = setup.InGameController;
 
-                var sequence =  new[]
+                var sequence = new[]
                 {
                     new Card(Rank.ACE, Suit.CLUBS),
                     new Card(Rank.TWO, Suit.DIAMONDS),
@@ -728,19 +741,19 @@ namespace RummyGames.Test
             public void ReturnIsSuccessTrue_When_ValidBook()
             {
                 var player1Cards =
-                new Card[]
-                {
-                    new(Rank.ACE, Suit.CLUBS),
-                    new(Rank.ACE, Suit.DIAMONDS),
-                    new(Rank.ACE, Suit.HEARTS),
-                    new(Rank.FOUR, Suit.CLUBS),
-                    new(Rank.FIVE, Suit.CLUBS),
-                    new(Rank.SIX, Suit.CLUBS),
-                    new(Rank.SEVEN, Suit.CLUBS),
-                    new(Rank.EIGHT, Suit.CLUBS),
-                    new(Rank.NINE, Suit.CLUBS),
-                    new(Rank.TEN, Suit.CLUBS)
-                };
+                    new Card[]
+                    {
+                        new(Rank.ACE, Suit.CLUBS),
+                        new(Rank.ACE, Suit.DIAMONDS),
+                        new(Rank.ACE, Suit.HEARTS),
+                        new(Rank.FOUR, Suit.CLUBS),
+                        new(Rank.FIVE, Suit.CLUBS),
+                        new(Rank.SIX, Suit.CLUBS),
+                        new(Rank.SEVEN, Suit.CLUBS),
+                        new(Rank.EIGHT, Suit.CLUBS),
+                        new(Rank.NINE, Suit.CLUBS),
+                        new(Rank.TEN, Suit.CLUBS)
+                    };
 
                 var player2Cards = new Card[]
                 {
@@ -765,19 +778,20 @@ namespace RummyGames.Test
                         new(Rank.THREE, Suit.HEARTS),
                         new(Rank.ACE, Suit.HEARTS)
                     };
-                
+
                 var setup = CreateSut(player1Cards, player2Cards, discardCard, stockPile);
                 var currentInGameState = setup.CurrentInGameState;
 
                 var sut = setup.InGameController;
 
-                var sequence =  new[]
+                var sequence = new[]
                 {
                     new Card(Rank.ACE, Suit.CLUBS),
                     new Card(Rank.ACE, Suit.DIAMONDS),
                     new Card(Rank.ACE, Suit.HEARTS),
                 };
-                var takeResult = sut.TakeFromDiscardPile(currentInGameState, currentInGameState.Table.Players.ElementAt(0));
+                var takeResult =
+                    sut.TakeFromDiscardPile(currentInGameState, currentInGameState.Table.Players.ElementAt(0));
                 currentInGameState = takeResult.NewInGameState;
 
                 var actual = sut.Laydown(currentInGameState, currentInGameState.Table.Players.ElementAt(0), sequence);
@@ -786,70 +800,74 @@ namespace RummyGames.Test
                 actual.ErrorKey.Should().Be(ErrorKey.None);
             }
 
-            [Fact]
-            public void AddBookToLaydowns()
-            {
-                var player1Cards =
-                new Card[]
-                {
-                    new(Rank.ACE, Suit.CLUBS),
-                    new(Rank.ACE, Suit.DIAMONDS),
-                    new(Rank.ACE, Suit.HEARTS),
-                    new(Rank.FOUR, Suit.CLUBS),
-                    new(Rank.FIVE, Suit.CLUBS),
-                    new(Rank.SIX, Suit.CLUBS),
-                    new(Rank.SEVEN, Suit.CLUBS),
-                    new(Rank.EIGHT, Suit.CLUBS),
-                    new(Rank.NINE, Suit.CLUBS),
-                    new(Rank.TEN, Suit.CLUBS)
-                };
-
-                var player2Cards = new Card[]
-                {
-                    new(Rank.TWO, Suit.DIAMONDS),
-                    new(Rank.THREE, Suit.DIAMONDS),
-                    new(Rank.FOUR, Suit.DIAMONDS),
-                    new(Rank.FIVE, Suit.DIAMONDS),
-                    new(Rank.SIX, Suit.DIAMONDS),
-                    new(Rank.SEVEN, Suit.DIAMONDS),
-                    new(Rank.EIGHT, Suit.DIAMONDS),
-                    new(Rank.NINE, Suit.DIAMONDS),
-                    new(Rank.TEN, Suit.DIAMONDS),
-                    new(Rank.JACK, Suit.DIAMONDS)
-                };
-
-                var discardCard = new Card(Rank.ACE, Suit.HEARTS);
-
-                var stockPile =
-                    new Card[]
-                    {
-                        new(Rank.TWO, Suit.HEARTS),
-                        new(Rank.THREE, Suit.HEARTS),
-                        new(Rank.ACE, Suit.HEARTS)
-                    };
-
-                var setup = CreateSut(player1Cards, player2Cards, discardCard, stockPile);
-                var currentInGameState = setup.CurrentInGameState;
-
-                var sut = setup.InGameController;
-
-                var laydownBook = new[]
-                {
-                    new Card(Rank.ACE, Suit.CLUBS),
-                    new Card(Rank.ACE, Suit.DIAMONDS),
-                    new Card(Rank.ACE, Suit.HEARTS),
-                };
-                var takeResult = sut.TakeFromDiscardPile(currentInGameState, currentInGameState.Table.Players.ElementAt(0));
-                currentInGameState = takeResult.NewInGameState;
-
-                var actual = sut.Laydown(currentInGameState, currentInGameState.Table.Players.ElementAt(0), laydownBook);
-
-                actual.NewInGameState.Table.Laydowns.First().Should().Equal(laydownBook);
-            }
+            // [Fact]
+            // public void AddBookToLaydowns()
+            // {
+            //     var player1Cards =
+            //         new Card[]
+            //         {
+            //             new(Rank.ACE, Suit.CLUBS),
+            //             new(Rank.ACE, Suit.DIAMONDS),
+            //             new(Rank.ACE, Suit.HEARTS),
+            //             new(Rank.FOUR, Suit.CLUBS),
+            //             new(Rank.FIVE, Suit.CLUBS),
+            //             new(Rank.SIX, Suit.CLUBS),
+            //             new(Rank.SEVEN, Suit.CLUBS),
+            //             new(Rank.EIGHT, Suit.CLUBS),
+            //             new(Rank.NINE, Suit.CLUBS),
+            //             new(Rank.TEN, Suit.CLUBS)
+            //         };
+            //
+            //     var player2Cards = new Card[]
+            //     {
+            //         new(Rank.TWO, Suit.DIAMONDS),
+            //         new(Rank.THREE, Suit.DIAMONDS),
+            //         new(Rank.FOUR, Suit.DIAMONDS),
+            //         new(Rank.FIVE, Suit.DIAMONDS),
+            //         new(Rank.SIX, Suit.DIAMONDS),
+            //         new(Rank.SEVEN, Suit.DIAMONDS),
+            //         new(Rank.EIGHT, Suit.DIAMONDS),
+            //         new(Rank.NINE, Suit.DIAMONDS),
+            //         new(Rank.TEN, Suit.DIAMONDS),
+            //         new(Rank.JACK, Suit.DIAMONDS)
+            //     };
+            //
+            //     var discardCard = new Card(Rank.ACE, Suit.HEARTS);
+            //
+            //     var stockPile =
+            //         new Card[]
+            //         {
+            //             new(Rank.TWO, Suit.HEARTS),
+            //             new(Rank.THREE, Suit.HEARTS),
+            //             new(Rank.ACE, Suit.HEARTS)
+            //         };
+            //
+            //     var setup = CreateSut(player1Cards, player2Cards, discardCard, stockPile);
+            //     var currentInGameState = setup.CurrentInGameState;
+            //
+            //     var sut = setup.InGameController;
+            //
+            //     var laydownBook = new[]
+            //     {
+            //         new Card(Rank.ACE, Suit.CLUBS),
+            //         new Card(Rank.ACE, Suit.DIAMONDS),
+            //
+            //         new Card(Rank.ACE, Suit.HEARTS),
+            //     };
+            //     var takeResult =
+            //         sut.TakeFromDiscardPile(currentInGameState, currentInGameState.Table.Players.ElementAt(0));
+            //     currentInGameState = takeResult.NewInGameState;
+            //
+            //     var actual = sut.Laydown(currentInGameState, currentInGameState.Table.Players.ElementAt(0),
+            //         laydownBook);
+            //
+            //     actual.NewInGameState.Table.Laydowns.First().Should().Equal(laydownBook);
+            // }
 
             public class SpecificDeckBuilder
             {
-                public static Deck Build(IEnumerable<Card> player1Cards, IEnumerable<Card> player2Cards, Card discardCard, IEnumerable<Card> stockPile)
+                public static Deck Build(IEnumerable<Card> player1Cards, IEnumerable<Card> player2Cards,
+                    Card discardCard, IEnumerable<Card> stockPile)
                 {
                     var deck = new List<Card>();
 
@@ -943,14 +961,16 @@ namespace RummyGames.Test
                     sut = new InGameController(shuffler);
                     currentInGameState = sut.Deal(initialInGameState);
 
-                    var takeResult = sut.TakeFromDiscardPile(currentInGameState, currentInGameState.Table.Players.ElementAt(0));
+                    var takeResult = sut.TakeFromDiscardPile(currentInGameState,
+                        currentInGameState.Table.Players.ElementAt(0));
                     currentInGameState = takeResult.NewInGameState;
                 }
 
                 [Fact]
                 public void ReturnIsSuccessTrue()
                 {
-                    var actual = sut.Laydown(currentInGameState, currentInGameState.Table.Players.ElementAt(0), laydownSequence);
+                    var actual = sut.Laydown(currentInGameState, currentInGameState.Table.Players.ElementAt(0),
+                        laydownSequence);
 
                     actual.IsSuccess.Should().BeTrue();
                     actual.ErrorKey.Should().Be(ErrorKey.None);
@@ -959,7 +979,8 @@ namespace RummyGames.Test
                 [Fact]
                 public void AddSequenceToLaydowns()
                 {
-                    var actual = sut.Laydown(currentInGameState, currentInGameState.Table.Players.ElementAt(0), laydownSequence);
+                    var actual = sut.Laydown(currentInGameState, currentInGameState.Table.Players.ElementAt(0),
+                        laydownSequence);
 
                     actual.NewInGameState.Table.Laydowns.First().Should().Equal(laydownSequence);
                 }
@@ -967,21 +988,131 @@ namespace RummyGames.Test
                 [Fact]
                 public void RemoveCardsFromPlayer1ForSequence()
                 {
-                    var actual = sut.Laydown(currentInGameState, currentInGameState.Table.Players.ElementAt(0), laydownSequence);
+                    var actual = sut.Laydown(currentInGameState, currentInGameState.Table.Players.ElementAt(0),
+                        laydownSequence);
 
                     actual.NewInGameState.Table.Players.ElementAt(0).Hand.Contains(laydownSequence).Should().BeFalse();
                 }
             }
 
-            // DONE TODO Refactor to have tests for Sequence (common test setup for Sequence)
+            public class WhenValidBookPlayed
+            {
+                private readonly Player guest;
+                private readonly Player host;
 
-            // TODO Refactor to have tests for Book (common test setup for Book)
-            // TODO RemoveCardsFromPlayer1ForBook
-            // TODO RemoveCardsFromPlayer2ForSequence
-            // TODO RemoveCardsFromPlayer2ForBook
-            // TODO DoesNotAdvanceTurn
+                public WhenValidBookPlayed()
+                {
+                    host = new Player(Guid.NewGuid(), "Alice");
+                    guest = new Player(Guid.NewGuid(), "Bob");
+                }
 
-            // TODO Add EndTurn() and tests
+                private Deck BuildSpecificDeck(IEnumerable<Card> player1Cards, IEnumerable<Card> player2Cards,
+                    Card discardCard, IEnumerable<Card> stockPile)
+                {
+                    var deck = new List<Card>();
+
+                    for (int i = 0; i < player1Cards.Count(); i++)
+                    {
+                        deck.Add(player1Cards.ElementAt(i));
+                        deck.Add(player2Cards.ElementAt(i));
+                    }
+
+                    deck.Add(discardCard);
+
+                    foreach (var card in stockPile)
+                    {
+                        deck.Add(card);
+                    }
+
+                    return new Deck(deck);
+                }
+
+                private TestSetup CreateSut(IEnumerable<Card> player1Cards, IEnumerable<Card> player2Cards,
+                    Card discardCard, IEnumerable<Card> stockPile)
+                {
+                    var deck = BuildSpecificDeck(
+                        player1Cards,
+                        player2Cards,
+                        discardCard,
+                        stockPile
+                    );
+
+                    var shuffler = new FakeShuffler(deck.Cards);
+
+                    var initialInGameState = new InGameState(Guid.NewGuid(),
+                        new Table(new[] { host, guest }, deck, null),
+                        host.Id, null);
+
+                    var sut = new InGameController(shuffler);
+                    var currentInGameState = sut.Deal(initialInGameState);
+
+                    return new TestSetup(sut, currentInGameState);
+                }
+
+                [Fact]
+                public void AddBookToLaydowns()
+                {
+                    var player1Cards =
+                        new Card[]
+                        {
+                            new(Rank.ACE, Suit.CLUBS),
+                            new(Rank.ACE, Suit.DIAMONDS),
+                            new(Rank.ACE, Suit.HEARTS),
+                            new(Rank.FOUR, Suit.CLUBS),
+                            new(Rank.FIVE, Suit.CLUBS),
+                            new(Rank.SIX, Suit.CLUBS),
+                            new(Rank.SEVEN, Suit.CLUBS),
+                            new(Rank.EIGHT, Suit.CLUBS),
+                            new(Rank.NINE, Suit.CLUBS),
+                            new(Rank.TEN, Suit.CLUBS)
+                        };
+
+                    var player2Cards = new Card[]
+                    {
+                        new(Rank.TWO, Suit.DIAMONDS),
+                        new(Rank.THREE, Suit.DIAMONDS),
+                        new(Rank.FOUR, Suit.DIAMONDS),
+                        new(Rank.FIVE, Suit.DIAMONDS),
+                        new(Rank.SIX, Suit.DIAMONDS),
+                        new(Rank.SEVEN, Suit.DIAMONDS),
+                        new(Rank.EIGHT, Suit.DIAMONDS),
+                        new(Rank.NINE, Suit.DIAMONDS),
+                        new(Rank.TEN, Suit.DIAMONDS),
+                        new(Rank.JACK, Suit.DIAMONDS)
+                    };
+
+                    var discardCard = new Card(Rank.ACE, Suit.HEARTS);
+
+                    var stockPile =
+                        new Card[]
+                        {
+                            new(Rank.TWO, Suit.HEARTS),
+                            new(Rank.THREE, Suit.HEARTS),
+                            new(Rank.ACE, Suit.HEARTS)
+                        };
+
+                    var setup = CreateSut(player1Cards, player2Cards, discardCard, stockPile);
+                    var currentInGameState = setup.CurrentInGameState;
+
+                    var sut = setup.InGameController;
+
+                    var laydownBook = new[]
+                    {
+                        new Card(Rank.ACE, Suit.CLUBS),
+                        new Card(Rank.ACE, Suit.DIAMONDS),
+
+                        new Card(Rank.ACE, Suit.HEARTS),
+                    };
+                    var takeResult =
+                        sut.TakeFromDiscardPile(currentInGameState, currentInGameState.Table.Players.ElementAt(0));
+                    currentInGameState = takeResult.NewInGameState;
+
+                    var actual = sut.Laydown(currentInGameState, currentInGameState.Table.Players.ElementAt(0),
+                        laydownBook);
+
+                    actual.NewInGameState.Table.Laydowns.First().Should().Equal(laydownBook);
+                }
+            }
         }
     }
 }

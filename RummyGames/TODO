@@ -26,7 +26,14 @@ Create Rummy Game:
         ✔ Add to CLI @done(22-02-06 11:00)
         ✔ Cannot Discard Card just taken from the Discard Pile @started(22-02-06 11:00) @done(22-02-06 17:36) @lasted(6h36m29s)    
     ☐ Implement Laydown
-        ☐ Add LayeddownMeld
+        ☐ Add LayeddownMeld 
+            ✔ Refactor to have tests for Book in seperate nested class @done(22-07-24 20:23)
+            ☐ Refactor - remove duplication of things like BuildDPscifiDeck
+            ☐ RemoveCardsFromPlayer1ForBook
+            ☐ RemoveCardsFromPlayer2ForSequence
+            ☐ RemoveCardsFromPlayer2ForBook
+            ☐ DoesNotAdvanceTurn
+            ☐ Add EndTurn() and tests
         ☐ Add RoundWon
         ☐ Add to CLI
     ☐ Implement Layoff
